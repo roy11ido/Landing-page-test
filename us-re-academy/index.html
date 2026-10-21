@@ -275,6 +275,13 @@ td.n, th.n { text-align: left; direction: ltr; font-family: var(--font-display);
 .example-tag { font-size: 12px; font-weight: 700; color: var(--yellow); }
 textarea.field-in { resize: vertical; }
 
+.tri { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tri div { border-radius: 16px; padding: 12px 10px; display: grid; gap: 4px; min-width: 0; }
+.tri div.ok { background: var(--green-soft); color: var(--green); }
+.tri div.no { background: var(--red-soft); color: var(--red); }
+.tri .tq { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+.tri b { font-family: var(--font-display); font-size: 1.15rem; }
+.tri .tiny { color: var(--ink); opacity: .75; overflow-wrap: anywhere; }
 @media (min-width: 640px) {
   .calc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -378,7 +385,9 @@ const MODULES = [
       ["Down Payment", "המקדמה, החלק שאתה משלם מהכיס. לזרים לרוב 25%–35%.", "נכס ב-250,000$ עם 25% = 62,500$"],
       ["LTV (Loan-to-Value)", "אחוז ההלוואה מתוך שווי הנכס. ההפך של המקדמה.", "75% LTV = הבנק מממן 187,500$"],
       ["DSCR Loan", "הלוואה שהבנק נותן לפי הכנסות הנכס ולא לפי המשכורת שלך. זה המסלול המרכזי לזרים.", "—"],
-      ["DSCR (יחס כיסוי חוב)", "הכנסה תפעולית נטו חלקי תשלום המשכנתא. הבנקים רוצים לפחות 1.0–1.25.", "NOI של 1,500$ בחודש ומשכנתא של 1,200$ = 1.25"],
+      ["DSCR (יחס כיסוי חוב)", "יש שתי הגדרות. מסחרית (5+ יחידות): NOI ÷ החזר חוב, רף 1.20–1.25. בהלוואת DSCR למגורים (1–4 יחידות, כולל לזרים): שכירות ברוטו ÷ PITIA, רף לרוב 1.0.", "NOI של 1,500$ בחודש ומשכנתא של 1,200$ = 1.25"],
+      ["PITIA", "קרן + ריבית + מס נכס + ביטוח + ועד (HOA). הבסיס ל-DSCR של הבנק בנכסי 1–4 יחידות. אישור הלוואה הוא לא אישור שהעסקה טובה.", "שכירות 4,400$ ÷ PITIA 1,947$ = 2.26"],
+      ["Loan Constant (קבוע הלוואה)", "החזר משכנתא שנתי ÷ סכום ההלוואה. אם ה-Cap Rate גבוה ממנו — מינוף חיובי שמעלה את ה-CoC.", "30 שנה ב-7.5% ≈ 8.4%"],
       ["Interest Rate", "הריבית השנתית. לזרים לרוב גבוהה ב-1%–2% מאשר לאזרחים (לא בטוח, נאמת מול ברוקרים).", "—"],
       ["Points", "עמלה מראש לבנק. נקודה אחת = 1% מסכום ההלוואה.", "2 נקודות על 187,500$ = 3,750$"],
       ["Prepayment Penalty", "קנס על פירעון מוקדם, נפוץ בהלוואות DSCR, לרוב ל-3–5 שנים. חשוב אם תרצה למכור או למחזר מוקדם.", "—"],
@@ -412,6 +421,8 @@ const MODULES = [
     { q: "Hard Money Loan מתאימה ל:", o: ["החזקה ל-30 שנה", "קנייה ושיפוץ קצרי טווח (פליפ / BRRRR)", "קניית Condo", "מימון מס נכס"], a: 1, x: "ריבית של 10%–14%, קצרה ויקרה." },
     { q: "Cash to Close כולל:", o: ["רק את המקדמה", "מקדמה, עלויות סגירה ונקודות", "רק עלויות סגירה", "את המשכנתא כולה"], a: 1, x: "רזרבות הן כסף שנשאר בחשבון בנוסף." },
     { q: "ITIN הוא:", o: ["מספר מזהה מס של LLC", "מספר מזהה מס אישי לזר", "סוג הלוואה", "רישיון מתווך"], a: 1, x: "EIN = של החברה. ITIN = אישי." },
+    { q: "מה LTV מקסימלי נפוץ לזר בהלוואת DSCR?", o: ["50%", "75%", "90%", "100%"], a: 1, x: "כלומר מקדמה מינימלית של 25%." },
+    { q: "בהלוואת DSCR לנכס של 1–4 יחידות, הבנק מחשב לרוב:", o: ["NOI ÷ החזר המשכנתא", "שכירות ברוטו ÷ PITIA", "מחיר ÷ שכירות", "הכנסה בישראל ÷ משכנתא"], a: 1, x: "רף נפוץ 1.0. אישור הלוואה הוא לא אישור שהעסקה טובה." },
     { q: "למה סיכון מט״ח רלוונטי לך?", o: ["כי הבנק האמריקאי גובה בשקלים", "כי ההון בשקלים והנכס בדולרים, ושינוי בשער משנה את התשואה בשקלים", "כי אסור להעביר דולרים", "הוא לא רלוונטי"], a: 1, x: "" }
   ]
 },
@@ -485,8 +496,8 @@ const MODULES = [
       ["EGI", "ההכנסה בפועל אחרי ניכוי דירות ריקות."],
       ["OpEx", "כל הוצאות ההחזקה בלי המשכנתא: מס, ביטוח, ניהול, תחזוקה, CapEx, utilities."],
       ["CapEx", "הפרשה לתיקונים גדולים: גג, דוד, מזגן, חלונות. לא הוצאה חודשית, אבל אם לא מפרישים היא נופלת בבת אחת."],
-      ["NOI", "הרווח של הנכס עצמו, לפני משכנתא. המדד הכי חשוב."],
-      ["Cap Rate", "NOI שנתי חלקי מחיר. תשואת הנכס כאילו קנית במזומן. משווה בין נכסים בלי קשר למימון."],
+      ["NOI", "הרווח של הנכס עצמו, לפני משכנתא. המדד הכי חשוב. NOI בדף מכירה של מתווך לרוב לא כולל CapEx — תמיד מחשבים מחדש."],
+      ["Cap Rate", "NOI שנתי חלקי מחיר. תשואת הנכס כאילו קנית במזומן. קובע שווי רק בנדל״ן מסחרי (5+ יחידות). ב-1–4 יחידות השווי נקבע לפי Comps."],
       ["Debt Service", "תשלומי המשכנתא (קרן + ריבית)."],
       ["Cash Flow", "מה שנכנס לכיס שלך בכל חודש."],
       ["Cash-on-Cash (CoC)", "תזרים שנתי חלקי כל המזומן שהשקעת. כמה ריבית ההון שלך מקבל."],
@@ -497,7 +508,8 @@ const MODULES = [
       ["ARV", "השווי אחרי שיפוץ."],
       ["Rehab Budget", "תקציב השיפוץ, תמיד עם 10%–15% בלת״מ."],
       ["Rule of 50%", "כלל אצבע: הוצאות התפעול הן בערך 40%–50% מההכנסה ברוטו. אם יצא לך 25%, כנראה שכחת משהו."],
-      ["Rule of 70%", "לפליפ: מחיר קנייה מקסימלי = ARV × 70% פחות עלות השיפוץ."],
+      ["Rule of 70% / MAO", "לפליפ: הצעה מקסימלית = ARV × 70% פחות עלות השיפוץ. לא מתאים לכל שוק: באוהיו בנכסים זולים לעיתים 65%, בשווקים יקרים 75%–80%. אצל Wholesaler מורידים גם את עמלת ה-Assignment."],
+      ["Rule of 1%", "סינון מהיר: שכירות חודשית ≥ 1% × (מחיר רכישה + שיפוץ). במערב התיכון מחפשים לעיתים 1.2%–1.5%."],
       ["Stress Test", "בדיקה מה קורה לתזרים כשדברים משתבשים."]
     ]},
     { type: "formulas", title: "נוסחאות", items: ["NOI = EGI − OpEx", "Cap Rate = NOI(annual) / Price", "CoC = Cash Flow(annual) / Total Cash Invested", "DSCR = NOI / Debt Service"] },
@@ -529,6 +541,9 @@ const MODULES = [
     { q: "עסקה שהופכת לשלילית בתרחיש ה-stress:", o: ["קונים אם ה-Cap Rate גבוה", "לא קונים", "קונים עם מקדמה גדולה יותר בלי לבדוק", "קונים ומקווים לעליית ערך"], a: 1, x: "" },
     { q: "Appreciation בניתוח עסקה היא:", o: ["הבסיס להחלטה", "בונוס, לא בסיס", "חובה לחשב 5% בשנה", "חלק מה-NOI"], a: 1, x: "" },
     { q: "תקציב שיפוץ תמיד כולל:", o: ["בלת״מ של 10%–15%", "רווח של 50%", "את מס הנכס", "את ה-Points"], a: 0, x: "" },
+    { q: "בבניין של 4 יחידות, מה קובע את השווי בשמאות?", o: ["Cap Rate", "Comps — עסקאות השוואה", "DSCR", "המחיר במודעה"], a: 1, x: "Cap Rate קובע שווי רק מ-5 יחידות ומעלה." },
+    { q: "Cap Rate של 6% וקבוע הלוואה של 8.4%. מה המשמעות?", o: ["מינוף חיובי", "מינוף שלילי — ההלוואה מורידה את ה-CoC", "אין קשר", "הבנק לא יאשר"], a: 1, x: "כשה-Cap Rate נמוך מקבוע ההלוואה, כל דולר מושאל מוריד את התשואה על ההון." },
+    { q: "NOI שמופיע בדף מכירה של מתווך:", o: ["תמיד מדויק", "לרוב לא כולל CapEx ונראה גבוה מדי", "כולל משכנתא", "מחושב על ידי הבנק"], a: 1, x: "תמיד מחשבים NOI מחדש." },
     { q: "Market Rent לעומת השכירות הנוכחית בנכס:", o: ["תמיד זהות", "לא תמיד שוות, ובודקים אותה עם Rentometer ו-comps", "Market Rent תמיד נמוכה", "לא רלוונטי"], a: 1, x: "" }
   ]
 },
@@ -849,8 +864,8 @@ const CALCS = [
     f: "CoC = תזרים חודשי × 12 ÷ הון שהושקע", help: "כמה ריבית מקבל הכסף שלך. היעד ב-Buy Box: 10% ומעלה.",
     run: v => { const a = v.cf * 12, r = a / v.cash * 100; return { main: ["תשואה שנתית", r, "pct"], light: lv(r, 10, 6), rows: [["תזרים שנתי", a, "usd"]] }; } },
   { id: "cap", cat: "yield", name: "Cap Rate", sub: "תשואת הנכס בלי מימון",
-    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
-    f: "Cap Rate = NOI × 12 ÷ מחיר", help: "משווה בין נכסים בלי קשר למימון. כאילו קנית במזומן.",
+    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)], warnNoi: true,
+    f: "Cap Rate = NOI × 12 ÷ מחיר", help: "משווה בין נכסים בלי קשר למימון, כאילו קנית במזומן. חשוב: Cap Rate קובע שווי רק בנדל״ן מסחרי (5 יחידות ומעלה). בנכס של 1–4 יחידות השווי נקבע לפי Comps.",
     run: v => { const r = v.noi * 12 / v.price * 100; return { main: ["Cap Rate", r, "pct"], light: lv(r, 8, 6), rows: [["NOI שנתי", v.noi * 12, "usd"]] }; } },
   { id: "gross", cat: "yield", name: "תשואה ברוטו", sub: "ו-GRM",
     inputs: [I("rent", "שכירות חודשית (כל היחידות)", 4400, 0, 30000, 25), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
@@ -868,10 +883,10 @@ const CALCS = [
       return { main: ["IRR שנתי", r, "pct"], light: lv(r, 15, 10), rows: [["תזרים מצטבר", cfSum, "usd"], ["פירעון קרן", loan - bal, "usd"], ["עליית ערך", value - v.price, "usd"], ["נטו ממכירה", saleNet, "usd"], ["רווח כולל", cfSum + saleNet - v.cash, "usd"], ["מכפיל הון", (cfSum + saleNet) / v.cash, "x"]] };
     } },
   /* --- income --- */
-  { id: "r2p", cat: "income", name: "Rent-to-Price", sub: "כלל ה-1%",
-    inputs: [I("rent", "שכירות חודשית (כל היחידות)", 4400, 0, 30000, 25), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
-    f: "שכירות חודשית ÷ מחיר", help: "סינון ראשוני של 5 דקות. 0.8% ומעלה = ממשיכים לניתוח. 1% = מצוין.",
-    run: v => { const r = v.rent / v.price * 100; return { main: ["Rent-to-Price", r, "pct2"], light: lv(r, 1, 0.8), rows: [["שכירות שנדרשת ל-1%", v.price / 100, "usd"], ["שכירות שנדרשת ל-0.8%", v.price * 0.008, "usd"]] }; } },
+  { id: "r2p", cat: "income", name: "כלל ה-1%", sub: "Rent-to-Price כולל שיפוץ",
+    inputs: [I("rent", "שכירות חודשית (כל היחידות)", 4400, 0, 30000, 25), I("price", "מחיר רכישה", 260000, 30000, 2000000, 1000), I("rehab", "שיפוץ", 0, 0, 300000, 500)],
+    f: "שכירות חודשית ÷ (מחיר רכישה + שיפוץ) ≥ 1%", help: "סינון ראשוני, לא החלטה. 0.8% ומעלה = ממשיכים לניתוח. במערב התיכון משקיעים שמכוונים לתזרים מחפשים לעיתים 1.2%–1.5%.",
+    run: v => { const base = v.price + v.rehab, r = v.rent / base * 100; return { main: ["Rent-to-Price", r, "pct2"], light: lv(r, 1, 0.8), rows: [["עלות כוללת", base, "usd"], ["שכירות שנדרשת ל-1%", base / 100, "usd"], ["שכירות שנדרשת ל-1.2%", base * 0.012, "usd"]] }; } },
   { id: "egi", cat: "income", name: "הכנסה אפקטיבית", sub: "EGI אחרי דירות ריקות",
     inputs: [I("units", "יחידות", 4, 1, 50, 1, "יח׳"), I("rent", "שכירות ליחידה", 1100, 0, 5000, 25), I("vac", "Vacancy", 6, 0, 30, 0.5, "%"), I("other", "הכנסה נוספת (כביסה, חנייה)", 0, 0, 2000, 10)],
     f: "EGI = שכירות ברוטו − Vacancy + הכנסות נוספות", help: "מחשבים 5%–8% Vacancy גם אם הבניין מלא היום.",
@@ -884,7 +899,7 @@ const CALCS = [
   { id: "noi", cat: "expense", name: "NOI", sub: "רווח תפעולי נקי",
     inputs: [I("gross", "שכירות ברוטו חודשית", 4400, 0, 30000, 25), I("vac", "Vacancy", 6, 0, 30, 0.5, "%"), I("tax", "מס נכס חודשי", 433, 0, 5000, 5), I("ins", "ביטוח חודשי", 150, 0, 2000, 5),
       I("mgmt", "ניהול (% מ-EGI)", 9, 0, 15, 0.5, "%"), I("maint", "תחזוקה (% מברוטו)", 8, 0, 15, 0.5, "%"), I("capex", "CapEx (% מברוטו)", 8, 0, 15, 0.5, "%"), I("util", "Utilities על הבעלים", 200, 0, 2000, 10), I("other", "השמת דיירים ושונות", 50, 0, 1000, 10)],
-    f: "NOI = EGI − הוצאות תפעול (בלי משכנתא)", help: "המדד הכי חשוב. מכאן מחשבים Cap Rate ו-DSCR.",
+    f: "NOI = EGI − הוצאות תפעול (בלי משכנתא)", help: "המדד הכי חשוב. מכאן מחשבים Cap Rate ו-DSCR. אזהרה: NOI בדף מכירה של מתווך לרוב לא כולל CapEx ונראה גבוה יותר. תמיד חשב מחדש כאן.",
     run: v => { const egi = v.gross * (1 - v.vac / 100), op = v.tax + v.ins + egi * v.mgmt / 100 + v.gross * (v.maint + v.capex) / 100 + v.util + v.other, n = egi - op, ratio = op / v.gross * 100;
       return { main: ["NOI חודשי", n, "usd"], light: ratio >= 35 && ratio <= 55 ? "good" : "mid", lightText: `הוצאות ${Math.round(ratio)}% מהברוטו`, rows: [["EGI", egi, "usd"], ["סך הוצאות", -op, "usd"], ["NOI שנתי", n * 12, "usd"]] }; } },
   { id: "r50", cat: "expense", name: "בדיקת כלל ה-50%", sub: "האם שכחת הוצאה?",
@@ -904,10 +919,18 @@ const CALCS = [
     inputs: [I("price", "מחיר", 260000, 30000, 2000000, 1000), I("down", "מקדמה", 25, 0, 100, 1, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("years", "תקופה", 30, 5, 40, 5, "שנים")],
     f: "PMT = L × r ÷ (1 − (1+r)^−n)", help: "לזרים הריבית לרוב גבוהה ב-1%–2%. לאמת מול 3 ברוקרים.",
     run: v => { const L = v.price * (1 - v.down / 100), p = pmt(L, v.rate, v.years); return { main: ["תשלום חודשי", p, "usd"], light: null, rows: [["הלוואה", L, "usd"], ["מקדמה", v.price - L, "usd"], ["סך ריבית לאורך התקופה", p * v.years * 12 - L, "usd"]] }; } },
-  { id: "dscr", cat: "finance", name: "DSCR", sub: "יחס כיסוי חוב",
-    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("debt", "משכנתא חודשית", 1364, 1, 20000, 10)],
-    f: "DSCR = NOI ÷ משכנתא", help: "הבנקים רוצים 1.25 לפחות. מתחת ל-1.0 הנכס לא מכסה את ההלוואה.",
+  { id: "dscrL", cat: "finance", name: "DSCR של הבנק", sub: "הבנק יאשר? (1–4 יחידות)",
+    inputs: [I("rent", "שכירות ברוטו חודשית", 4400, 0, 30000, 25), I("pi", "קרן + ריבית חודשי", 1364, 1, 20000, 10), I("tax", "מס נכס חודשי", 433, 0, 5000, 5), I("ins", "ביטוח חודשי", 150, 0, 2000, 5), I("hoa", "ועד (HOA) חודשי", 0, 0, 2000, 10)],
+    f: "DSCR בנק = שכירות ברוטו ÷ PITIA", help: "PITIA = קרן + ריבית + מס + ביטוח + ועד. זו הנוסחה בהלוואות DSCR למגורים (1–4 יחידות), כולל לזרים. רף נפוץ: 1.0. אישור הלוואה הוא לא אישור שהעסקה טובה — בדוק גם DSCR על NOI.",
+    run: v => { const p = v.pi + v.tax + v.ins + v.hoa, r = v.rent / p; return { main: ["DSCR בנק", r, "x"], light: lv(r, 1.2, 1), lightText: r >= 1 ? "הבנק יאשר" : "הבנק יסרב", rows: [["PITIA", p, "usd"], ["שכירות מינימלית ל-1.0", p, "usd"]] }; } },
+  { id: "dscr", cat: "finance", name: "DSCR על NOI", sub: "העסקה טובה?",
+    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("debt", "משכנתא חודשית", 1364, 1, 20000, 10)], warnNoi: true,
+    f: "DSCR = NOI ÷ החזר משכנתא", help: "הגדרה מסחרית (5+ יחידות), רף 1.20–1.25. משמשת כאן כבדיקת איכות העסקה: האם הנכס מכסה את החוב אחרי כל ההוצאות.",
     run: v => { const r = v.noi / v.debt; return { main: ["DSCR", r, "x"], light: lv(r, 1.25, 1), rows: [["NOI מינימלי ל-1.25", v.debt * 1.25, "usd"], ["משכנתא מקסימלית ל-1.25", v.noi / 1.25, "usd"]] }; } },
+  { id: "lc", cat: "finance", name: "קבוע הלוואה", sub: "מינוף חיובי או שלילי",
+    inputs: [I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("years", "תקופה", 30, 5, 40, 5, "שנים"), I("cap", "Cap Rate של הנכס", 10.3, 0, 20, 0.1, "%")],
+    f: "קבוע הלוואה = החזר שנתי ÷ סכום ההלוואה", help: "אם ה-Cap Rate גבוה מקבוע ההלוואה, המינוף מעלה את התשואה על ההון (חיובי). אם נמוך, ההלוואה מורידה אותה (שלילי). 30 שנה ב-6.5% ≈ 7.6%, ב-7.5% ≈ 8.4%.",
+    run: v => { const k = pmt(1, v.rate, v.years) * 12 * 100, d = v.cap - k; return { main: ["קבוע הלוואה", k, "pct2"], light: d > 0.5 ? "good" : d >= 0 ? "mid" : "bad", lightText: d >= 0 ? "מינוף חיובי" : "מינוף שלילי", rows: [["Cap Rate פחות קבוע", d, "pct2"]] }; } },
   { id: "ctc", cat: "finance", name: "Cash to Close", sub: "כמה כסף ביום הסגירה",
     inputs: [I("price", "מחיר", 250000, 30000, 2000000, 1000), I("down", "מקדמה", 25, 0, 100, 1, "%"), I("points", "נקודות", 1, 0, 4, 0.25, "%"), I("closing", "עלויות סגירה", 3, 0, 8, 0.5, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("taxIns", "מס + ביטוח חודשי", 550, 0, 5000, 10), I("res", "רזרבות", 6, 0, 12, 1, "חודשים")],
     f: "מקדמה + נקודות + סגירה (+ רזרבות)", help: "רזרבות = כסף שהבנק דורש שיישאר בחשבון אחרי הסגירה.",
@@ -921,18 +944,20 @@ const CALCS = [
   /* --- value --- */
   { id: "arv", cat: "value", name: "ARV משוער", sub: "שווי אחרי שיפוץ מ-3 comps",
     inputs: [I("sqft", "שטח הנכס שלך", 1400, 300, 6000, 10, "sqft"), I("p1", "Comp 1 — מחיר", 210000, 0, 1500000, 1000), I("s1", "Comp 1 — שטח", 1300, 300, 6000, 10, "sqft"), I("p2", "Comp 2 — מחיר", 235000, 0, 1500000, 1000), I("s2", "Comp 2 — שטח", 1500, 300, 6000, 10, "sqft"), I("p3", "Comp 3 — מחיר", 199000, 0, 1500000, 1000), I("s3", "Comp 3 — שטח", 1250, 300, 6000, 10, "sqft")],
-    f: "ARV = ממוצע $/sqft של ה-comps × השטח שלך", help: "Comps = נכסים משופצים דומים שנמכרו ב-6 החודשים האחרונים, קרוב לנכס. 1 sqft ≈ 0.093 מ״ר.",
+    f: "ARV = ממוצע $/sqft של ה-comps × השטח שלך", help: "Comps = נכסים משופצים דומים שנמכרו לאחרונה. בעיר: 3–6 חודשים אחרונים, ברדיוס של עד חצי מייל. בפרברים ובאזורים כפריים הטווח רחב יותר כי יש פחות עסקאות. 1 sqft ≈ 0.093 מ״ר.",
     run: v => { const a = [v.p1 / v.s1, v.p2 / v.s2, v.p3 / v.s3].filter(isFinite), avg = a.reduce((x, y) => x + y, 0) / a.length;
       return { main: ["ARV משוער", avg * v.sqft, "usd"], light: null, rows: [["ממוצע $/sqft", avg, "usd"], ["טווח נמוך", Math.min(...a) * v.sqft, "usd"], ["טווח גבוה", Math.max(...a) * v.sqft, "usd"]] }; } },
-  { id: "r70", cat: "value", name: "כלל ה-70%", sub: "מחיר קנייה מקסימלי לפליפ",
-    inputs: [I("arv", "ARV", 230000, 20000, 2000000, 1000), I("rehab", "עלות שיפוץ", 60000, 0, 500000, 500)],
-    f: "מקסימום = ARV × 70% − שיפוץ", help: "30% שנשארים מכסים עלויות קנייה, החזקה, מכירה ורווח.",
-    run: v => ({ main: ["הצעה מקסימלית", v.arv * 0.7 - v.rehab, "usd"], light: null, rows: [["ARV × 70%", v.arv * 0.7, "usd"]] }) },
-  { id: "brrrr", cat: "value", name: "BRRRR", sub: "כמה הון נשאר בעסקה",
-    inputs: [I("buy", "מחיר קנייה", 150000, 20000, 1500000, 1000), I("rehab", "שיפוץ", 40000, 0, 500000, 500), I("costs", "סגירה + החזקה", 8000, 0, 100000, 250), I("arv", "ARV", 240000, 20000, 2000000, 1000), I("ltv", "LTV במחזור", 70, 50, 80, 1, "%")],
-    f: "הון שנשאר = עלות כוללת − הלוואת המחזור", help: "מחזור אפשרי רק אחרי seasoning (לרוב 6–12 חודשים). 0$ שנשאר = כל ההון חזר.",
-    run: v => { const t = v.buy + v.rehab + v.costs, L = v.arv * v.ltv / 100, left = t - L;
-      return { main: ["הון שנשאר בעסקה", left, "usd"], light: lvLow(left / t * 100, 10, 25), lightText: left <= 0 ? "כל ההון חזר" : `${Math.round(left / t * 100)}% מהעלות`, rows: [["עלות כוללת", t, "usd"], ["הלוואה חדשה", L, "usd"], ["% מההון שחזר", Math.min(100, L / t * 100), "pct"]] }; } },
+  { id: "r70", cat: "value", name: "MAO / כלל ה-70%", sub: "הצעה מקסימלית לפליפ",
+    inputs: [I("arv", "ARV", 200000, 20000, 2000000, 1000), I("rehab", "עלות שיפוץ", 30000, 0, 500000, 500), I("pct", "אחוז מה-ARV", 70, 55, 85, 1, "%"), I("fee", "עמלת Wholesaler (Assignment)", 0, 0, 50000, 250)],
+    f: "MAO = ARV × אחוז − שיפוץ − עמלת Wholesaler", help: "70% לא מתאים לכל שוק. באוהיו, בנכסים של 100–150 אלף, העלויות הקבועות הן אחוז גבוה יותר ופליפרים עובדים לעיתים עם 65%. בשווקים יקרים 75%–80%. לבדוק מול משקיעים מקומיים.",
+    run: v => { const mao = v.arv * v.pct / 100 - v.rehab - v.fee; return { main: ["MAO — הצעה מקסימלית", mao, "usd"], light: mao > 0 ? null : "bad", rows: [[`ARV × ${v.pct}%`, v.arv * v.pct / 100, "usd"], ["מחיר החוזה המקסימלי מול המוכר", v.arv * v.pct / 100 - v.rehab, "usd"]] }; } },
+  { id: "brrrr", cat: "value", name: "BRRRR", sub: "הון שנשאר + תזרים אחרי מחזור",
+    inputs: [I("buy", "מחיר קנייה", 150000, 20000, 1500000, 1000), I("rehab", "שיפוץ", 40000, 0, 500000, 500), I("costs", "סגירה + החזקה", 8000, 0, 100000, 250), I("hm", "הלוואה ראשונית (Hard Money)", 120000, 0, 1500000, 1000),
+      I("arv", "שווי שמאי (ARV)", 240000, 20000, 2000000, 1000), I("ltv", "LTV במחזור", 70, 50, 80, 1, "%"), I("refi", "עלויות מחזור (% מההלוואה)", 2, 0, 6, 0.25, "%"), I("rate", "ריבית במחזור", 7.5, 0, 15, 0.125, "%"), I("rent", "שכירות ברוטו חודשית", 2400, 0, 20000, 25), I("op", "הוצאות תפעול (% מברוטו)", 45, 20, 70, 1, "%")],
+    f: "הון שנשאר = הון שהושקע − (הלוואה חדשה − פירעון ההלוואה הקודמת − עלויות מחזור)", help: "הלוואה חדשה = שווי שמאי × LTV (לרוב 70%–75%). 0$ שנשאר = ״Infinite Return״. בודקים תזרים אחרי המחזור: ההלוואה החדשה גדולה יותר, ולכן גם ההחזר. מחזור שהחזיר את כל ההון אבל השאיר תזרים שלילי הוא לא הצלחה.",
+    run: v => { const invested = v.buy + v.rehab + v.costs - v.hm, L = v.arv * v.ltv / 100, rc = L * v.refi / 100, out = L - v.hm - rc, left = invested - out, p = pmt(L, v.rate, 30), cf = v.rent * (1 - v.op / 100) - p, base = v.buy + v.rehab + v.costs;
+      return { main: ["הון שנשאר בעסקה", left, "usd"], light: cf < 0 ? "bad" : lvLow(left / base * 100, 10, 25), lightText: cf < 0 ? "תזרים שלילי אחרי מחזור" : left <= 0 ? "כל ההון חזר" : `${Math.round(left / base * 100)}% מהעלות`,
+        rows: [["הון שהושקע מהכיס", invested, "usd"], ["הלוואה חדשה", L, "usd"], ["מזומן שיוצא במחזור", out, "usd"], ["משכנתא חדשה חודשית", p, "usd"], ["תזרים חודשי אחרי מחזור", cf, "usd"]] }; } },
   { id: "rehab", cat: "value", name: "מעריך שיפוץ", sub: "פריט אחרי פריט + בלת״מ", custom: true },
   /* --- tax --- */
   { id: "ptax", cat: "tax", name: "מס נכס", sub: "Property Tax",
@@ -967,7 +992,7 @@ const CALCS = [
 
 const DEAL_IN = {
   basic: [I("price", "מחיר", 260000, 50000, 1000000, 5000), I("units", "יחידות", 4, 1, 8, 1, "יח׳"), I("rent", "שכירות ליחידה", 1100, 300, 4000, 25)],
-  exp: [I("vac", "Vacancy", 6, 0, 20, 0.5, "%"), I("taxPct", "מס נכס שנתי (% מהמחיר)", 2, 0.5, 4, 0.1, "%"), I("ins", "ביטוח חודשי", 150, 0, 1000, 10), I("mgmt", "ניהול (% מ-EGI)", 9, 0, 15, 0.5, "%"), I("maint", "תחזוקה (% מברוטו)", 8, 0, 15, 0.5, "%"), I("capex", "CapEx (% מברוטו)", 8, 0, 15, 0.5, "%"), I("util", "Utilities על הבעלים", 200, 0, 1000, 10), I("leasing", "השמת דיירים חודשי", 50, 0, 300, 10)],
+  exp: [I("vac", "Vacancy", 6, 0, 20, 0.5, "%"), I("taxPct", "מס נכס שנתי (% מהמחיר)", 2, 0.5, 4, 0.1, "%"), I("ins", "ביטוח חודשי", 150, 0, 1000, 10), I("mgmt", "ניהול (% מ-EGI)", 9, 0, 15, 0.5, "%"), I("maint", "תחזוקה (% מברוטו)", 8, 0, 15, 0.5, "%"), I("capex", "CapEx (% מברוטו)", 8, 0, 15, 0.5, "%"), I("util", "Utilities על הבעלים", 200, 0, 1000, 10), I("leasing", "השמת דיירים חודשי", 50, 0, 300, 10), I("hoa", "ועד (HOA) חודשי", 0, 0, 1000, 10)],
   fin: [I("down", "מקדמה", 25, 15, 100, 1, "%"), I("rate", "ריבית", 7.5, 3, 14, 0.125, "%"), I("years", "תקופה", 30, 10, 40, 5, "שנים"), I("points", "נקודות", 1, 0, 4, 0.25, "%"), I("closing", "עלויות סגירה", 3, 0, 8, 0.5, "%"), I("repairs", "תיקונים ראשוניים", 5000, 0, 100000, 500)],
   stress: [I("sVac", "Vacancy בקיצון", 12, 0, 30, 1, "%"), I("sRate", "ריבית בקיצון", 8.5, 3, 16, 0.125, "%")]
 };
@@ -977,13 +1002,14 @@ function calcDeal(v) {
   const one = (vac, rate) => {
     const gross = v.units * v.rent, vacancy = gross * vac / 100, egi = gross - vacancy;
     const tax = v.price * v.taxPct / 100 / 12, ins = v.ins, mgmt = egi * v.mgmt / 100, maint = gross * v.maint / 100, capex = gross * v.capex / 100;
-    const util = v.util, leasing = v.leasing, opex = tax + ins + mgmt + maint + capex + util + leasing, noi = egi - opex;
+    const util = v.util, leasing = v.leasing, hoa = v.hoa || 0, opex = tax + ins + mgmt + maint + capex + util + leasing + hoa, noi = egi - opex;
     const loan = v.price * (1 - v.down / 100), debt = pmt(loan, rate, v.years), cf = noi - debt;
-    return { gross, vacancy, egi, tax, ins, mgmt, maint, capex, util, leasing, opex, noi, loan, debt, cf };
+    return { gross, vacancy, egi, tax, ins, mgmt, maint, capex, util, leasing, hoa, opex, noi, loan, debt, cf };
   };
   const b = one(v.vac, v.rate), s = one(v.sVac, v.sRate);
   const cash = v.price * v.down / 100 + v.price * v.closing / 100 + b.loan * v.points / 100 + v.repairs;
-  return Object.assign(b, { s, cash, cap: b.noi * 12 / v.price * 100, coc: b.cf * 12 / cash * 100, dscr: b.noi / b.debt, expRatio: b.opex / b.gross * 100 });
+  const pitia = b.debt + b.tax + b.ins + b.hoa, lc = pmt(1, v.rate, v.years) * 12 * 100;
+  return Object.assign(b, { s, cash, cap: b.noi * 12 / v.price * 100, coc: b.cf * 12 / cash * 100, dscr: b.noi / b.debt, expRatio: b.opex / b.gross * 100, pitia, bankDscr: b.gross / pitia, lc });
 }
 
 /* ===================== STATE ===================== */
@@ -1251,6 +1277,7 @@ function viewCalc(c) {
   const v = calcVals(c.id, c.inputs);
   return `<section class="stack" style="gap:6px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h1>${c.name}</h1><button class="icon-btn" id="helpBtn" aria-expanded="false" aria-label="הסבר">?</button></div><span class="muted">${c.sub}</span></section>
   <div class="help" id="help" hidden><div class="formula">${esc(c.f)}</div><span>${esc(c.help)}</span></div>
+  ${c.warnNoi ? `<div class="warnline row" style="justify-content:space-between">NOI ממודעה של מתווך לרוב לא כולל CapEx. <button class="btn sm dark" data-go="c-noi">חשב NOI אמיתי</button></div>` : ""}
   <div id="res">${resultHTML(c, v)}</div>
   <section class="inps">${c.inputs.map(d => inp(d, v[d.k])).join("")}</section>
   <button class="btn sm soft" id="resetCalc" style="justify-self:start">החזר לערכי הדוגמה</button>`;
@@ -1259,13 +1286,17 @@ function dealDefaults() { const v = {}; ALL_DEAL_IN.forEach(d => v[d.k] = d.def)
 function dealResult(v) {
   const d = calcDeal(v);
   const reasons = [[d.coc >= 10, `תשואה על ההון ${pct(d.coc)} (יעד 10%)`], [d.s.cf > 0, `בתרחיש קיצון: ${usd(d.s.cf)} בחודש`], [d.dscr >= 1.25, `DSCR ${d.dscr.toFixed(2)} (יעד 1.25)`]];
-  const pass = reasons.every(r => r[0]);
-  return `<div class="verdict ${pass ? "good" : "bad"}"><span class="small" style="opacity:.9">פסק דין לפי ה-Buy Box</span><div class="vt">${pass ? "קונים ✓" : "לא קונים ✕"}</div>
+  const pass = reasons.every(r => r[0]), bankOk = d.bankDscr >= 1, levOk = d.cap > d.lc;
+  const q3 = [["הבנק יאשר?", bankOk, `DSCR בנק ${d.bankDscr.toFixed(2)}`], ["מינוף", levOk, `Cap ${pct(d.cap)} מול קבוע ${pct(d.lc)}`], ["Buy Box", pass, pass ? "3/3 עוברים" : `${reasons.filter(r => r[0]).length}/3 עוברים`]];
+  return `<div class="tri">${q3.map(([t, ok, s]) => `<div class="${ok ? "ok" : "no"}"><span class="tq">${t}</span><b>${ok ? (t === "מינוף" ? "חיובי ✓" : "כן ✓") : (t === "מינוף" ? "שלילי ✕" : "לא ✕")}</b><span class="tiny">${s}</span></div>`).join("")}</div>
+  ${bankOk && !pass ? `<div class="warnline">הבנק יאשר, אבל העסקה לא עוברת את ה-Buy Box. אישור הלוואה הוא לא אישור שהעסקה טובה.</div>` : ""}
+  ${!bankOk ? `<div class="warnline">DSCR בנק מתחת ל-1.0: סביר שהלוואת DSCR לא תאושר בתנאים האלה. צריך מקדמה גדולה יותר או מחיר נמוך יותר.</div>` : ""}
+  <div class="verdict ${pass ? "good" : "bad"}"><span class="small" style="opacity:.9">פסק דין לפי ה-Buy Box</span><div class="vt">${pass ? "קונים ✓" : "לא קונים ✕"}</div>
     <div class="reasons">${reasons.map(r => `<div><span class="mk ${r[0] ? "ok" : "no"}">${r[0] ? "✓" : "✕"}</span>${r[1]}</div>`).join("")}</div></div>
   <div class="kpis">${kpi("תזרים חודשי", usd(d.cf), d.cf > 0 ? "good" : "bad")}${kpi("CoC", pct(d.coc), d.coc >= 10 ? "good" : "bad")}${kpi("Cap Rate", pct(d.cap))}${kpi("DSCR", d.dscr.toFixed(2), d.dscr >= 1.25 ? "good" : "bad")}</div>
   ${d.expRatio < 35 ? `<div class="warnline">הוצאות ${Math.round(d.expRatio)}% מהברוטו — נמוך מכלל ה-50%. כנראה שכחת הוצאה.</div>` : ""}
   <details class="adv"><summary>פירוט חודשי: בסיס מול קיצון</summary><div class="tbl" style="margin:0 10px 10px;background:var(--surface)"><table><thead><tr><th>שורה</th><th class="n">בסיס</th><th class="n">קיצון</th></tr></thead><tbody>
-    ${[["הכנסה ברוטו", "gross", 1], ["Vacancy", "vacancy", -1], ["EGI", "egi", 1], ["מס נכס", "tax", -1], ["ביטוח", "ins", -1], ["ניהול", "mgmt", -1], ["תחזוקה", "maint", -1], ["CapEx", "capex", -1], ["Utilities", "util", -1], ["השמה", "leasing", -1], ["NOI", "noi", 1], ["משכנתא", "debt", -1], ["תזרים", "cf", 1]].map(([l, k, s]) => `<tr><td>${["NOI", "תזרים"].includes(l) ? `<b>${l}</b>` : l}</td><td class="n">${usd(s * d[k])}</td><td class="n">${usd(s * d.s[k])}</td></tr>`).join("")}
+    ${[["הכנסה ברוטו", "gross", 1], ["Vacancy", "vacancy", -1], ["EGI", "egi", 1], ["מס נכס", "tax", -1], ["ביטוח", "ins", -1], ["ניהול", "mgmt", -1], ["תחזוקה", "maint", -1], ["CapEx", "capex", -1], ["Utilities", "util", -1], ["השמה", "leasing", -1], ["ועד (HOA)", "hoa", -1], ["NOI", "noi", 1], ["משכנתא", "debt", -1], ["תזרים", "cf", 1]].map(([l, k, s]) => `<tr><td>${["NOI", "תזרים"].includes(l) ? `<b>${l}</b>` : l}</td><td class="n">${usd(s * d[k])}</td><td class="n">${usd(s * d.s[k])}</td></tr>`).join("")}
     <tr><td>הון מושקע</td><td class="n" colspan="2">${usd(d.cash)}</td></tr></tbody></table></div></details>`;
 }
 function viewDeal() {
@@ -1279,15 +1310,15 @@ function viewDeal() {
   <button class="btn sm soft" id="resetCalc" style="justify-self:start">טען את דוגמת מודול 4</button>`;
 }
 function rehabResult() {
-  const v = S.rehab, sub = v.items.reduce((a, it) => a + (+it[1] || 0) * (+it[2] || 0), 0), cont = sub * v.cont / 100, tot = sub + cont, mx = v.arv * 0.7 - tot;
-  return `<div class="res ${mx > 0 ? "" : "bad"}"><div class="lbl"><span>הצעה מקסימלית (כלל ה-70%)</span>${v.cont < 10 ? `<span class="pill bad">בלת״מ נמוך</span>` : ""}</div><div class="big">${usd(mx)}</div>
+  const v = S.rehab, p = v.pct || 70, sub = v.items.reduce((a, it) => a + (+it[1] || 0) * (+it[2] || 0), 0), cont = sub * v.cont / 100, tot = sub + cont, mx = v.arv * p / 100 - tot;
+  return `<div class="res ${mx > 0 ? "" : "bad"}"><div class="lbl"><span>הצעה מקסימלית (MAO ${p}%)</span>${v.cont < 10 ? `<span class="pill bad">בלת״מ נמוך</span>` : ""}</div><div class="big">${usd(mx)}</div>
     <div class="rows"><div><span>פריטים</span><span class="v">${usd(sub)}</span></div><div><span>בלת״מ ${v.cont}%</span><span class="v">${usd(cont)}</span></div><div><span><b>תקציב שיפוץ</b></span><span class="v">${usd(tot)}</span></div></div></div>`;
 }
 function viewRehab() {
   const v = S.rehab;
   return `<section class="stack" style="gap:6px"><h1>מעריך שיפוץ</h1><span class="muted">${v.example ? '<span class="example-tag">מחירי דוגמה.</span> ' : ""}לאמת מול 3 הצעות קבלן.</span></section>
   <div id="res">${rehabResult()}</div>
-  <section class="inps">${inp(I("arv", "ARV", v.arv, 20000, 2000000, 1000), v.arv)}${inp(I("cont", "בלת״מ", v.cont, 0, 30, 1, "%"), v.cont)}</section>
+  <section class="inps">${inp(I("arv", "ARV", v.arv, 20000, 2000000, 1000), v.arv)}${inp(I("cont", "בלת״מ", v.cont, 0, 30, 1, "%"), v.cont)}${inp(I("pct", "אחוז מה-ARV (65% באוהיו הזולה)", 70, 55, 85, 1, "%"), v.pct || 70)}</section>
   <section class="card stack" style="gap:8px">
     <div class="item-row tiny muted"><span>פריט</span><span>כמות</span><span>$ ליחידה</span><span></span></div>
     <div id="items" class="stack" style="gap:6px">${v.items.map((it, i) => `<div class="item-row"><input class="field-in" data-it="${i}-0" value="${esc(it[0])}" aria-label="פריט"><input class="field-in" type="number" data-it="${i}-1" value="${esc(it[1])}" aria-label="כמות"><input class="field-in" type="number" data-it="${i}-2" value="${esc(it[2])}" aria-label="עלות ליחידה"><button class="icon-btn" data-del="${i}" aria-label="מחק">✕</button></div>`).join("")}</div>
