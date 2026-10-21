@@ -451,12 +451,19 @@ const MODULES = [
       ["School Rating", "דירוג בתי ספר. משפחות שוכרות לפי זה.", "5 ומעלה מתוך 10 ב-GreatSchools"],
       ["Path of Progress", "אזור שהפיתוח העירוני מתקדם לכיוונו: השקעות, עסקים חדשים, תשתיות.", "פרויקטים חדשים בסביבה"]
     ]},
-    { type: "list", title: "כלים", items: [
-      "<span class='en'>Census.gov, FRED</span>: אוכלוסייה, הכנסות, תעסוקה",
-      "<span class='en'>Niche.com, City-Data.com, GreatSchools.org</span>: נתוני שכונה ובתי ספר",
-      "<span class='en'>Zillow, Redfin, Rentometer</span>: מחירים ושכירות",
-      "אתר מס הנכס של המחוז (<span class='en'>Franklin County Auditor</span> לקולומבוס, <span class='en'>Hamilton County Auditor</span> לסינסינטי): מס בפועל והיסטוריית מכירות",
-      "<span class='en'>Google Street View</span>: ״נסיעה״ ברחוב מישראל"
+    { type: "links", title: "כלים — הקש לפתיחה", items: [
+      ["Census", "אוכלוסייה, הכנסה חציונית, Vacancy ובעלות לפי מיקוד", "https://data.census.gov"],
+      ["FRED", "תעסוקה ואבטלה לאורך זמן לפי עיר (MSA)", "https://fred.stlouisfed.org"],
+      ["Niche", "ציוני שכונה: בטיחות, בתי ספר, שוכרים", "https://www.niche.com"],
+      ["City-Data", "פשיעה לפי עיר ושכונה, פורומים מקומיים", "https://www.city-data.com"],
+      ["GreatSchools", "דירוג בתי ספר 1–10 לפי כתובת", "https://www.greatschools.org"],
+      ["Zillow", "מודעות, היסטוריית מחיר ומס, הערכת שכירות", "https://www.zillow.com"],
+      ["Redfin", "מחירי מכירה בפועל (Sold) ו-Comps", "https://www.redfin.com"],
+      ["Rentometer", "שכירות חציונית לפי כתובת וחדרים", "https://www.rentometer.com"],
+      ["Franklin County Auditor", "קולומבוס: מס בפועל, היסטוריית מכירות, בעלים", "https://auditor.franklincountyohio.gov"],
+      ["Hamilton County Auditor", "סינסינטי: מס בפועל, היסטוריית מכירות, בעלים", "https://hamiltoncountyauditor.org"],
+      ["FEMA Flood Map", "אזור הצפה לפי כתובת (להימנע מ-A/AE)", "https://msc.fema.gov/portal/search"],
+      ["Google Street View", "״נסיעה״ ברחוב מישראל", "https://www.google.com/maps"]
     ]}
   ],
   tasks: [
@@ -1207,6 +1214,7 @@ function renderSection(sec) {
   else if (sec.type === "formulas") b = `<div class="stack" style="gap:8px">${sec.items.map(f => `<div class="formula">${esc(f)}</div>`).join("")}</div>`;
   else if (sec.type === "example") { const d = calcDeal(dealDefaults()); b = `<div class="kpis">${kpi("Cap Rate", pct(d.cap))}${kpi("CoC", pct(d.coc), "good")}${kpi("DSCR", d.dscr.toFixed(2), "good")}${kpi("תזרים חודשי", usd(d.cf), "good")}</div><p class="small muted">בניין 4 יחידות ב-260,000$, שכירות 1,100$ ליחידה, מימון 75% ב-7.5%.</p><button class="btn dark" data-go="c-deal">פתח את הדוגמה במחשבון</button>`; }
   else if (sec.type === "roles") b = `<div class="terms">${ROLES.map(r => `<details class="term"><summary>${r.role}</summary><div class="ans"><span><b>מודדים:</b> ${r.measure}</span><span><b>שואלים:</b> ${r.ask}</span><span style="color:var(--red)"><b>דגל אדום:</b> ${r.flag}</span></div></details>`).join("")}</div>`;
+  else if (sec.type === "links") b = `<div class="list">${sec.items.map(([n, d, u]) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${n}</b><span class="tiny muted">${d}</span></span><span class="pill dark">פתח ↗</span></a>`).join("")}</div>`;
   else if (sec.type === "kpis") b = `<div class="rows">${sec.rows.map(r => `<div><span>${r[0]}</span><span class="v" style="direction:rtl">${r[1]}</span></div>`).join("")}</div>`;
   return `<section class="stack"><h3>${sec.title}</h3>${b}</section>`;
 }
