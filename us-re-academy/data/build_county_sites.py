@@ -15,6 +15,32 @@ import urllib.request
 
 from build_market_data import REL, STATES, fetch
 
+# Large counties Wikidata has no website for, and consolidated city-counties (use the city site).
+# Counties without a county government (most of CT, MA, RI) are intentionally left out.
+OVERRIDES = {
+    "Maricopa County|AZ": "https://www.maricopa.gov",
+    "Bexar County|TX": "https://www.bexar.org",
+    "Hillsborough County|FL": "https://www.hillsboroughcounty.org",
+    "Westchester County|NY": "https://www.westchestergov.com",
+    "Palm Beach County|FL": "https://www.pbcgov.org",
+    "Hamilton County|OH": "https://www.hamiltoncountyohio.gov",
+    "Salt Lake County|UT": "https://www.saltlakecounty.gov",
+    "Lee County|FL": "https://www.leegov.com",
+    "Lake County|FL": "https://www.lakecountyfl.gov",
+    "Linn County|IA": "https://www.linncountyiowa.gov",
+    "Queens County|NY": "https://www.nyc.gov",
+    "Kings County|NY": "https://www.nyc.gov",
+    "New York County|NY": "https://www.nyc.gov",
+    "Bronx County|NY": "https://www.nyc.gov",
+    "Richmond County|NY": "https://www.nyc.gov",
+    "Philadelphia County|PA": "https://www.phila.gov",
+    "San Francisco County|CA": "https://www.sf.gov",
+    "Honolulu County|HI": "https://www.honolulu.gov",
+    "Davidson County|TN": "https://www.nashville.gov",
+    "Fayette County|KY": "https://www.lexingtonky.gov",
+    "Roanoke City|VA": "https://www.roanokeva.gov",
+}
+
 SPARQL = """
 SELECT ?fips ?site WHERE {
   ?c wdt:P882 ?fips ; wdt:P856 ?site .
@@ -53,6 +79,8 @@ def main():
         # keep the shortest URL when Wikidata lists several (usually the homepage)
         if key not in sites or len(site) < len(sites[key]):
             sites[key] = site
+    for k, v in OVERRIDES.items():
+        sites.setdefault(k, v)
     with open(os.path.join(a.out, "county_sites.json"), "w", encoding="utf-8") as f:
         json.dump(sites, f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     print(f"{len(sites)} county websites")
