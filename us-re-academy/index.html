@@ -1,4 +1,4 @@
-<title>מסלול נדל״ן ארה״ב</title>
+<title>US Invest</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1055,7 +1055,8 @@ function viewSites() {
   const tab = S.ui.sitesTab || "research";
   const head = `<section class="stack" style="gap:6px"><h1>כלים ואתרים</h1><p class="muted">כל אתר שצריך למחקר נכס ושוק, ואיך מוציאים ממנו את המידע. שמות הכפתורים באתרים עשויים להשתנות.</p></section>
   <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>
-  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">כתוב מיקוד, מחוז או עיר עם מדינה, בכל צורה (למשל 44320, Summit Ohio, Akron ohio). מקבלים חיפוש מוכן לאתר הרשמי של כל משרד. אתרי אוהיו למטה הם דוגמה.</span>
+  <section class="stack" style="gap:6px"><span class="small muted">פתיחת קישורים ב:</span><div class="chips" role="group" aria-label="דפדפן"><button data-br="default" aria-pressed="${(S.ui.browser || "default") === "default"}">הדפדפן הרגיל (Safari)</button><button data-br="chrome" aria-pressed="${S.ui.browser === "chrome"}">Chrome</button></div><span class="tiny muted">Chrome צריך להיות מותקן. אם הקישור לא נפתח, חזור ל״הדפדפן הרגיל״.</span></section>
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">כתוב מיקוד, מחוז או עיר עם מדינה, בכל צורה (למשל 44320, Summit Ohio, Akron ohio). כל כפתור פותח ישירות את האתר הרשמי של המשרד. אתרי אוהיו למטה הם דוגמה.</span>
     <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="cfIn" placeholder="44320 / Summit Ohio" style="direction:ltr" autocomplete="off"><button class="btn primary" id="cfGo" style="flex:none">חפש</button></div><div id="cfOut" class="stack" style="gap:8px"></div></section>`;
   if (tab === "research") return head + SITE_GROUPS.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2>${g.items.map(siteCard).join("")}</section>`).join("");
   return head + `
@@ -1164,8 +1165,11 @@ const COUNTY_OFFICES = [
   ["Sheriff Sales", "מכירות פומביות של נכסים מעוקלים", "sheriff sale real estate"],
   ["Code Enforcement", "נכסים מוזנחים ועבירות בנייה", "code enforcement violations"]
 ];
+/* "\" before a DuckDuckGo query jumps straight to the top result (the office's own site); a plain results link stays as backup */
 function countyLinks(where) {
-  return COUNTY_OFFICES.map(([n, d, q]) => `<a class="li" href="https://duckduckgo.com/?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">חפש ↗</span></a>`).join("");
+  return COUNTY_OFFICES.map(([n, d, q]) => `<div class="li" style="flex-wrap:wrap">
+    <a href="https://duckduckgo.com/?q=${encodeURIComponent("\\" + where + " " + q + " official site")}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;gap:14px;align-items:center;flex:1;min-width:0"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">פתח אתר ↗</span></a>
+    <a class="tiny" href="https://duckduckgo.com/?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="color:var(--muted);flex-basis:100%">לא הגעת לאתר הנכון? כל התוצאות</a></div>`).join("");
 }
 async function runCountyFinder() {
   const q = $("#cfIn").value.trim(), out = $("#cfOut");
@@ -1180,7 +1184,7 @@ async function runCountyFinder() {
     where = loc.st ? `${nm} County ${ST_NAMES[loc.st]}` : `${nm} County`;
     label = loc.st ? `${nm} County, ${ST_NAMES[loc.st]}` : `${nm} County`;
   }
-  out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). החיפוש נפתח בדפדפן ומוצא את האתר הרשמי.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where)}</div>`;
+  out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). הכפתור פותח את האתר הרשמי ישירות. אם הגעת לאתר לא נכון, לחץ ״כל התוצאות״.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where)}</div>`;
 }
 
 /* ===================== CALCULATORS ===================== */
@@ -1445,7 +1449,7 @@ const TOOL_LABEL = { t1: "תקציב קנייה", t2: "בחירת שוק ומי�
 function tabOf(r) { if (r === "sites") return "sites"; if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
 function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r === "market") return "m3"; if (r === "prop") return "deals"; if (r === "c-deal" && S.ui.analyzing) return "deals"; if (r.startsWith("c-")) return "calc"; return null; }
 function routeTitle(r) {
-  if (r === "home") return "מסלול נדל״ן ארה״ב";
+  if (r === "home") return "US Invest";
   if (r === "market") return "בחירת שוק";
   if (r === "sites") return "כלים ואתרים";
   if (r === "prop") return S.ui.editId ? "עריכת נכס" : "נכס חדש";
@@ -1505,6 +1509,14 @@ document.addEventListener("pointerdown", e => {
   el.appendChild(s); setTimeout(() => s.remove(), 550);
   if (e.pointerType === "touch" && navigator.vibrate) { try { navigator.vibrate(8); } catch (err) {} }
 });
+/* open outside links in Chrome when the viewer picked it (iOS/Android Chrome URL scheme); default = the phone's browser */
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[target="_blank"]'); if (!a || S.ui.browser !== "chrome") return;
+  const u = a.href; let host = ""; try { host = new URL(u).host; } catch (err) { return; }
+  if (!/^https?:/.test(u) || host === location.host) return;
+  a.href = u.replace(/^https:\/\//, "googlechromes://").replace(/^http:\/\//, "googlechrome://");
+  setTimeout(() => { a.href = u; }, 800);
+}, true);
 document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); const to = g.dataset.go; calm() ? go(to) : setTimeout(() => go(to), 110); } });
 
 /* ===================== HOME ===================== */
@@ -2108,6 +2120,7 @@ function wire(r) {
     w.onchange = e => { const t = e.target; if (t.dataset.w) { S.t2.weights[+t.dataset.w] = +t.value; save(); renderMarket(); } else if (t.id === "locName") { S.t2.names[S.t2.loc] = t.value; save(); renderMarket(); } };
     w.oninput = e => { if (e.target.id === "locNote") { S.t2.notes[S.t2.loc] = e.target.value; save(); } };
   }
+  if (r === "sites") $$("[data-br]").forEach(b => b.onclick = () => { S.ui.browser = b.dataset.br; save(); go("sites", { keepScroll: true }); toast(b.dataset.br === "chrome" ? "קישורים ייפתחו ב-Chrome" : "קישורים ייפתחו בדפדפן הרגיל"); });
   if (r === "sites" && $("#cfGo")) { $("#cfGo").onclick = runCountyFinder; $("#cfIn").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); runCountyFinder(); } }; }
   if (r === "backup") {
     $("#bkCopy").onclick = () => { const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי, העתק ידנית"); }; try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); } };
