@@ -67,10 +67,10 @@ button { cursor: pointer; }
 .chip-pct .dot-ring { width: 22px; height: 22px; }
 main { padding-block: 4px calc(110px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 22px; }
 .nav { position: fixed; inset: auto 0 0 0; z-index: 8; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
-.nav .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding-block: 6px; }
+.nav .wrap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding-block: 6px; }
 .nav button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 12.5px; font-weight: 600; color: var(--muted); border-radius: 14px; }
 .nav button svg { width: 24px; height: 24px; }
-.nav button .ic { width: 56px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background .2s; }
+.nav button .ic { width: 52px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background .2s; }
 .nav button[aria-current="page"] { color: var(--ink); }
 .nav button[aria-current="page"] .ic { background: var(--red); color: var(--red-ink); }
 
@@ -94,6 +94,15 @@ a.btn { text-decoration: none; color: inherit; }
 .pthumb { width: 100%; max-width: 100%; height: 160px; object-fit: cover; border-radius: 12px; display: block; background: var(--soft-2); }
 .field-in.filled { outline: 2px solid var(--green); }
 label.btn { cursor: pointer; }
+.tcard { background: var(--soft); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
+.tcard .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.tcard .top b { font-family: var(--font-display); font-size: 1.05rem; min-width: 0; overflow-wrap: anywhere; }
+.tcard .tq { font-size: 13px; font-weight: 700; color: var(--red); }
+details.more > summary { list-style: none; cursor: pointer; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::after { content: "▾"; }
+details.more[open] > summary::after { content: "▴"; }
+.tcard .steps div { background: var(--surface); }
 a.btn.dark { color: var(--inv-ink); }
 .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--soft); display: grid; place-items: center; font-weight: 700; flex: none; }
 .card { background: var(--soft); border-radius: var(--r); padding: 18px; min-width: 0; }
@@ -852,6 +861,192 @@ const STATUSES = ["סינון", "ניתוח מלא", "עבר Buy Box", "הצעה
 const FUNNEL_TARGET = [50, 20, 5, 3, 1];
 
 
+/* ===================== SITES & TOOLS GUIDE ===================== */
+/* each: n name, u url, s short, can = what you can do, get = data to pull (! prefix = critical), how = exact steps, to = [label, route] */
+const SITE_GROUPS = [
+  { id: "listings", title: "מודעות ומחירים", items: [
+    { n: "Zillow", u: "https://www.zillow.com", s: "המאגר הגדול של נכסים למכירה ולהשכרה. נקודת הפתיחה לכל חיפוש.",
+      can: ["לחפש נכסים לפי מיקוד, מחיר וסוג (Multi-family = 2–4 יחידות)", "לשמור חיפוש ולקבל התראה במייל על כל נכס חדש", "לראות היסטוריית מחירים ומסים של כל נכס"],
+      get: ["!מחיר מבוקש והיסטוריית מחיר (הורדות מחיר = מוכר גמיש)", "!Public tax history — המס השנתי בפועל", "Days on Zillow — מעל 60 יום = מוכר עייף", "Rent Zestimate — רק כנקודת התחלה, לא כנתון", "שנת בנייה, sqft, חדרים"],
+      how: ["חפש מיקוד (למשל 43205)", "Home Type ← סמן Multi-family", "Price ← הגבל לטווח שלך", "Save search ← בחר התראה מיידית (Instant)", "בעמוד נכס: גלול ל-Price history ול-Public tax history"],
+      to: ["הוסף נכס לטבלה", "prop-new"] },
+    { n: "Redfin", u: "https://www.redfin.com", s: "הכלי הכי טוב למחירי מכירה בפועל (Comps) ולהערכת ARV.",
+      can: ["לראות נכסים שנמכרו (Sold) ובאיזה מחיר", "לבדוק כמה זמן נכסים עומדים למכירה באזור", "להשוות נכסים על מפה"],
+      get: ["!3 נכסים דומים שנמכרו ב-3–6 החודשים האחרונים, בטווח של חצי מייל", "!מחיר המכירה וה-sqft של כל אחד", "Days on market באזור"],
+      how: ["חפש את כתובת הנכס", "פילטר: Sold ← Last 6 months", "Home type ופילטר חדרים זהה לנכס שלך", "בחר 3 נכסים משופצים ודומים בגודל", "העתק מחיר + sqft למחשבון ARV"],
+      to: ["מחשבון ARV", "c-arv"] },
+    { n: "Realtor.com", u: "https://www.realtor.com", s: "מאגר מודעות שמתעדכן מה-MLS, עם מידע על סיכוני הצפה ורעש.",
+      can: ["לאמת שמודעה עדיין פעילה", "לראות סיכוני הצפה, אש ורעש לנכס", "לבדוק היסטוריית מכירות"],
+      get: ["!סטטוס המודעה (Active / Pending / Sold)", "סיכון הצפה לפי הנכס", "היסטוריית מכירה"],
+      how: ["חפש כתובת", "גלול ל-Property history", "גלול ל-Environmental risk (הצפה)"],
+      to: ["טבלת נכסים", "deals:pipeline"] },
+    { n: "Rentometer", u: "https://www.rentometer.com", s: "בודק כמה שכירות באמת אפשר לגבות בכתובת מסוימת.",
+      can: ["לקבל שכירות חציונית לפי כתובת ומספר חדרים", "לראות טווח שכירות באזור"],
+      get: ["!שכירות חציונית (Median) — זה הנתון שנכנס לניתוח", "טווח 25%–75% — אל תשתמש בקצה העליון"],
+      how: ["הכנס כתובת מלאה", "בחר מספר חדרי שינה ליחידה", "הפעל חיפוש", "העתק את ה-Median"],
+      to: ["בדיקת עסקה", "c-deal"] },
+    { n: "Facebook — קבוצות משקיעים", u: "https://www.facebook.com/groups", s: "Wholesalers ומשקיעים מקומיים מפרסמים עסקאות off-market.",
+      can: ["למצוא עסקאות לפני שהן עולות ל-MLS", "להכיר Wholesalers ומשקיעים מקומיים"],
+      get: ["!מחיר, ARV, כתובת ומצב הנכס מהפוסט", "מי המפרסם ומה הניסיון שלו"],
+      how: ["חפש: Columbus real estate investors / Cincinnati off market deals", "הצטרף ל-2 קבוצות פעילות", "צלם מסך לפוסט מעניין", "העלה את הצילום ב״+ נכס חדש״ — האפליקציה ממלאת לבד"],
+      to: ["נכס חדש מצילום מסך", "prop-new"] },
+    { n: "Craigslist", u: "https://www.craigslist.org", s: "מודעות ישירות מבעלים (For Sale By Owner) ושכירויות.",
+      can: ["למצוא מוכרים פרטיים בלי מתווך", "לבדוק מחירי שכירות שמפורסמים בפועל"],
+      get: ["מחיר ופרטי קשר של בעלים", "!שכירות מבוקשת לדירות דומות"],
+      how: ["בחר עיר (columbus / cincinnati)", "housing ← real estate for sale ← by owner", "housing ← apts/housing for rent להשוואת שכירות"],
+      to: ["טבלת נכסים", "deals:pipeline"] }
+  ]},
+  { id: "county", title: "מחוז: מס, בעלות וחובות", items: [
+    { n: "Franklin County Auditor", u: "https://auditor.franklincountyohio.gov", s: "קולומבוס: המקור הרשמי לשווי, מס, בעלים והיסטוריית מכירות.",
+      can: ["לחפש נכס לפי כתובת, שם בעלים או מספר חלקה", "לראות את כל ההעברות של הנכס ובאיזה מחיר", "לבדוק מי הבעלים (אדם, LLC, עיזבון)"],
+      get: ["!מס נכס שנתי בפועל — נכנס לניתוח במקום המודעה", "!היסטוריית מכירות (מחיר ותאריך)", "!שם הבעלים — LLC = משקיע, ״Estate of״ = ירושה", "שווי לפי המחוז", "האם יש הנחת Owner-Occupied (מס יעלה אחרי שתקנה)"],
+      how: ["Property Search", "חפש לפי כתובת", "לשונית Summary: בעלים ושווי", "לשונית Transfers: היסטוריית מכירות", "לשונית Tax: המס השנתי"],
+      to: ["בדיקת עסקה", "c-deal"] },
+    { n: "Hamilton County Auditor", u: "https://hamiltoncountyauditor.org", s: "סינסינטי: אותו מידע כמו ב-Franklin — שווי, מס, בעלים, מכירות.",
+      can: ["לחפש לפי כתובת, בעלים או חלקה", "לראות מכירות קודמות ומס", "לבדוק נכסים עם חוב מס (Delinquent)"],
+      get: ["!מס שנתי בפועל", "!היסטוריית העברות", "!שם הבעלים", "סטטוס חוב מס"],
+      how: ["Property Search", "חפש כתובת", "עבור על Transfer history ו-Tax"],
+      to: ["בדיקת עסקה", "c-deal"] },
+    { n: "Franklin County Recorder", u: "https://recorder.franklincountyohio.gov", s: "מסמכים רשומים: משכנתאות, שעבודים, שטרי מכר.",
+      can: ["לבדוק אם יש משכנתא או שעבוד על הנכס", "להעריך כמה הון (Equity) יש לבעלים"],
+      get: ["!משכנתאות פתוחות ושעבודים (Liens)", "תאריך וסכום המשכנתא האחרונה"],
+      how: ["חיפוש לפי שם בעלים או כתובת", "סנן לפי Mortgage / Lien", "השווה לשווי באתר ה-Auditor ← זה ה-Equity"],
+      to: ["צ׳קליסט נאותות", "deals:dd"] },
+    { n: "Hamilton County Recorder", u: "https://recordersoffice.hamilton-co.org", s: "סינסינטי: משכנתאות, שעבודים ושטרי מכר.",
+      can: ["לבדוק משכנתאות ושעבודים", "לאמת בעלות"],
+      get: ["!משכנתאות ושעבודים פתוחים", "שטר המכר האחרון"],
+      how: ["חיפוש לפי בעלים, כתובת או חלקה", "פתח את המסמכים הרלוונטיים"],
+      to: ["צ׳קליסט נאותות", "deals:dd"] },
+    { n: "FEMA Flood Map", u: "https://msc.fema.gov/portal/search", s: "מפת הצפות רשמית. אזור הצפה = ביטוח יקר.",
+      can: ["לבדוק אזור הצפה לפי כתובת"],
+      get: ["!Zone X = תקין", "!Zone A / AE = ביטוח הצפה חובה ויקר — בדרך כלל לפסול"],
+      how: ["הכנס כתובת", "Search", "קרא את קוד האזור על הנכס במפה"],
+      to: ["טבלת נכסים", "deals:pipeline"] }
+  ]},
+  { id: "market", title: "שוק ושכונה", items: [
+    { n: "Census", u: "https://data.census.gov", s: "נתונים רשמיים על אוכלוסייה, הכנסה ודיור לפי מיקוד.",
+      can: ["לבדוק הכנסה חציונית, Vacancy ואחוז בעלי בתים במיקוד"],
+      get: ["!Median household income", "!Vacancy rate", "Owner-occupied %", "צמיחת אוכלוסייה"],
+      how: ["בשורת החיפוש: מיקוד + נושא (למשל: 43205 median household income)", "פתח את הטבלה", "רשום את הנתון ואת השנה"],
+      to: ["בחירת שוק", "market"] },
+    { n: "FRED", u: "https://fred.stlouisfed.org", s: "נתוני תעסוקה ואבטלה לאורך זמן לפי עיר.",
+      can: ["לראות מגמת אבטלה ותעסוקה ל-5–10 שנים"],
+      get: ["!מגמת אבטלה (יורדת = טוב)", "מספר המועסקים לאורך זמן"],
+      how: ["חפש: Columbus OH unemployment rate", "בחר את סדרת ה-MSA", "שנה טווח ל-10Y"],
+      to: ["בחירת שוק", "market"] },
+    { n: "Niche", u: "https://www.niche.com", s: "ציוני שכונות: בטיחות, בתי ספר, שוכרים.",
+      can: ["להשוות שכונות לפי ציון"],
+      get: ["!Crime & Safety grade", "ציון כללי ושכונות סמוכות"],
+      how: ["חפש שכונה או מיקוד", "גלול ל-Crime & Safety"],
+      to: ["בחירת שוק", "market"] },
+    { n: "City-Data", u: "https://www.city-data.com", s: "נתוני פשיעה ופורומים של תושבים מקומיים.",
+      can: ["לבדוק מדד פשיעה לאורך שנים", "לקרוא מה תושבים אומרים על שכונה"],
+      get: ["!מגמת פשיעה", "דעות תושבים על רחובות ספציפיים"],
+      how: ["חפש עיר", "גלול ל-Crime rate", "פורום: חפש את שם השכונה"],
+      to: ["בחירת שוק", "market"] },
+    { n: "GreatSchools", u: "https://www.greatschools.org", s: "דירוג בתי ספר 1–10. משפחות שוכרות לפי זה.",
+      can: ["לבדוק אילו בתי ספר משרתים כתובת"],
+      get: ["!דירוג 5 ומעלה = טוב לשוכרים משפחות"],
+      how: ["הכנס כתובת", "רשום את הדירוג של בית הספר היסודי"],
+      to: ["בחירת שוק", "market"] },
+    { n: "Google Street View", u: "https://www.google.com/maps", s: "״נסיעה״ ברחוב מישראל.",
+      can: ["לראות את מצב הרחוב והבתים השכנים", "להשוות תמונות משנים שונות"],
+      get: ["!בתים מוזנחים, חלונות חסומים, אשפה", "מגמה: הרחוב משתפר או מתדרדר"],
+      how: ["חפש כתובת", "גרור את האיש הצהוב לרחוב", "See more dates — השווה לשנים קודמות"],
+      to: ["טבלת נכסים", "deals:pipeline"] }
+  ]}
+];
+
+const MOTIVATED = [
+  { id: "probate", title: "ירושות (Probate)", why: "יורשים שקיבלו בית שהם לא צריכים. לעיתים גרים במדינה אחרת, צריכים לחלק כסף בין אחים, או לא רוצים לטפל בתיקונים.", items: [
+    { n: "Franklin County Probate Court", u: "https://probate.franklincountyohio.gov", s: "קולומבוס: תיקי עיזבון פתוחים.",
+      get: ["!שם המנוח ומספר התיק", "!שם מנהל העיזבון (Executor / Administrator) — איש הקשר", "רשימת נכסים בעיזבון (Inventory)"],
+      how: ["Record Search ← General Case Index", "חפש תיקי Estate חדשים (לפי תאריך)", "פתח Case Summary ← מצא את מנהל העיזבון", "חפש את שם המנוח באתר ה-Auditor ← זה הנכס"] },
+    { n: "Hamilton County Probate Court", u: "https://www.probatect.org/court-records", s: "סינסינטי: חיפוש תיקי עיזבון.",
+      get: ["!מספר תיק ושם המנוח", "!מנהל העיזבון", "מסמכי התיק (מתיקים מ-2000 ואילך)"],
+      how: ["Case Search", "חפש לפי שם או מספר תיק", "DETAIL ← רשימת הפעולות בתיק", "הצלב את שם המנוח באתר ה-Auditor"] }
+  ]},
+  { id: "foreclosure", title: "עיקולים ומכירות שריף", why: "בעלים שלא משלמים משכנתא. לפני מכירת השריף, חלקם מעדיפים למכור בעצמם ולשמור חלק מההון.", items: [
+    { n: "Franklin County Clerk of Courts", u: "https://clerk.franklincountyohio.gov", s: "קולומבוס: תיקי עיקול שנפתחו בבית המשפט (Common Pleas).",
+      get: ["!תיקי Foreclosure חדשים: כתובת, בעלים, הבנק", "שלב התיק (מוקדם = יותר זמן לעסקה)"],
+      how: ["Case Information Online", "חיפוש תיקים אזרחיים חדשים", "סנן תיקים שהתובע בהם הוא בנק (Foreclosure)", "הצלב את הכתובת באתר ה-Auditor"] },
+    { n: "Franklin County Sheriff — מכירות נכסים", u: "https://sheriff.franklincountyohio.gov/Services/Real-Estate-Sales", s: "רשימת נכסים שיימכרו במכרז (כל שישי, אונליין).",
+      get: ["!כתובת, שמאות ומחיר פתיחה (לפחות 2/3 מהשמאות)", "תאריך המכירה"],
+      how: ["פתח את רשימת המכירות", "בחר נכסים במיקודים שלך", "בדוק כל אחד ב-Auditor וב-Street View", "מכירת שריף = קונים בלי בדק בית. רק אחרי ניסיון"] },
+    { n: "Hamilton County Clerk of Courts", u: "https://www.courtclerk.org", s: "סינסינטי: תיקי עיקול ותיקי פינוי.",
+      get: ["!תיקי Foreclosure חדשים", "!תיקי פינוי (Eviction) — בעלי בית עייפים"],
+      how: ["Records search", "חפש תיקים חדשים לפי סוג", "הצלב כתובות באתר ה-Auditor"] },
+    { n: "Hamilton County Sheriff — מכירות נכסים", u: "https://www.hcso.org/property-sales/", s: "סינסינטי: רשימת מכירות שריף (אונליין מ-2024).",
+      get: ["!כתובת, שמאות ותאריך", "פיקדון נדרש"],
+      how: ["פתח Property Sales", "סנן לפי מיקוד", "בדוק כל נכס לפני השתתפות"] }
+  ]},
+  { id: "tax", title: "חובות מס נכס", why: "בעלים שלא משלמים מס נכס בדרך כלל במצוקה כלכלית או שהנכס נטוש. ירושה + חוב מס = מוטיבציה גבוהה במיוחד.", items: [
+    { n: "Franklin County Treasurer — חובות מס", u: "https://treasurer.franklincountyohio.gov/Delinquent-Taxes", s: "רשימת נכסים עם חוב מס ומכירת שעבודי מס.",
+      get: ["!רשימת חלקות עם חוב (Delinquent list)", "!גובה החוב", "נכסים במכירת Tax Lien"],
+      how: ["Delinquent Taxes", "פתח את הרשימה העדכנית", "סנן לפי המיקודים שלך", "הצלב באתר ה-Auditor: בעלים, שווי, האם ״Estate of״"] },
+    { n: "Hamilton County Auditor — חובות מס", u: "https://hamiltoncountyauditor.org/tax_delinquent.asp", s: "סינסינטי: הסבר ורשימות של נכסים בחוב מס ונכסים שנלקחו למכירה.",
+      get: ["!נכסים Certified Delinquent", "נכסים שלא נמכרו במכירת שריף ועברו למחוז"],
+      how: ["פתח את עמוד Tax Delinquent", "הורד את הרשימה", "הצלב כתובות במיקודים שלך"] }
+  ]},
+  { id: "bankruptcy", title: "פשיטות רגל", why: "חייבים שצריכים למכור נכס כדי לשלם לנושים. המכירה עוברת דרך נאמן (Trustee) ובית המשפט — לא ישירות מול החייב.", items: [
+    { n: "PACER", u: "https://pacer.uscourts.gov", s: "המערכת הפדרלית לתיקי בית משפט, כולל פשיטות רגל. דורשת הרשמה; חלק מהצפיות בתשלום קטן.",
+      get: ["!תיקי Chapter 7 (פירוק — נכסים נמכרים)", "!שם הנאמן (Trustee) — איש הקשר", "רשימת נכסי החייב (Schedule A/B)"],
+      how: ["הירשם ל-PACER", "Case Locator ← Bankruptcy", "בית המשפט: Southern District of Ohio (קולומבוס וסינסינטי)", "פנה לנאמן, לא לחייב"] },
+    { n: "בית המשפט לפשיטות רגל — Southern District of Ohio", u: "https://www.ohsb.uscourts.gov", s: "האתר של בית המשפט שמטפל בקולומבוס ובסינסינטי.",
+      get: ["רשימות נאמנים (Trustees)", "הודעות על מכירות נכסים"],
+      how: ["חפש את רשימת ה-Chapter 7 Trustees", "צור קשר עם נאמנים ובקש להיות ברשימת הקונים שלהם"] }
+  ]},
+  { id: "code", title: "נכסים מוזנחים ועבירות בנייה", why: "בעלים שמקבלים קנסות מהעירייה על נכס מוזנח או ריק. לעיתים קרובות ישמחו להיפטר ממנו.", items: [
+    { n: "Columbus Code Enforcement", u: "https://www.columbus.gov/Business-Development/Building-Zoning-Services/Code-Enforcement", s: "קולומבוס: אכיפת קוד, נכסים ריקים ורשימות ״נכסים בעייתיים״.",
+      get: ["!רשימות שנתיות של נכסים עם הכי הרבה עבירות", "נכסים ריקים ומוזנחים"],
+      how: ["פתח את עמוד Code Enforcement", "חפש רשימות Problem Properties", "לשאלות: 311 או (614) 645-3111"] },
+    { n: "Franklin County Municipal Court Clerk", u: "https://www.fcmcclerk.com", s: "קולומבוס: תיקי פינוי ובית משפט סביבתי (נכסים מוזנחים).",
+      get: ["!תיקי פינוי — בעלי בית עייפים", "תיקי Environmental Court — נכסים עם עבירות"],
+      how: ["Case search", "חפש תיקי Eviction / Environmental לפי תאריך", "הצלב כתובות ב-Auditor"] }
+  ]}
+];
+
+const MOTIVATED_RULES = [
+  "פנייה בכבוד: אנשים במצב קשה. מכתב מנומס שמציע עזרה, בלי לחץ ובלי ״הצעה מתפוצצת״.",
+  "בירושה: פונים למנהל העיזבון, לא בשבועות הראשונים אחרי הפטירה.",
+  "בפשיטת רגל: פונים רק לנאמן (Trustee). פנייה ישירה לחייב עלולה להפר את ההקפאה של בית המשפט (Automatic Stay).",
+  "בעיקול: באוהיו יש כללים על עסקאות עם בעלים בהליך עיקול. לא בטוח מה הם בדיוק — לאמת מול עו״ד מקרקעין באוהיו לפני חתימה.",
+  "טלפון ו-SMS: חוק TCPA ורשימת Do Not Call מגבילים שיחות והודעות שיווקיות. מכתב בדואר הוא הדרך הבטוחה.",
+  "כל ליד נכנס לטבלת הנכסים עם המקור, כדי לעקוב אחרי פולואו-אפ."
+];
+
+function siteCard(t) {
+  const get = (t.get || []).map(g => g.startsWith("!") ? `<div><span><b>${esc(g.slice(1))}</b> <span class="pill bad" style="font-size:11px;padding:1px 7px">חשוב</span></span></div>` : `<div><span>${esc(g)}</span></div>`).join("");
+  return `<div class="tcard">
+    <div class="top"><b class="en" style="text-align:start">${esc(t.n)}</b><a class="btn sm primary" href="${t.u}" target="_blank" rel="noopener noreferrer">פתח ↗</a></div>
+    <span class="small muted">${esc(t.s)}</span>
+    <details class="more"><summary>הסבר מורחב</summary><div class="stack" style="gap:12px;padding-top:6px">
+      ${t.can ? `<div class="stack" style="gap:6px"><span class="tq">מה אפשר לעשות</span><div class="bul">${t.can.map(x => `<div><span>${esc(x)}</span></div>`).join("")}</div></div>` : ""}
+      <div class="stack" style="gap:6px"><span class="tq">איזה מידע מוציאים</span><div class="bul">${get}</div></div>
+      <div class="stack" style="gap:6px"><span class="tq">איך בדיוק</span><div class="steps">${t.how.map(x => `<div><span>${esc(x)}</span></div>`).join("")}</div></div>
+      ${t.to ? `<button class="btn sm dark" data-go="${t.to[1]}" style="justify-self:start">${esc(t.to[0])} ←</button>` : ""}
+    </div></details>
+  </div>`;
+}
+function viewSites() {
+  const tab = S.ui.sitesTab || "research";
+  const head = `<section class="stack" style="gap:6px"><h1>כלים ואתרים</h1><p class="muted">כל אתר שצריך למחקר נכס ושוק, ואיך מוציאים ממנו את המידע. שמות הכפתורים באתרים עשויים להשתנות.</p></section>
+  <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>`;
+  if (tab === "research") return head + SITE_GROUPS.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2>${g.items.map(siteCard).join("")}</section>`).join("");
+  return head + `
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">למה זה שווה</b><span class="small">מוכר שחייב למכור (ירושה, עיקול, חוב מס, פשיטת רגל, נכס מוזנח) מוכן לעיתים למחיר מתחת לשוק בתמורה למהירות ולוודאות. המידע ציבורי ונמצא באתרי בתי המשפט והמחוזות.</span></section>
+  <section class="card stack" style="gap:8px;outline:2px solid var(--red)"><b style="font-family:var(--font-display)">כללים לפני שפונים</b><div class="bul warn">${MOTIVATED_RULES.map(x => `<div><span>${esc(x)}</span></div>`).join("")}</div></section>
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המסלול: מליד לפנייה</b><div class="steps">
+    <div><span>מוצאים תיק (ירושה, עיקול, חוב מס) באתר בית המשפט או המחוז</span></div>
+    <div><span>מצליבים באתר ה-Auditor: כתובת, בעלים, שווי, מס</span></div>
+    <div><span>בודקים Equity ב-Recorder: שווי פחות משכנתאות ושעבודים</span></div>
+    <div><span>בודקים שהנכס במיקודים שלך ושהמספרים עובדים (בדיקת עסקה)</span></div>
+    <div><span>מוסיפים לטבלת הנכסים עם המקור ותאריך פולואו-אפ</span></div>
+    <div><span>שולחים מכתב מנומס לאיש הקשר הנכון</span></div></div>
+    <button class="btn sm dark" data-go="prop-new" style="justify-self:start">+ הוסף ליד לטבלה</button></section>
+  ${MOTIVATED.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2><p class="small muted">${g.why}</p>${g.items.map(siteCard).join("")}</section>`).join("")}`;
+}
+
 /* ===================== CALCULATORS ===================== */
 const CATS = [["yield", "תשואה"], ["income", "הכנסות"], ["expense", "הוצאות"], ["finance", "מימון"], ["value", "שווי ושיפוץ"], ["tax", "מסים"], ["fx", "מט״ח"]];
 const I = (k, label, def, min, max, step, unit = "$") => ({ k, label, def, min, max, step, unit });
@@ -1086,6 +1281,7 @@ const IC = {
   learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>',
   calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v3M8 18h.01M12 18h.01"/></svg>',
   deals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>',
+  sites: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
   chev: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -1109,11 +1305,12 @@ const TOOL_DEST = { t1: "c-maxp", t2: "market", t3: "c-deal", t4: "c-rehab", t5:
 const TOOL_LABEL = { t1: "תקציב קנייה", t2: "בחירת שוק ומיקוד", t3: "בדיקת עסקה", t4: "מעריך שיפוץ", t5: "כרטיסי צוות", t6: "צ׳קליסט", t7: "טבלת נכסים" };
 
 /* ===================== ROUTER ===================== */
-function tabOf(r) { if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
+function tabOf(r) { if (r === "sites") return "sites"; if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
 function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r === "market") return "m3"; if (r === "prop") return "deals"; if (r === "c-deal" && S.ui.analyzing) return "deals"; if (r.startsWith("c-")) return "calc"; return null; }
 function routeTitle(r) {
   if (r === "home") return "מסלול נדל״ן ארה״ב";
   if (r === "market") return "בחירת שוק";
+  if (r === "sites") return "כלים ואתרים";
   if (r === "prop") return S.ui.editId ? "עריכת נכס" : "נכס חדש";
   if (r === "learn") return "לימוד";
   if (r === "calc") return "מחשבונים";
@@ -1124,7 +1321,7 @@ function routeTitle(r) {
   return "";
 }
 function validRoute(r) {
-  if (["home", "learn", "calc", "deals", "c-deal", "backup", "market", "prop"].includes(r)) return true;
+  if (["home", "learn", "calc", "deals", "c-deal", "backup", "market", "prop", "sites"].includes(r)) return true;
   if (/^m\d$/.test(r)) return MODULES.some(m => m.id === r);
   if (r.startsWith("c-")) return CALCS.some(c => c.id === r.slice(2));
   return false;
@@ -1140,7 +1337,7 @@ function go(r, opts = {}) {
   try { history.replaceState(null, "", "#" + r); } catch (e) {}
   const tab = tabOf(r), par = parentOf(r), p = overall();
   $("#topbar").innerHTML = `${par ? `<button class="back" data-go="${par}" aria-label="חזרה">${IC.back}</button>` : ""}<span class="ttl">${routeTitle(r)}</span><span class="chip-pct">${ring(p, 22, 4, "var(--red)", "var(--soft-2)")}<span class="num">${p}%</span></span>`;
-  $("#nav").innerHTML = [["home", "בית"], ["learn", "לימוד"], ["calc", "מחשבונים"], ["deals", "עסקאות"]].map(([k, l]) => `<button data-go="${k}" ${tab === k ? 'aria-current="page"' : ""}><span class="ic">${IC[k]}</span>${l}</button>`).join("");
+  $("#nav").innerHTML = [["home", "בית"], ["learn", "לימוד"], ["sites", "כלים"], ["calc", "מחשבונים"], ["deals", "עסקאות"]].map(([k, l]) => `<button data-go="${k}" ${tab === k ? 'aria-current="page"' : ""}><span class="ic">${IC[k]}</span>${l}</button>`).join("");
   const app = $("#app");
   if (r === "home") app.innerHTML = viewHome();
   else if (r === "learn") app.innerHTML = viewLearn();
@@ -1152,6 +1349,7 @@ function go(r, opts = {}) {
   else if (r === "deals") app.innerHTML = viewDeals();
   else if (r === "prop") app.innerHTML = viewProp();
   else if (r === "market") app.innerHTML = viewMarket();
+  else if (r === "sites") app.innerHTML = viewSites();
   else if (r === "backup") app.innerHTML = viewBackup();
   wire(r);
   if (!opts.keepScroll) window.scrollTo(0, 0);
@@ -1222,7 +1420,7 @@ function renderSection(sec) {
   else if (sec.type === "formulas") b = `<div class="stack" style="gap:8px">${sec.items.map(f => `<div class="formula">${esc(f)}</div>`).join("")}</div>`;
   else if (sec.type === "example") { const d = calcDeal(dealDefaults()); b = `<div class="kpis">${kpi("Cap Rate", pct(d.cap))}${kpi("CoC", pct(d.coc), "good")}${kpi("DSCR", d.dscr.toFixed(2), "good")}${kpi("תזרים חודשי", usd(d.cf), "good")}</div><p class="small muted">בניין 4 יחידות ב-260,000$, שכירות 1,100$ ליחידה, מימון 75% ב-7.5%.</p><button class="btn dark" data-go="c-deal">פתח את הדוגמה במחשבון</button>`; }
   else if (sec.type === "roles") b = `<div class="terms">${ROLES.map(r => `<details class="term"><summary>${r.role}</summary><div class="ans"><span><b>מודדים:</b> ${r.measure}</span><span><b>שואלים:</b> ${r.ask}</span><span style="color:var(--red)"><b>דגל אדום:</b> ${r.flag}</span></div></details>`).join("")}</div>`;
-  else if (sec.type === "links") b = `<div class="list">${sec.items.map(([n, d, u]) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${n}</b><span class="tiny muted">${d}</span></span><span class="pill dark">פתח ↗</span></a>`).join("")}</div>`;
+  else if (sec.type === "links") b = `<button class="btn dark" data-go="sites" style="justify-self:start">כל הכלים עם הסבר מורחב ←</button><div class="list">${sec.items.map(([n, d, u]) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${n}</b><span class="tiny muted">${d}</span></span><span class="pill dark">פתח ↗</span></a>`).join("")}</div>`;
   else if (sec.type === "kpis") b = `<div class="rows">${sec.rows.map(r => `<div><span>${r[0]}</span><span class="v" style="direction:rtl">${r[1]}</span></div>`).join("")}</div>`;
   return `<section class="stack"><h3>${sec.title}</h3>${b}</section>`;
 }
@@ -1363,7 +1561,7 @@ function viewDeals() {
 }
 
 /* --- property tracker: private per user in the artifact db, browser storage as fallback --- */
-const SOURCES = ["Zillow", "Redfin", "Realtor.com", "Facebook", "Craigslist", "מתווך", "Wholesaler", "אחר"];
+const SOURCES = ["Zillow", "Redfin", "Realtor.com", "Facebook", "Craigslist", "מתווך", "Wholesaler", "ירושה (Probate)", "עיקול", "חוב מס", "פשיטת רגל", "נכס מוזנח", "פינוי", "אחר"];
 const Store = { mode: "local", col: null, items: [] };
 const newId = () => "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 function props() { return Store.mode === "cloud" ? Store.items : S.props; }
@@ -1570,6 +1768,7 @@ function wireInputs(store, onChange) {
 }
 function wire(r) {
   const app = $("#app");
+  if (r === "sites") $$("[data-stab]").forEach(b => b.onclick = () => { S.ui.sitesTab = b.dataset.stab; save(); go("sites"); });
   if (r === "home") $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
   if (/^m\d$/.test(r)) {
     const m = MODULES.find(x => x.id === r), re = () => go(m.id, { keepScroll: true });
