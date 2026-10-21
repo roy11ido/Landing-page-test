@@ -313,6 +313,19 @@ textarea.field-in { resize: vertical; }
 .thumb .tlabel { position: absolute; bottom: 4px; right: 4px; background: var(--brand); color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; }
 .pthumb { width: 100%; max-width: 100%; height: 160px; object-fit: cover; border-radius: 12px; display: block; background: var(--soft-2); }
 
+/* location picker */
+.locpick { display: grid; gap: 8px; min-width: 0; }
+.lp-box { position: relative; }
+.lp-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 28px rgba(28, 43, 36, .16); max-height: 320px; overflow-y: auto; }
+.lp-opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 12px 14px; text-align: start; color: var(--ink); }
+.lp-opt:last-child { border-bottom: 0; }
+.lp-opt:hover, .lp-opt:focus-visible { background: var(--brand-soft); }
+.lp-opt b { font-family: var(--font-display); font-weight: 600; }
+.lp-empty { padding: 12px 14px; font-size: 14px; color: var(--muted); }
+.lp-links { display: grid; gap: 6px; }
+.lp-link { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--soft); border-radius: 12px; padding: 10px 12px; text-decoration: none; color: inherit; width: 100%; text-align: start; font: inherit; }
+.lp-link b { display: block; font-size: 14px; font-family: var(--font-display); font-weight: 600; }
+.lp-link .tiny { display: block; }
 /* tools tab */
 .tcard { border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
 .tcard .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
@@ -1057,9 +1070,8 @@ function viewSites() {
   const tab = S.ui.sitesTab || "research";
   const head = `<section class="stack" style="gap:6px"><h1>כלים ואתרים</h1><p class="muted">כל אתר שצריך למחקר נכס ושוק, ואיך מוציאים ממנו את המידע. שמות הכפתורים באתרים עשויים להשתנות.</p></section>
   <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>
-  <section class="stack" style="gap:6px"><span class="small muted">פתיחת קישורים ב:</span><div class="chips" role="group" aria-label="דפדפן"><button data-br="default" aria-pressed="${(S.ui.browser || "default") === "default"}">הדפדפן הרגיל (Safari)</button><button data-br="chrome" aria-pressed="${S.ui.browser === "chrome"}">Chrome</button></div><span class="tiny muted">Chrome צריך להיות מותקן. אם הקישור לא נפתח, חזור ל״הדפדפן הרגיל״.</span></section>
-  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">כתוב מיקוד, מחוז או עיר עם מדינה, בכל צורה (למשל 44320, Summit Ohio, Akron ohio). כל כפתור פותח ישירות את האתר הרשמי של המשרד. אתרי אוהיו למטה הם דוגמה.</span>
-    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="cfIn" placeholder="44320 / Summit Ohio" style="direction:ltr" autocomplete="off"><button class="btn primary" id="cfGo" style="flex:none">חפש</button></div><div id="cfOut" class="stack" style="gap:8px"></div></section>`;
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">הקלד עיר, מחוז או מיקוד ובחר מהרשימה. כל כפתור פותח ישירות את האתר הרשמי של המשרד. אתרי אוהיו למטה הם דוגמה.</span>
+    ${locPicker("cf", S.ui.cfLoc || S.set.loc || null, "מחוז, עיר או מיקוד", { links: false })}<div id="cfOut" class="stack" style="gap:8px"></div></section>`;
   if (tab === "research") return head + SITE_GROUPS.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2>${g.items.map(siteCard).join("")}</section>`).join("");
   return head + `
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">למה זה שווה</b><span class="small">מוכר שחייב למכור (ירושה, עיקול, חוב מס, פשיטת רגל, נכס מוזנח) מוכן לעיתים למחיר מתחת לשוק בתמורה למהירות ולוודאות. המידע ציבורי ונמצא באתרי בתי המשפט והמחוזות.</span></section>
@@ -1189,6 +1201,111 @@ async function runCountyFinder() {
   out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). הכפתור פותח את האתר הרשמי ישירות. אם הגעת לאתר לא נכון, לחץ ״כל התוצאות״.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where)}</div>`;
 }
 
+function cfLinks(l) {
+  const where = `${l.county.replace(/ County$/i, "")} County ${stateName(l.st)}`;
+  return `<p class="small"><b>${esc(l.county)}, ${esc(stateName(l.st))}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). אם הגעת לאתר לא נכון, לחץ ״כל התוצאות״.</p><div class="list">${countyLinks(where)}</div>`;
+}
+
+/* ===================== LOCATION PICKER — any US city, county or ZIP (data/places.json) ===================== */
+const PL = { data: undefined, rows: null, zip: null };
+async function placesData() {
+  if (PL.data !== undefined) return PL.data;
+  try {
+    const r = await fetch("data/places.json"); if (!r.ok) throw 0;
+    const d = await r.json();
+    PL.rows = d.places.map(([city, st, ci, zips]) => {
+      const [county] = d.counties[ci].split("|"), sn = (ST_NAMES[st] || st).toLowerCase(), c = city.toLowerCase();
+      return { city, st, county, zips, k1: `${c} ${st.toLowerCase()}`, k2: `${c} ${sn}` };
+    });
+    PL.counties = d.counties.map(x => { const [county, st] = x.split("|"), c = county.toLowerCase(), sn = (ST_NAMES[st] || st).toLowerCase(); return { county, st, k1: `${c} ${st.toLowerCase()}`, k2: `${c} ${sn}` }; });
+    PL.data = d;
+  } catch (e) { PL.data = null; }
+  return PL.data;
+}
+const normQ = q => String(q || "").toLowerCase().replace(/[.,]/g, " ").replace(/\s+/g, " ").trim();
+async function searchPlaces(q) {
+  if (!(await placesData())) return null;
+  const n = normQ(q); if (n.length < 2) return [];
+  if (/^\d{3,5}$/.test(n)) {
+    const out = [];
+    for (const p of PL.rows) { const z = p.zips.find(x => x.startsWith(n)); if (z) { out.push({ kind: "zip", zip: z, city: p.city, st: p.st, county: p.county }); if (out.length >= 8) break; } }
+    return out;
+  }
+  const out = [];
+  for (const p of PL.rows) { if (p.k1.startsWith(n) || p.k2.startsWith(n)) { out.push({ kind: "city", city: p.city, st: p.st, county: p.county }); if (out.length >= 7) break; } }
+  /* counties: "summit", "summit county", "summit oh", "summit county ohio" */
+  const cn = n.replace(/\s*\bcounty\b/, "").trim();
+  for (const c of PL.counties) {
+    if (out.length >= 9) break;
+    const base = c.county.toLowerCase().replace(/ (county|parish|borough|census area|municipality)$/, "");
+    if (!base.startsWith(cn.split(" ")[0])) continue;
+    const st = c.st.toLowerCase(), sn = (ST_NAMES[c.st] || "").toLowerCase();
+    if ([base, `${base} ${st}`, `${base} ${sn}`].some(k => k.startsWith(cn))) out.push({ kind: "county", county: c.county, st: c.st });
+  }
+  return out;
+}
+function locLabel(l) {
+  if (!l) return "";
+  if (l.kind === "county") return `${l.county}, ${l.st}`;
+  return `${l.zip ? l.zip + " · " : ""}${l.city}, ${l.st}`;
+}
+const stateName = st => ST_NAMES[st] || st;
+const ducky = q => `https://duckduckgo.com/?q=${encodeURIComponent("\\" + q)}`;
+/* links that depend on where the property is */
+function locLinks(l) {
+  if (!l) return "";
+  const cty = `${l.county} ${stateName(l.st)}`, place = l.kind === "county" ? cty : `${l.city} ${l.st}`;
+  const links = [
+    ["מס נכס אמיתי", `אתר ה-Assessor / Auditor של ${l.county}`, ducky(`${cty} property tax assessor auditor parcel search official site`)],
+    ["סיכון הצפה", "FEMA לפי כתובת", "https://msc.fema.gov/portal/search"],
+    ["Comps — נמכרו לאחרונה", `Redfin · ${place}`, ducky(`redfin ${place} recently sold homes`)],
+    ["שכירות באזור", "Rentometer", "https://www.rentometer.com"]
+  ];
+  return `<div class="lp-links">${links.map(([t, d, u]) => `<a class="lp-link" href="${u}" target="_blank" rel="noopener noreferrer"><span><b>${t}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">↗</span></a>`).join("")}<button type="button" class="lp-link" data-go="sites" data-cfloc="${esc(JSON.stringify(l))}" style="border:0"><span><b>כל משרדי המחוז</b><span class="tiny muted">${esc(l.county)} — ירושות, עיקולים, חובות מס</span></span><span class="pill dark">←</span></button></div>`;
+}
+function locPicker(key, loc, label, opts = {}) {
+  return `<div class="locpick${opts.full ? " full" : ""}" data-lp="${key}">
+    <label class="small" for="lp-${key}" style="font-weight:600">${label}${opts.required ? ' <span style="color:var(--red)">*</span>' : ""}</label>
+    <div class="lp-box"><input id="lp-${key}" class="field-in" type="text" placeholder="עיר, מחוז או מיקוד — למשל akron" value="${esc(locLabel(loc))}" autocomplete="off" autocapitalize="off" spellcheck="false" dir="ltr" role="combobox" aria-expanded="false" aria-controls="lpl-${key}">
+      <div class="lp-list" id="lpl-${key}" role="listbox" hidden></div></div>
+    ${loc ? `<div class="row"><span class="pill good">📍 ${esc(locLabel(loc))}${loc.kind !== "county" ? " · " + esc(loc.county) : ""}</span><button type="button" class="btn sm soft" data-lpclear="${key}">שנה</button></div>${opts.links === false ? "" : locLinks(loc)}` : ""}
+  </div>`;
+}
+/* onPick(loc|null) is called with the chosen place, or null when cleared */
+function wireLocPicker(key, onPick) {
+  const box = $(`[data-lp="${key}"]`); if (!box) return;
+  const input = box.querySelector("input"), list = box.querySelector(".lp-list");
+  let items = [], t = 0;
+  const close = () => { list.hidden = true; input.setAttribute("aria-expanded", "false"); };
+  const render = async () => {
+    const q = input.value;
+    const res = await searchPlaces(q);
+    if (input.value !== q) return;
+    if (res === null) { list.innerHTML = `<div class="lp-empty">רשימת הערים לא נטענה. נסה שוב בעוד רגע.</div>`; list.hidden = false; return; }
+    items = res;
+    if (!res.length) { list.innerHTML = normQ(q).length >= 2 ? `<div class="lp-empty">לא נמצאה עיר. נסה איות אחר או מיקוד.</div>` : ""; list.hidden = !list.innerHTML; return; }
+    list.innerHTML = res.map((r, i) => `<button type="button" role="option" class="lp-opt" data-i="${i}"><b dir="ltr">${esc(r.kind === "county" ? r.county : r.city)}${r.kind === "zip" ? ` <span class="num">${r.zip}</span>` : ""}</b><span class="tiny muted" dir="ltr">${r.kind === "county" ? stateName(r.st) : `${esc(r.county)}, ${r.st}`}</span></button>`).join("");
+    list.hidden = false; input.setAttribute("aria-expanded", "true");
+  };
+  input.oninput = () => { clearTimeout(t); t = setTimeout(render, 90); };
+  input.onfocus = () => { placesData(); if (input.value && !box.querySelector(".pill.good")) render(); };
+  input.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); if (items[0]) { close(); onPick(items[0]); } } else if (e.key === "Escape") close(); };
+  input.onblur = () => setTimeout(close, 180);
+  list.onpointerdown = e => e.preventDefault();
+  list.onclick = e => { const b = e.target.closest(".lp-opt"); if (!b) return; close(); onPick(items[+b.dataset.i]); };
+  const clr = box.querySelector("[data-lpclear]"); if (clr) clr.onclick = () => { onPick(null); setTimeout(() => { const i = $(`#lp-${key}`); if (i) i.focus(); }, 50); };
+}
+/* mount once, then re-mount just this picker after each pick so the rest of the form keeps what was typed */
+function bindPicker(key, label, opts, setLoc) {
+  wireLocPicker(key, l => {
+    setLoc(l);
+    const box = $(`[data-lp="${key}"]`); if (box) box.outerHTML = locPicker(key, l, label, opts);
+    bindPicker(key, label, opts, setLoc);
+  });
+}
+/* "all county offices" button inside the area links carries the chosen place to the tools tab */
+document.addEventListener("click", e => { const b = e.target.closest("[data-cfloc]"); if (!b) return; try { S.ui.cfLoc = JSON.parse(b.dataset.cfloc); } catch (err) {} }, true);
+
 /* ===================== CALCULATORS ===================== */
 const CATS = [["yield", "תשואה"], ["income", "הכנסות"], ["expense", "הוצאות"], ["finance", "מימון"], ["value", "שווי ושיפוץ"], ["tax", "מסים"], ["fx", "מט״ח"]];
 const I = (k, label, def, min, max, step, unit = "$") => ({ k, label, def, min, max, step, unit });
@@ -1303,7 +1420,7 @@ const CALCS = [
       return { main: ["ARV משוער", avg * v.sqft, "usd"], light: null, rows: [["ממוצע $/sqft", avg, "usd"], ["טווח נמוך", Math.min(...a) * v.sqft, "usd"], ["טווח גבוה", Math.max(...a) * v.sqft, "usd"]] }; } },
   { id: "r70", cat: "value", name: "MAO / כלל ה-70%", sub: "הצעה מקסימלית לפליפ",
     inputs: [I("arv", "ARV", 200000, 20000, 2000000, 1000), I("rehab", "עלות שיפוץ", 30000, 0, 500000, 500), I("pct", "אחוז מה-ARV", 70, 55, 85, 1, "%"), I("fee", "עמלת Wholesaler (Assignment)", 0, 0, 50000, 250)],
-    f: "MAO = ARV × אחוז − שיפוץ − עמלת Wholesaler", help: "70% לא מתאים לכל שוק. באוהיו, בנכסים של 100–150 אלף, העלויות הקבועות הן אחוז גבוה יותר ופליפרים עובדים לעיתים עם 65%. בשווקים יקרים 75%–80%. לבדוק מול משקיעים מקומיים.",
+    f: "MAO = ARV × אחוז − שיפוץ − עמלת Wholesaler", help: "70% לא מתאים לכל שוק. בשווקים זולים (ARV של 100–150 אלף) העלויות הקבועות הן אחוז גבוה יותר ופליפרים עובדים לעיתים עם 65%. בשווקים יקרים 75%–80%. לבדוק מול משקיעים מקומיים.",
     run: v => { const mao = v.arv * v.pct / 100 - v.rehab - v.fee; return { main: ["MAO — הצעה מקסימלית", mao, "usd"], light: mao > 0 ? null : "bad", rows: [[`ARV × ${v.pct}%`, v.arv * v.pct / 100, "usd"], ["מחיר החוזה המקסימלי מול המוכר", v.arv * v.pct / 100 - v.rehab, "usd"]] }; } },
   { id: "brrrr", cat: "value", name: "BRRRR", sub: "הון שנשאר + תזרים אחרי מחזור",
     inputs: [I("buy", "מחיר קנייה", 150000, 20000, 1500000, 1000), I("rehab", "שיפוץ", 40000, 0, 500000, 500), I("costs", "סגירה + החזקה", 8000, 0, 100000, 250), I("hm", "הלוואה ראשונית (Hard Money)", 120000, 0, 1500000, 1000),
@@ -1316,7 +1433,7 @@ const CALCS = [
   /* --- tax --- */
   { id: "ptax", cat: "tax", name: "מס נכס", sub: "Property Tax",
     inputs: [I("value", "שווי / מחיר קנייה", 260000, 20000, 2000000, 1000), I("rate", "שיעור אפקטיבי שנתי", 2, 0.3, 4, 0.05, "%")],
-    f: "מס = שווי × שיעור אפקטיבי", help: "לא בטוח: באוהיו המחוז מעריך לפי 35% מהשווי × מילאז׳ מקומי. לאמת: אתר ה-Auditor של המחוז (Franklin / Hamilton). מחשבים לפי מחיר הקנייה שלך, לא לפי המודעה.",
+    f: "מס = שווי × שיעור אפקטיבי", help: "לא בטוח: כל מחוז מחשב מס אחרת (שווי מוערך × שיעור מקומי). לוקחים את המס האמיתי מאתר ה-Assessor / Auditor של המחוז (קישור במסך הנכס). מחשבים לפי מחיר הקנייה שלך, לא לפי המודעה.",
     run: v => { const y = v.value * v.rate / 100; return { main: ["מס שנתי", y, "usd"], light: null, rows: [["מס חודשי", y / 12, "usd"]] }; } },
   { id: "dep", cat: "tax", name: "פחת", sub: "Depreciation",
     inputs: [I("price", "מחיר קנייה", 260000, 20000, 2000000, 1000), I("land", "חלק הקרקע", 20, 0, 60, 1, "%")],
@@ -1324,7 +1441,7 @@ const CALCS = [
     run: v => { const y = v.price * (1 - v.land / 100) / 27.5; return { main: ["פחת שנתי", y, "usd"], light: null, rows: [["בסיס לפחת (מבנה)", v.price * (1 - v.land / 100), "usd"], ["פחת חודשי", y / 12, "usd"]] }; } },
   { id: "rtax", cat: "tax", name: "מס על השכירות", sub: "אחרי ריבית ופחת",
     inputs: [I("noi", "NOI שנתי", 26724, 0, 300000, 100), I("loan", "הלוואה", 195000, 0, 2000000, 1000), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("price", "מחיר קנייה", 260000, 20000, 2000000, 1000), I("land", "חלק הקרקע", 20, 0, 60, 1, "%"), I("tr", "שיעור מס משוער", 22, 0, 40, 1, "%")],
-    f: "הכנסה חייבת = NOI − ריבית שנה 1 − פחת", help: "הנחה: שיעור המס הוא ערך להמחשה. השיעור בפועל (פדרלי + אוהיו) ושילוב עם ישראל — לאמת מול רו״ח דו-לאומי.",
+    f: "הכנסה חייבת = NOI − ריבית שנה 1 − פחת", help: "הנחה: שיעור המס הוא ערך להמחשה. השיעור בפועל (פדרלי + מדינה) ושילוב עם ישראל — לאמת מול רו״ח דו-לאומי.",
     run: v => { const it = interestFirstYear(v.loan, v.rate, 30), dp = v.price * (1 - v.land / 100) / 27.5, tx = v.noi - it - dp, t = Math.max(0, tx) * v.tr / 100;
       return { main: ["מס משוער לשנה", t, "usd"], light: tx <= 0 ? "good" : null, lightText: tx <= 0 ? "הפחת מאפס את הרווח" : "", rows: [["ריבית שנה 1", -it, "usd"], ["פחת", -dp, "usd"], ["הכנסה חייבת", tx, "usd"]] }; } },
   { id: "firpta", cat: "tax", name: "FIRPTA", sub: "ניכוי במקור במכירה",
@@ -1373,8 +1490,8 @@ function defaults() {
   return {
     start: todayISO(), tasks: {}, quiz: {}, exam: {}, known: {}, dd: {}, calc: {},
     rehab: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
-    buy: [],
-    t2: { geo: [null, null, null], over: [[], [], []], names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [3, 4, 3, 4, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: true, loc: 0 },
+    buy: [], set: { loc: null, rate: 7.5, down: 25, target: 100 },
+    t2: { geo: [null, null, null], over: [[], [], []], names: ["מיקום 1", "מיקום 2", "מיקום 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[3, 3, 3, 3, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: false, loc: 0 },
     t5: { role: 0, cands: {} },
     props: [],
     ui: { route: "home", sub: {}, cat: "yield", deals: "pipeline", pf: "all", editId: null, analyzing: null }
@@ -1425,6 +1542,7 @@ const IC = {
   calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v3M8 18h.01M12 18h.01"/></svg>',
   deals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>',
   sites: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
   back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
   chev: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -1448,12 +1566,14 @@ const TOOL_DEST = { t1: "c-maxp", t2: "market", t3: "c-deal", t4: "c-rehab", t5:
 const TOOL_LABEL = { t1: "תקציב קנייה", t2: "בחירת שוק ומיקוד", t3: "בדיקת עסקה", t4: "מעריך שיפוץ", t5: "כרטיסי צוות", t6: "צ׳קליסט", t7: "טבלת נכסים" };
 
 /* ===================== ROUTER ===================== */
-function tabOf(r) { if (r === "sites") return "sites"; if (r === "napkin") return "calc"; if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
-function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r === "market") return "m3"; if (r === "prop") return "deals"; if (r === "napkin") return S.ui.napFor ? "deals" : "calc"; if (r === "c-deal" && S.ui.analyzing) return "deals"; if (r.startsWith("c-")) return "calc"; return null; }
+function tabOf(r) { if (r === "settings") return ""; if (r === "sites") return "sites"; if (r === "napkin") return "calc"; if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
+function parentOf(r) { if (r === "settings" || r === "backup") return "home"; if (/^m\d$/.test(r)) return "learn"; if (r === "market") return "m3"; if (r === "prop") return "deals"; if (r === "napkin") return S.ui.napFor ? "deals" : "calc"; if (r === "c-deal" && S.ui.analyzing) return "deals"; if (r.startsWith("c-")) return "calc"; return null; }
 function routeTitle(r) {
   if (r === "home") return "US Invest";
   if (r === "market") return "בחירת שוק";
   if (r === "sites") return "כלים ואתרים";
+  if (r === "settings") return "הגדרות";
+  if (r === "backup") return "גיבוי";
   if (r === "napkin") return "מבחן המפית";
   if (r === "prop") return S.ui.editId ? "עריכת נכס" : "נכס חדש";
   if (r === "learn") return "לימוד";
@@ -1465,7 +1585,7 @@ function routeTitle(r) {
   return "";
 }
 function validRoute(r) {
-  if (["home", "learn", "calc", "deals", "c-deal", "backup", "market", "prop", "sites", "napkin"].includes(r)) return true;
+  if (["home", "learn", "calc", "deals", "c-deal", "backup", "market", "prop", "sites", "napkin", "settings"].includes(r)) return true;
   if (/^m\d$/.test(r)) return MODULES.some(m => m.id === r);
   if (r.startsWith("c-")) return CALCS.some(c => c.id === r.slice(2));
   return false;
@@ -1481,7 +1601,7 @@ function go(r, opts = {}) {
   S.ui.route = r; save();
   try { history.replaceState(null, "", "#" + r); } catch (e) {}
   const tab = tabOf(r), par = parentOf(r), p = overall();
-  $("#topbar").innerHTML = `${par ? `<button class="back" data-go="${par}" aria-label="חזרה">${IC.back}</button>` : ""}<span class="ttl">${routeTitle(r)}</span><span class="chip-pct">${ring(p, 22, 4, "var(--brand)", "var(--soft-2)")}<span class="num">${p}%</span></span>`;
+  $("#topbar").innerHTML = `${par ? `<button class="back" data-go="${par}" aria-label="חזרה">${IC.back}</button>` : ""}<span class="ttl">${routeTitle(r)}</span>${r !== "settings" ? `<button class="back" data-go="settings" aria-label="הגדרות">${IC.gear}</button>` : ""}<span class="chip-pct">${ring(p, 22, 4, "var(--brand)", "var(--soft-2)")}<span class="num">${p}%</span></span>`;
   $("#nav").innerHTML = [["home", "בית"], ["learn", "לימוד"], ["sites", "כלים"], ["calc", "מחשבונים"], ["deals", "עסקאות"]].map(([k, l]) => `<button data-go="${k}" ${tab === k ? 'aria-current="page"' : ""}><span class="ic">${IC[k]}</span>${l}</button>`).join("");
   const app = $("#app");
   if (r === "home") app.innerHTML = viewHome();
@@ -1496,6 +1616,7 @@ function go(r, opts = {}) {
   else if (r === "market") app.innerHTML = viewMarket();
   else if (r === "sites") app.innerHTML = viewSites();
   else if (r === "napkin") app.innerHTML = viewNapkin();
+  else if (r === "settings") app.innerHTML = viewSettings();
   else if (r === "backup") app.innerHTML = viewBackup();
   wire(r);
   if (!opts.keepScroll) { window.scrollTo(0, 0); app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); }
@@ -1555,11 +1676,7 @@ function viewHome() {
     <b style="font-family:var(--font-display)">כלל ברזל</b>
     <span class="small">כל מספר צריך מקור: אתר, מתווך או חברת ניהול.</span>
   </section>
-  <section class="row" style="justify-content:space-between">
-    <label class="small muted" for="startDate">תאריך התחלה</label>
-    <input type="date" id="startDate" class="field-in" style="width:auto;background:var(--soft)" value="${esc(S.start)}">
-    <button class="btn sm soft" data-go="backup">גיבוי</button>
-  </section>`;
+  `;
 }
 function modRow(m, cm) {
   const s = modStats(m), cls = s.complete ? "done" : m.id === cm.id ? "now" : "";
@@ -1709,9 +1826,12 @@ function dealResult(v) {
     <tr><td>הון מושקע</td><td class="n" colspan="2">${usd(d.cash)}</td></tr></tbody></table></div></details>`;
 }
 function viewDeal() {
-  const v = calcVals("deal", ALL_DEAL_IN), ap = S.ui.analyzing ? getProp(S.ui.analyzing) : null;
+  const fresh = !S.calc.deal, v = calcVals("deal", ALL_DEAL_IN), ap = S.ui.analyzing ? getProp(S.ui.analyzing) : null;
+  if (fresh) { v.rate = S.set.rate; v.down = S.set.down; }
+  if (v.loc === undefined) v.loc = S.set.loc || null;
   return `${ap ? `<section class="card stack" style="gap:8px;outline:2px solid var(--brand)"><span class="tiny muted">מנתח נכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><div class="row"><button class="btn sm primary" id="saveAn">שמור תוצאה לנכס</button><button class="btn sm soft" id="stopAn">ביטול</button></div></section>` : ""}
   <section class="stack" style="gap:6px"><h1>קונים או לא?</h1><span class="muted">הזז מחיר ושכירות. השאר כבר מוגדר לפי השיטה.</span></section>
+  <section class="card stack" style="gap:10px">${locPicker("deal", v.loc, "איפה הנכס?")}<span class="tiny muted">לפי האזור תקבל קישור למס הנכס האמיתי, להצפות ול-Comps. את המס מכניסים ב״הוצאות״ למטה.</span></section>
   <section class="inps">${DEAL_IN.basic.map(d => inp(d, v[d.k])).join("")}</section>
   <div class="stick" id="stick" hidden></div>
   <div id="res">${dealResult(v)}</div>
@@ -1729,7 +1849,7 @@ function viewRehab() {
   const v = S.rehab;
   return `<section class="stack" style="gap:6px"><h1>מעריך שיפוץ</h1><span class="muted">${v.example ? '<span class="example-tag">מחירי דוגמה.</span> ' : ""}לאמת מול 3 הצעות קבלן.</span></section>
   <div id="res">${rehabResult()}</div>
-  <section class="inps">${inp(I("arv", "ARV", v.arv, 20000, 2000000, 1000), v.arv)}${inp(I("cont", "בלת״מ", v.cont, 0, 30, 1, "%"), v.cont)}${inp(I("pct", "אחוז מה-ARV (65% באוהיו הזולה)", 70, 55, 85, 1, "%"), v.pct || 70)}</section>
+  <section class="inps">${inp(I("arv", "ARV", v.arv, 20000, 2000000, 1000), v.arv)}${inp(I("cont", "בלת״מ", v.cont, 0, 30, 1, "%"), v.cont)}${inp(I("pct", "אחוז מה-ARV (65% בשוק זול)", 70, 55, 85, 1, "%"), v.pct || 70)}</section>
   <section class="card stack" style="gap:8px">
     <div class="item-row tiny muted"><span>פריט</span><span>כמות</span><span>$ ליחידה</span><span></span></div>
     <div id="items" class="stack" style="gap:6px">${v.items.map((it, i) => `<div class="item-row"><input class="field-in" data-it="${i}-0" value="${esc(it[0])}" aria-label="פריט"><input class="field-in" type="number" data-it="${i}-1" value="${esc(it[1])}" aria-label="כמות"><input class="field-in" type="number" data-it="${i}-2" value="${esc(it[2])}" aria-label="עלות ליחידה"><button class="icon-btn" data-del="${i}" aria-label="מחק">✕</button></div>`).join("")}</div>
@@ -1811,6 +1931,7 @@ function propCard(p) {
   return `<div class="dcard">
     ${ph ? `<a href="/_blob/${esc(ph)}" target="_blank" rel="noopener"><img class="pthumb" src="/_blob/${esc(ph)}" alt="תמונת הנכס" loading="lazy"></a>` : ""}
     <div class="top"><span class="addr" dir="auto">${esc(p.addr)}</span>${p.source ? `<span class="pill">${esc(p.source)}</span>` : ""}</div>
+    ${p.loc ? `<span class="tiny muted" dir="ltr" style="text-align:right">📍 ${esc(locLabel(p.loc))}${p.loc.kind !== "county" ? " · " + esc(p.loc.county) : ""}</span>` : ""}
     <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}${S.buy.length && p.zip && !S.buy.includes(String(p.zip)) ? `<span class="pill mid">מחוץ ל-Buy Box</span>` : ""}${+p.arv > 0 ? `<span class="pill">ARV <span class="num">${usd(+p.arv)}</span></span>` : ""}${p.photos && p.photos.length > 1 ? `<span class="pill">${p.photos.length} תמונות</span>` : ""}</div>
     ${p.zip ? `<div class="tiny muted area" data-zip="${esc(p.zip)}" data-rent="${esc(p.rent || "")}" data-units="${esc(p.units || 1)}"></div>` : ""}
     ${p.nap ? `<div class="row"><span class="pill ${p.nap.pass ? "good" : "bad"}">מבחן מפית ${p.nap.pass ? "עבר ✓" : "נכשל ✕"}</span></div>` : ""}
@@ -1822,8 +1943,10 @@ function propCard(p) {
       <button class="btn sm soft" data-go="prop:${esc(p.id)}">ערוך</button></div>
   </div>`;
 }
+let draftLoc = null;
 function viewProp() {
   const p = S.ui.editId ? getProp(S.ui.editId) : null, v = p || { status: 0, source: "Zillow", units: 2 };
+  draftLoc = p ? (p.loc || null) : (S.set.loc || null);
   const f = (id, label, val, type = "text", extra = "") => `<label${extra}>${label}<input class="field-in" id="${id}" type="${type}" value="${esc(val ?? "")}"${type === "number" ? ' step="any" inputmode="decimal"' : ""}></label>`;
   return `<section class="stack" style="gap:6px"><h1>${p ? "עריכת נכס" : "נכס חדש"}</h1><span class="muted">חובה: כתובת ומחיר. השאר משפר את הניתוח.</span></section>
   <section class="card stack" id="aiBox" hidden style="gap:8px;outline:2px solid var(--brand);background:var(--brand-soft)">
@@ -1834,6 +1957,7 @@ function viewProp() {
   </section>
   <form id="propForm" class="card form">
     <label class="full">כתובת<input class="field-in" id="f_addr" required value="${esc(v.addr ?? "")}"></label>
+    ${locPicker("prop", draftLoc, "עיר / אזור", { full: true })}
     <label class="full">לינק למודעה או לפוסט<input class="field-in" id="f_link" inputmode="url" placeholder="https://www.zillow.com/..." value="${esc(v.link ?? "")}" style="direction:ltr"></label>
     <label>מקור<select class="field-in" id="f_source">${SOURCES.map(s => `<option ${v.source === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
     ${f("f_zip", "מיקוד", v.zip)}
@@ -1896,7 +2020,7 @@ function analyzeProp(id) {
   const v = Object.assign(dealDefaults(), S.calc.deal || {}), u = Math.max(1, +p.units || 1);
   v.price = +p.price; v.units = u; v.rent = Math.round(+p.rent / u);
   if (+p.tax > 0 && +p.price > 0) v.taxPct = +(p.tax / p.price * 100).toFixed(2);
-  v.hoa = +p.hoa || 0;
+  v.hoa = +p.hoa || 0; v.loc = p.loc || S.set.loc || null;
   S.calc.deal = v; S.ui.analyzing = id; save(); go("c-deal");
 }
 function renderDD() {
@@ -2000,7 +2124,7 @@ function wireInputs(store, onChange) {
 function wire(r) {
   const app = $("#app");
   if (r === "sites") $$("[data-stab]").forEach(b => b.onclick = () => { S.ui.sitesTab = b.dataset.stab; save(); go("sites"); });
-  if (r === "home") $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
+  if (r === "home" && $("#startDate")) $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
   if (/^m\d$/.test(r)) {
     const m = MODULES.find(x => x.id === r), re = () => go(m.id, { keepScroll: true });
     $$("[data-sub]").forEach(b => b.onclick = () => { S.ui.sub[m.id] = b.dataset.sub; save(); re(); });
@@ -2035,6 +2159,7 @@ function wire(r) {
   }
   if (r === "c-deal") {
     const v = S.calc.deal;
+    bindPicker("deal", "איפה הנכס?", {}, l => { v.loc = l; save(); });
     wireInputs(v, () => { const open = $("#res details")?.open; $("#res").innerHTML = dealResult(v); if (open) $("#res details").open = true; renderStick(stickDeal(v)); save(); });
     watchStick(() => stickDeal(v));
     $("#resetCalc").onclick = () => { delete S.calc.deal; S.ui.analyzing = null; save(); go(r); toast("נטענה דוגמת מודול 4"); };
@@ -2054,13 +2179,15 @@ function wire(r) {
     form.onsubmit = async e => {
       e.preventDefault();
       const g = id => $("#" + id).value.trim(), n = id => { const x = parseFloat(g(id)); return isFinite(x) ? x : null; };
-      const p = { ...(ex || { id: newId(), created: Date.now() }), addr: g("f_addr"), link: g("f_link"), source: g("f_source"), zip: g("f_zip"), price: n("f_price"), rent: n("f_rent"), units: n("f_units") || 1, beds: n("f_beds"), baths: n("f_baths"), arv: n("f_arv"), photos: draftPhotos.slice(), sqft: n("f_sqft"), year: n("f_year"), tax: n("f_tax"), hoa: n("f_hoa"), status: +g("f_status"), nextDate: g("f_date"), nextAction: g("f_next"), notes: g("f_notes") };
+      if (!draftLoc) { toast("בחר עיר / אזור לנכס"); const i = $("#lp-prop"); if (i) i.focus(); return; }
+      const p = { ...(ex || { id: newId(), created: Date.now() }), addr: g("f_addr"), link: g("f_link"), source: g("f_source"), zip: g("f_zip"), price: n("f_price"), rent: n("f_rent"), units: n("f_units") || 1, beds: n("f_beds"), baths: n("f_baths"), arv: n("f_arv"), photos: draftPhotos.slice(), loc: draftLoc, sqft: n("f_sqft"), year: n("f_year"), tax: n("f_tax"), hoa: n("f_hoa"), status: +g("f_status"), nextDate: g("f_date"), nextAction: g("f_next"), notes: g("f_notes") };
       if (p.link && !safeUrl(p.link)) { toast("הלינק לא תקין. הדבק כתובת שמתחילה ב-https://"); return; }
       await saveProp(p);
       if (Caps.assets) for (const id of removedPhotos) Caps.assets.delete(id).catch(() => {});
       toast(ex ? "נשמר" : "הנכס נוסף לטבלה"); go("deals:pipeline");
     };
     draftPhotos = ex && ex.photos ? ex.photos.map(x => ({ ...x })) : []; removedPhotos = []; renderThumbs();
+    bindPicker("prop", "עיר / אזור", { full: true }, l => { draftLoc = l; if (l && l.zip && !$("#f_zip").value) $("#f_zip").value = l.zip; });
     $("#thumbs").onclick = e => { const b = e.target.closest("[data-rmph]"); if (!b) return; const [rm] = draftPhotos.splice(+b.dataset.rmph, 1); if (rm) removedPhotos.push(rm.id); renderThumbs(); };
     $("#phFile").onchange = async e => { const files = [...e.target.files]; const m = $("#phMsg"); m.textContent = `מעלה ${files.length} תמונות…`; let ok = 0; for (const f of files) if (await uploadPhoto(f)) ok++; if (ok === files.length) m.textContent = `הועלו ${ok} תמונות. לחץ שמור.`; e.target.value = ""; };
     $("#aiFile").onchange = e => { const f = e.target.files[0]; if (f && Caps.sample) readScreenshot(f); };
@@ -2131,8 +2258,8 @@ function wire(r) {
     w.oninput = e => { if (e.target.id === "locNote") { S.t2.notes[S.t2.loc] = e.target.value; save(); } };
   }
   if (r === "napkin") wireNapkin();
-  if (r === "sites") $$("[data-br]").forEach(b => b.onclick = () => { S.ui.browser = b.dataset.br; save(); go("sites", { keepScroll: true }); toast(b.dataset.br === "chrome" ? "קישורים ייפתחו ב-Chrome" : "קישורים ייפתחו בדפדפן הרגיל"); });
-  if (r === "sites" && $("#cfGo")) { $("#cfGo").onclick = runCountyFinder; $("#cfIn").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); runCountyFinder(); } }; }
+  if (r === "settings") wireSettings();
+  if (r === "sites" && $('[data-lp="cf"]')) { const show = l => { S.ui.cfLoc = l; save(); const o = $("#cfOut"); if (o) o.innerHTML = l ? cfLinks(l) : ""; }; bindPicker("cf", "מחוז, עיר או מיקוד", { links: false }, show); show(S.ui.cfLoc || S.set.loc || null); }
   if (r === "backup") {
     $("#bkCopy").onclick = () => { const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי, העתק ידנית"); }; try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); } };
     $("#bkLoad").onclick = () => { const m = $("#bkMsg"); try { const o = JSON.parse($("#bkIn").value); if (!o || typeof o !== "object" || !o.tasks) throw 0; S = deepMerge(defaults(), o); save(); m.textContent = "שוחזר"; m.style.color = "var(--green)"; } catch (e) { m.textContent = "הקוד לא תקין. הדבק את כל הטקסט מהייצוא."; m.style.color = "var(--red)"; } };
@@ -2162,14 +2289,16 @@ function napState() {
   if (!v.mode) v.mode = "rental";
   if (!v.vals) v.vals = {};
   if (!v.checked) v.checked = {};
+  if (v.loc === undefined) v.loc = S.set.loc || null;
   return v;
 }
 /* effective numbers for the current mode, or the list of missing required fields */
 function napValues(v) {
   const out = { mode: v.mode, noMgmt: v.noMgmt, taxOk: v.taxOk }, missing = [];
+  if (!v.loc) missing.push("איפה הנכס");
   [...NAP_COMMON, ...NAP_F[v.mode]].forEach(([k, label, , def]) => {
-    const x = parseFloat(v.vals[k]);
-    if (isFinite(x)) out[k] = x; else if (def !== null) out[k] = def; else missing.push(label);
+    const x = parseFloat(v.vals[k]), d = NAP_COMMON.some(c => c[0] === k) ? S.set[k] ?? def : def;
+    if (isFinite(x)) out[k] = x; else if (d !== null) out[k] = d; else missing.push(label);
   });
   return { e: out, missing };
 }
@@ -2228,7 +2357,7 @@ function napkinResult(v) {
   return `<div class="verdict ${r.pass ? "good" : "bad"}"><span class="small muted">מבחן המפית · ${esc(NAP_MODES.find(m => m[0] === v.mode)[1])}</span>
     <div class="vt">${r.pass ? "עובר לחיתום מלא ✓" : "נכשל — זורקים ✕"}</div>
     <div class="reasons">${r.steps.map(s => `<div><span class="mk ${s.s === "y" ? "ok" : s.s === "n" ? "no" : ""}" style="${s.s === "i" ? "background:var(--soft-2);color:var(--ink)" : ""}">${s.s === "y" ? "✓" : s.s === "n" ? "✕" : "="}</span><span style="flex:1">${esc(s.t)}</span><b class="num" style="white-space:nowrap">${esc(s.val)}</b></div>`).join("")}</div>
-    ${!v.taxOk ? `<div class="warnline">לא בדקת את המס האמיתי ב-Auditor. מס רכוש באוהיו יכול להיות גבוה מההערכה.</div>` : ""}
+    ${!v.taxOk ? `<div class="warnline">לא בדקת את המס האמיתי של ${v.loc ? esc(v.loc.county) : "המחוז"}. מס נכס משתנה מאוד בין מחוזות ויכול להפוך עסקה.${v.loc ? ` <a href="${ducky(`${v.loc.county} ${stateName(v.loc.st)} property tax assessor auditor parcel search official site`)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand-strong);font-weight:700">בדוק עכשיו ↗</a>` : ""}</div>` : ""}
     ${r.pass && r.cta ? `<button class="btn primary" id="napToDeal" style="justify-self:start">${r.cta[0]} ←</button>` : ""}
     ${S.ui.napFor ? `<button class="btn" id="saveNap" style="justify-self:start">שמור תוצאה לנכס</button>` : ""}
   </div>`;
@@ -2245,15 +2374,16 @@ function napField([k, label, ex, def, unit], v) {
 }
 function viewNapkin() {
   const v = napState(), ap = S.ui.napFor ? getProp(S.ui.napFor) : null, { e } = napValues(v);
+  if (!isFinite(e.rate)) { e.rate = S.set.rate; e.down = S.set.down; }
   return `${ap ? `<section class="card stack" style="gap:6px;outline:2px solid var(--brand)"><span class="tiny muted">מבחן מפית לנכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><button class="btn sm soft" id="stopNap" style="justify-self:start">ביטול</button></section>` : ""}
   <section class="stack" style="gap:6px"><h1>מבחן המפית</h1><p class="muted">סינון של 2 דקות במספרים מעוגלים. נועד לפסול עסקאות, לא לאשר אותן.</p></section>
   <div class="chips" role="group" aria-label="אסטרטגיה">${NAP_MODES.map(([k, l]) => `<button data-nmode="${k}" aria-pressed="${v.mode === k}">${l}</button>`).join("")}</div>
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">פסילה מיידית, לפני כל מספר</b>
     <label class="task ${v.noMgmt ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napMgmt" ${v.noMgmt ? "checked" : ""}><span class="box" style="${v.noMgmt ? "background:var(--red);border-color:var(--red)" : ""}">${IC.check}</span><span class="t" style="text-decoration:none">חברת ניהול מקומית מסרבת לנהל באזור</span></label>
-    <label class="task ${v.taxOk ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napTax" ${v.taxOk ? "checked" : ""}><span class="box">${IC.check}</span><span class="t" style="text-decoration:none">בדקתי את המס האמיתי של הנכס ב-Auditor</span></label>
+    <label class="task ${v.taxOk ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napTax" ${v.taxOk ? "checked" : ""}><span class="box">${IC.check}</span><span class="t" style="text-decoration:none">בדקתי את המס האמיתי של הנכס באתר המחוז</span></label>
   </section>
   ${v.mode === "whole" ? `<div class="warnline">לא מאמינים ל-ARV ולהערכת השיפוץ של ה-Wholesaler. בודקים Comps בעצמך, ואחרי המבחן ממשיכים לפי האסטרטגיה: השכרה, פליפ או BRRRR.</div>` : ""}
-  <section class="card form" id="napForm">${NAP_F[v.mode].map(f => napField(f, v)).join("")}
+  <section class="card form" id="napForm">${locPicker("nap", v.loc, "איפה הנכס?", { required: true, full: true })}${NAP_F[v.mode].map(f => napField(f, v)).join("")}
     <span class="tiny muted full"><span style="color:var(--red)">*</span> חובה. שדה ריק בלי כוכבית מקבל את ערך ברירת המחדל שמופיע בו.</span></section>
   <details class="adv"><summary>הנחות: ריבית ${e.rate}% · משכנתא ≈ ${napOfPrice(e).toFixed(2)}% מהמחיר</summary><div class="form" style="padding:0 14px 14px">${NAP_COMMON.map(f => napField(f, v)).join("")}<p class="tiny muted full">לא בטוח: המכפיל מבוסס על ריבית DSCR של 6.5%–7.5%. כשתקבל ריבית מהברוקר, עדכן אותה כאן והמכפיל יתעדכן לבד (6.5% ≈ 0.47%).</p></div></details>
   <div class="row"><button class="btn primary" id="napCheck" style="flex:1">${v.checked[v.mode] ? "בדוק שוב" : "בדוק"}</button><button class="btn soft" id="napClear">נקה</button></div>
@@ -2268,7 +2398,7 @@ function napFromProp(id) {
     Object.assign(v.vals, v.mode === "whole" ? { warv: +p.arv, wask: price } : { arv: +p.arv, ask: price });
   } else if (units >= 5) { v.mode = "multi"; Object.assign(v.vals, { mprice: price, munits: units, mrent: rent }); }
   else { v.mode = "rental"; Object.assign(v.vals, { price, rent, units, rehab: "" }); }
-  v.checked[v.mode] = false;
+  v.checked[v.mode] = false; v.loc = p.loc || S.set.loc || null;
   S.ui.napFor = id; save(); go("napkin");
 }
 function napRefresh() {
@@ -2279,6 +2409,7 @@ function napRefresh() {
 function wireNapkin() {
   const v = napState();
   watchStick(() => napStick(v)); wireNapResult();
+  bindPicker("nap", "איפה הנכס?", { required: true, full: true }, l => { v.loc = l; save(); if (v.checked[v.mode]) napRefresh(); });
   $("#app").oninput = e => { const k = e.target.dataset.nk; if (!k) return; v.vals[k] = e.target.value; save(); if (v.checked[v.mode]) napRefresh(); };
   $$("[data-nmode]").forEach(b => b.onclick = () => { v.mode = b.dataset.nmode; save(); go("napkin", { keepScroll: true }); });
   $("#napMgmt").onchange = e => { v.noMgmt = e.target.checked; save(); go("napkin", { keepScroll: true }); };
@@ -2293,6 +2424,28 @@ function wireNapResult() {
   if (toDeal) toDeal.onclick = () => { const { e } = napValues(v), d = Object.assign(dealDefaults(), S.calc.deal || {}); d.price = e.price; d.units = e.units; d.rent = Math.round(e.rent / Math.max(1, e.units)); d.rate = e.rate; d.down = e.down; d.repairs = e.rehab; S.calc.deal = d; S.ui.analyzing = S.ui.napFor || null; save(); go("c-deal"); };
   const sv = $("#saveNap");
   if (sv) sv.onclick = async () => { const p = getProp(S.ui.napFor); if (!p) return; const r = napkin(napValues(v).e); S.ui.napFor = null; await saveProp({ ...p, nap: { pass: r.pass, mode: v.mode, at: todayISO() }, status: !r.pass && p.status === 0 ? 5 : p.status }); toast(r.pass ? "עבר — נשמר לנכס" : "נכשל — סומן ״נפסל״"); go("deals:pipeline"); };
+}
+
+/* ===================== SETTINGS ===================== */
+function viewSettings() {
+  const s = S.set, f = (k, label, unit) => `<label>${label}<span class="inp-num" style="width:100%;justify-content:space-between"><input type="number" step="any" inputmode="decimal" data-set="${k}" value="${esc(s[k])}" style="width:100%"><span class="unit">${unit}</span></span></label>`;
+  return `<section class="stack" style="gap:6px"><h1>הגדרות</h1><p class="muted">ברירות מחדל לכל הבדיקות. בכל בדיקה אפשר לשנות בנפרד.</p></section>
+  <section class="card stack" style="gap:10px">${locPicker("set", s.loc, "אזור ברירת מחדל (לא חובה)", { links: false })}
+    <span class="tiny muted">אם תגדיר אזור, כל בדיקה חדשה (מבחן מפית, בדיקת עסקה, נכס חדש) תתחיל ממנו. בלי הגדרה, כל בדיקה תשאל איפה הנכס.</span></section>
+  <section class="card stack" style="gap:10px"><b style="font-family:var(--font-display)">מימון — ברירות מחדל</b>
+    <div class="form">${f("rate", "ריבית DSCR", "%")}${f("down", "מקדמה", "%")}${f("target", "יעד תזרים לדירה לחודש", "$")}</div>
+    <span class="tiny muted">משמש את מבחן המפית ובדיקות עסקה חדשות. כשתקבל ריבית מברוקר, עדכן כאן.</span></section>
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">פתיחת קישורים</b>
+    <div class="chips" role="group" aria-label="דפדפן"><button data-br="default" aria-pressed="${(S.ui.browser || "default") === "default"}">הדפדפן הרגיל של הטלפון</button><button data-br="chrome" aria-pressed="${S.ui.browser === "chrome"}">Chrome</button></div>
+    <span class="tiny muted">הדרך הבטוחה לפתוח תמיד ב-Chrome באייפון: הגדרות ← Chrome ← Default Browser App. האפשרות ״Chrome״ כאן עלולה לא לעבוד מתוך אפליקציית Claude.</span></section>
+  <section class="card stack" style="gap:8px"><label class="small" for="startDate" style="font-weight:600">תאריך התחלת המסלול (24 שבועות)</label><input type="date" id="startDate" class="field-in" value="${esc(S.start)}"></section>
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">גיבוי ושחזור</b><span class="tiny muted">העתקת כל ההתקדמות לקוד, ושחזור במכשיר אחר.</span><button class="btn" data-go="backup" style="justify-self:start">פתח גיבוי</button></section>`;
+}
+function wireSettings() {
+  bindPicker("set", "אזור ברירת מחדל (לא חובה)", { links: false }, l => { S.set.loc = l; save(); toast(l ? "אזור ברירת המחדל נשמר" : "אזור ברירת המחדל הוסר"); });
+  $$("[data-set]").forEach(i => i.onchange = () => { const x = parseFloat(i.value); if (isFinite(x)) { S.set[i.dataset.set] = x; save(); toast("נשמר"); } });
+  $$("[data-br]").forEach(b => b.onclick = () => { S.ui.browser = b.dataset.br; save(); go("settings", { keepScroll: true }); toast(b.dataset.br === "chrome" ? "קישורים ייפתחו ב-Chrome" : "קישורים ייפתחו בדפדפן הרגיל"); });
+  $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); toast("נשמר"); } };
 }
 /* ===================== BOOT ===================== */
 const h0 = (location.hash || "").slice(1);
