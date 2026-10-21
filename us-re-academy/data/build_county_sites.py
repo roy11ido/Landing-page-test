@@ -41,6 +41,11 @@ OVERRIDES = {
     "Roanoke City|VA": "https://www.roanokeva.gov",
 }
 
+# Addresses confirmed by the user; these replace whatever Wikidata has.
+CORRECTIONS = {
+    "Hamilton County|IN": "https://www.hamiltoncounty.in.gov/",
+}
+
 SPARQL = """
 SELECT ?fips ?site WHERE {
   ?c wdt:P882 ?fips ; wdt:P856 ?site .
@@ -81,6 +86,9 @@ def main():
             sites[key] = site
     for k, v in OVERRIDES.items():
         sites.setdefault(k, v)
+    # most county sites now only work over https; old Wikidata entries still say http
+    sites = {k: "https://" + v[len("http://"):] if v.startswith("http://") else v for k, v in sites.items()}
+    sites.update(CORRECTIONS)
     with open(os.path.join(a.out, "county_sites.json"), "w", encoding="utf-8") as f:
         json.dump(sites, f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     print(f"{len(sites)} county websites")
