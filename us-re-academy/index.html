@@ -85,6 +85,8 @@ main { padding-block: 4px calc(110px + env(safe-area-inset-bottom, 0px)); displa
 .btn.block { width: 100%; }
 .btn.danger { color: var(--red); border-color: var(--red); }
 .btn:active { transform: scale(.98); }
+a.btn { text-decoration: none; color: inherit; }
+a.btn.dark { color: var(--inv-ink); }
 .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--soft); display: grid; place-items: center; font-weight: 700; flex: none; }
 .card { background: var(--soft); border-radius: var(--r); padding: 18px; min-width: 0; }
 .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 11px; font-size: 13px; font-weight: 700; background: var(--soft); white-space: nowrap; }
@@ -1021,22 +1023,24 @@ function defaults() {
     rehab: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
     t2: { names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [3, 4, 3, 4, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: true, loc: 0 },
     t5: { role: 0, cands: {} },
-    t7: { deals: [
-      { addr: "123 Example Ave", zip: "43205", price: 240000, units: 3, rent: 2850, status: 1, coc: 9.1, note: "מס גבוה מהמודעה", ex: true },
-      { addr: "456 Sample St", zip: "45238", price: 295000, units: 4, rent: 3600, status: 2, coc: 11.4, note: "עבר stress test", ex: true },
-      { addr: "789 Demo Rd", zip: "43207", price: 180000, units: 2, rent: 1500, status: 5, coc: 4.2, note: "Flood Zone AE", ex: true }
-    ] },
-    ui: { route: "home", sub: {}, cat: "yield", deals: "pipeline" }
+    props: [],
+    ui: { route: "home", sub: {}, cat: "yield", deals: "pipeline", pf: "all", editId: null, analyzing: null }
   };
 }
 let S;
+function migrateDeals(d) {
+  const old = d.t7 && d.t7.deals ? d.t7.deals.filter(x => !x.ex) : [];
+  old.forEach((x, i) => d.props.push({ id: "p" + Date.now().toString(36) + i, addr: x.addr, zip: x.zip, price: x.price, units: x.units, rent: x.rent, status: x.status, notes: x.note || "", source: "אחר", updated: Date.now() }));
+  delete d.t7;
+  return d;
+}
 function load() {
   const d = defaults();
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return deepMerge(d, JSON.parse(raw));
+    if (raw) return migrateDeals(deepMerge(d, JSON.parse(raw)));
     const old = localStorage.getItem(OLD_KEY);
-    if (old) { const o = JSON.parse(old); ["start", "tasks", "quiz", "exam", "known", "dd", "t5", "t7"].forEach(k => { if (o[k]) d[k] = o[k]; }); if (o.t2) d.t2 = Object.assign(d.t2, o.t2); }
+    if (old) { const o = JSON.parse(old); ["start", "tasks", "quiz", "exam", "known", "dd", "t5", "t7"].forEach(k => { if (o[k]) d[k] = o[k]; }); if (o.t2) d.t2 = Object.assign(d.t2, o.t2); return migrateDeals(d); }
   } catch (e) {}
   return d;
 }
@@ -1086,14 +1090,16 @@ function modStats(m) {
 }
 function overall() { let p = 0, mx = 0; MODULES.forEach(m => { const s = modStats(m); p += s.done + (s.quizPassed ? 2 : 0) + (s.examOk ? 2 : 0); mx += s.total + 4; }); return Math.round(p / mx * 100); }
 const weeksTxt = m => m.weeks[0] === m.weeks[1] ? `שבוע ${m.weeks[0]}` : `שבועות ${m.weeks[0]}–${m.weeks[1]}`;
-const TOOL_DEST = { t1: "c-maxp", t2: "deals:market", t3: "c-deal", t4: "c-rehab", t5: "deals:team", t6: "deals:dd", t7: "deals:pipeline" };
-const TOOL_LABEL = { t1: "תקציב קנייה", t2: "ניקוד שוק", t3: "בדיקת עסקה", t4: "מעריך שיפוץ", t5: "כרטיסי צוות", t6: "צ׳קליסט", t7: "צנרת עסקאות" };
+const TOOL_DEST = { t1: "c-maxp", t2: "market", t3: "c-deal", t4: "c-rehab", t5: "deals:team", t6: "deals:dd", t7: "deals:pipeline" };
+const TOOL_LABEL = { t1: "תקציב קנייה", t2: "בחירת שוק ומיקוד", t3: "בדיקת עסקה", t4: "מעריך שיפוץ", t5: "כרטיסי צוות", t6: "צ׳קליסט", t7: "טבלת נכסים" };
 
 /* ===================== ROUTER ===================== */
-function tabOf(r) { if (r === "learn" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals") return "deals"; return "home"; }
-function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r.startsWith("c-")) return "calc"; return null; }
+function tabOf(r) { if (r === "learn" || r === "market" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals" || r === "prop") return "deals"; return "home"; }
+function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r === "market") return "m3"; if (r === "prop") return "deals"; if (r === "c-deal" && S.ui.analyzing) return "deals"; if (r.startsWith("c-")) return "calc"; return null; }
 function routeTitle(r) {
   if (r === "home") return "מסלול נדל״ן ארה״ב";
+  if (r === "market") return "בחירת שוק";
+  if (r === "prop") return S.ui.editId ? "עריכת נכס" : "נכס חדש";
   if (r === "learn") return "לימוד";
   if (r === "calc") return "מחשבונים";
   if (r === "deals") return "העסקאות שלי";
@@ -1103,16 +1109,20 @@ function routeTitle(r) {
   return "";
 }
 function validRoute(r) {
-  if (["home", "learn", "calc", "deals", "c-deal", "backup"].includes(r)) return true;
+  if (["home", "learn", "calc", "deals", "c-deal", "backup", "market", "prop"].includes(r)) return true;
   if (/^m\d$/.test(r)) return MODULES.some(m => m.id === r);
   if (r.startsWith("c-")) return CALCS.some(c => c.id === r.slice(2));
   return false;
 }
 function go(r, opts = {}) {
   if (r.startsWith("deals:")) { S.ui.deals = r.slice(6); r = "deals"; }
+  if (r === "prop-new") { S.ui.editId = null; r = "prop"; }
+  if (r.startsWith("prop:")) { S.ui.editId = r.slice(5); r = "prop"; }
   if (!validRoute(r)) r = "home";
+  if (r !== "c-deal") S.ui.analyzing = null;
+  if (r === "deals" && !["pipeline", "dd", "team"].includes(S.ui.deals)) S.ui.deals = "pipeline";
   S.ui.route = r; save();
-  try { history.replaceState(null, "", "#" + (r.includes(":") ? "deals" : r)); } catch (e) {}
+  try { history.replaceState(null, "", "#" + r); } catch (e) {}
   const tab = tabOf(r), par = parentOf(r), p = overall();
   $("#topbar").innerHTML = `${par ? `<button class="back" data-go="${par}" aria-label="חזרה">${IC.back}</button>` : ""}<span class="ttl">${routeTitle(r)}</span><span class="chip-pct">${ring(p, 22, 4, "var(--red)", "var(--soft-2)")}<span class="num">${p}%</span></span>`;
   $("#nav").innerHTML = [["home", "בית"], ["learn", "לימוד"], ["calc", "מחשבונים"], ["deals", "עסקאות"]].map(([k, l]) => `<button data-go="${k}" ${tab === k ? 'aria-current="page"' : ""}><span class="ic">${IC[k]}</span>${l}</button>`).join("");
@@ -1125,6 +1135,8 @@ function go(r, opts = {}) {
   else if (r === "c-rehab") app.innerHTML = viewRehab();
   else if (r.startsWith("c-")) app.innerHTML = viewCalc(CALCS.find(c => c.id === r.slice(2)));
   else if (r === "deals") app.innerHTML = viewDeals();
+  else if (r === "prop") app.innerHTML = viewProp();
+  else if (r === "market") app.innerHTML = viewMarket();
   else if (r === "backup") app.innerHTML = viewBackup();
   wire(r);
   if (!opts.keepScroll) window.scrollTo(0, 0);
@@ -1151,7 +1163,7 @@ function viewHome() {
   <section class="tiles">
     <button class="tile red" data-go="c-deal">${IC.bolt}<b>בדיקת עסקה</b><span>קונים או לא? 60 שניות</span></button>
     <button class="tile" data-go="calc">${IC.calc}<b>מחשבונים</b><span>${CALCS.length} נוסחאות</span></button>
-    <button class="tile" data-go="deals">${IC.deals}<b>הצנרת שלי</b><span>${S.t7.deals.filter(d => !d.ex).length} נכסים</span></button>
+    <button class="tile" data-go="deals:pipeline">${IC.deals}<b>הנכסים שלי</b><span>${props().length} במעקב</span></button>
   </section>
   <section class="stack">
     <div class="sec-title"><h2>המודולים</h2><button class="btn sm soft" data-go="learn">הכל</button></div>
@@ -1300,8 +1312,9 @@ function dealResult(v) {
     <tr><td>הון מושקע</td><td class="n" colspan="2">${usd(d.cash)}</td></tr></tbody></table></div></details>`;
 }
 function viewDeal() {
-  const v = calcVals("deal", ALL_DEAL_IN);
-  return `<section class="stack" style="gap:6px"><h1>קונים או לא?</h1><span class="muted">הזז מחיר ושכירות. השאר כבר מוגדר לפי השיטה.</span></section>
+  const v = calcVals("deal", ALL_DEAL_IN), ap = S.ui.analyzing ? getProp(S.ui.analyzing) : null;
+  return `${ap ? `<section class="card stack" style="gap:8px;outline:2px solid var(--red)"><span class="tiny muted">מנתח נכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><div class="row"><button class="btn sm primary" id="saveAn">שמור תוצאה לנכס</button><button class="btn sm soft" id="stopAn">ביטול</button></div></section>` : ""}
+  <section class="stack" style="gap:6px"><h1>קונים או לא?</h1><span class="muted">הזז מחיר ושכירות. השאר כבר מוגדר לפי השיטה.</span></section>
   <section class="inps">${DEAL_IN.basic.map(d => inp(d, v[d.k])).join("")}</section>
   <div id="res">${dealResult(v)}</div>
   <details class="adv"><summary>הוצאות</summary><div class="inps">${DEAL_IN.exp.map(d => inp(d, v[d.k])).join("")}</div></details>
@@ -1329,31 +1342,105 @@ function viewRehab() {
 /* ===================== DEALS ===================== */
 function viewDeals() {
   const sub = S.ui.deals;
-  const subs = [["pipeline", "צנרת"], ["dd", "צ׳קליסט"], ["team", "צוות"], ["market", "שוק"]];
-  return `<div class="seg" role="group" aria-label="אזורים">${subs.map(([k, l]) => `<button data-dsub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div><div id="dwrap" class="stack" style="gap:16px"></div>`;
+  const subs = [["pipeline", "נכסים"], ["dd", "צ׳קליסט"], ["team", "צוות"]];
+  return `<div class="seg" role="group" aria-label="אזורים">${subs.map(([k, l]) => `<button data-dsub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div><div id="dwrap" class="stack" style="gap:14px"></div>`;
+}
+
+/* --- property tracker: private per user in the artifact db, browser storage as fallback --- */
+const SOURCES = ["Zillow", "Redfin", "Realtor.com", "Facebook", "Craigslist", "מתווך", "Wholesaler", "אחר"];
+const Store = { mode: "local", col: null, items: [] };
+const newId = () => "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function props() { return Store.mode === "cloud" ? Store.items : S.props; }
+function getProp(id) { return props().find(p => p.id === id); }
+function safeUrl(u) { u = String(u || "").trim(); if (/^https?:\/\//i.test(u)) return u; if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u)) return "https://" + u; return ""; }
+async function saveProp(p) {
+  p.updated = Date.now();
+  if (Store.mode === "cloud") {
+    const i = Store.items.findIndex(x => x.id === p.id); if (i >= 0) Store.items[i] = p; else Store.items.push(p);
+    const { id, ...body } = p;
+    try { await Store.col.doc(id).set(body); } catch (e) { toast(e && e.code === "quota_exceeded" ? "האחסון מלא. מחק נכסים ישנים." : "השמירה בענן נכשלה. נסה שוב."); }
+  } else { const i = S.props.findIndex(x => x.id === p.id); if (i >= 0) S.props[i] = p; else S.props.push(p); save(); }
+}
+async function deleteProp(id) {
+  if (Store.mode === "cloud") { Store.items = Store.items.filter(x => x.id !== id); try { await Store.col.doc(id).delete(); } catch (e) { toast("המחיקה נכשלה. נסה שוב."); } }
+  else { S.props = S.props.filter(x => x.id !== id); save(); }
+}
+function refreshProps() {
+  if (S.ui.route === "deals" && S.ui.deals === "pipeline" && $("#dwrap")) renderPipeline();
+  else if (S.ui.route === "home") go("home", { keepScroll: true });
+}
+async function initStore() {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) return;
+    const uid = await user.id(); if (!uid) return;
+    const col = db.collection("data/users/" + uid), first = await col.get(), local = S.props.slice();
+    if (first.empty && local.length) for (const p of local) { const { id, ...body } = p; await col.doc(id).set(body); }
+    Store.col = col; Store.mode = "cloud";
+    Store.items = first.empty ? local : first.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (local.length) { S.props = []; save(); }
+    col.onSnapshot(snap => { Store.items = snap.docs.map(d => ({ id: d.id, ...d.data() })); refreshProps(); }, () => {});
+    refreshProps();
+  } catch (e) {}
 }
 function renderPipeline() {
-  const v = S.t7, counts = [0, 0, 0, 0, 0];
-  v.deals.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
+  const all = props(), today = todayISO(), counts = [0, 0, 0, 0, 0];
+  all.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
+  const due = all.filter(p => p.nextDate && p.nextDate <= today && p.status !== 5), f = S.ui.pf || "all";
+  const list = all.filter(p => f === "all" ? true : f === "due" ? due.includes(p) : p.status === +f)
+    .sort((a, b) => (a.nextDate || "9999").localeCompare(b.nextDate || "9999") || (b.updated || 0) - (a.updated || 0));
   const labels = ["סינון", "ניתוח מלא", "Buy Box", "הצעה על נייר", "בדיקה בשטח"];
+  const chips = [["all", `הכל ${all.length}`], ["due", `לטפל היום ${due.length}`], ...STATUSES.map((s, j) => [String(j), `${s} ${all.filter(p => p.status === j).length}`])];
   $("#dwrap").innerHTML = `
-  <section class="card stack"><b style="font-family:var(--font-display)">המשפך מול היעד</b>
-    <div class="funnel">${labels.map((l, i) => `<div class="fstep"><span>${l}</span><div class="bar ${counts[i] >= FUNNEL_TARGET[i] ? "good" : ""}" style="background:var(--surface)"><i style="width:${Math.min(100, counts[i] / FUNNEL_TARGET[i] * 100)}%"></i></div><span class="num">${counts[i]}/${FUNNEL_TARGET[i]}</span></div>`).join("")}</div>
-    <span class="tiny muted">קצב: 10 לסינון ו-3 לניתוח מלא בכל שבוע.</span></section>
-  <details class="adv" id="addDeal"><summary>+ הוסף נכס</summary><form class="form" id="dealForm" style="padding:0 14px 14px">
-    <label class="full">כתובת או לינק<input class="field-in" id="d_addr" required></label>
-    <label>מחיר ($)<input class="field-in" type="number" id="d_price" required></label>
-    <label>שכירות כוללת ($/חודש)<input class="field-in" type="number" id="d_rent" required></label>
-    <label>מיקוד<input class="field-in" id="d_zip"></label>
-    <label>יחידות<input class="field-in" type="number" id="d_units" value="2"></label>
-    <label>CoC מהמחשבון (%)<input class="field-in" type="number" step="any" id="d_coc"></label>
-    <label>החלטה / נימוק<input class="field-in" id="d_note"></label>
-    <button class="btn primary full" type="submit">הוסף לצנרת</button></form></details>
-  <section class="stack" style="gap:8px">${v.deals.length ? v.deals.map((d, i) => { const rp = d.rent / d.price * 100; return `<div class="dcard">
-    <div class="top"><span class="addr">${esc(d.addr)}${d.ex ? ' <span class="example-tag">דוגמה</span>' : ""}</span><button class="icon-btn" data-ddel="${i}" aria-label="מחק">✕</button></div>
-    <div class="row"><span class="pill num">${usd(d.price)}</span><span class="pill ${rp >= 0.8 ? "good" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>${d.coc != null && d.coc !== "" && isFinite(d.coc) ? `<span class="pill ${+d.coc >= 10 ? "good" : "bad"}">CoC <span class="num">${pct(+d.coc)}</span></span>` : ""}${d.zip ? `<span class="pill num">${esc(d.zip)}</span>` : ""}</div>
-    <div class="row" style="justify-content:space-between"><select class="sel" data-st="${i}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${d.status == j ? "selected" : ""}>${s}</option>`).join("")}</select>${d.note ? `<span class="small muted">${esc(d.note)}</span>` : ""}</div></div>`; }).join("") : `<p class="muted">אין נכסים עדיין. הוסף את הראשון.</p>`}</section>
-  ${v.deals.some(d => d.ex) ? `<button class="btn sm soft" id="clearEx" style="justify-self:start">מחק שורות דוגמה</button>` : ""}`;
+  <section class="row" style="justify-content:space-between"><span class="small muted">כל נכס שיכול להיות עסקה: לינק, מספרים, ניתוח וצעד הבא.</span><button class="btn primary" data-go="prop-new">+ נכס חדש</button></section>
+  <span class="pill ${Store.mode === "cloud" ? "good" : ""}" style="justify-self:start">${Store.mode === "cloud" ? "נשמר בענן · זמין מכל מכשיר" : "נשמר בדפדפן הזה בלבד"}</span>
+  <details class="adv"><summary>המשפך מול היעד · <span class="num">${counts[0]}/50</span></summary><div class="funnel" style="padding:0 16px 14px">${labels.map((l, i) => `<div class="fstep"><span>${l}</span><div class="bar ${counts[i] >= FUNNEL_TARGET[i] ? "good" : ""}" style="background:var(--surface)"><i style="width:${Math.min(100, counts[i] / FUNNEL_TARGET[i] * 100)}%"></i></div><span class="num">${counts[i]}/${FUNNEL_TARGET[i]}</span></div>`).join("")}<span class="tiny muted">קצב: 10 לסינון ו-3 לניתוח מלא בכל שבוע.</span></div></details>
+  ${all.length ? `<div class="chips" role="group" aria-label="סינון">${chips.map(([k, l]) => `<button data-pf="${k}" aria-pressed="${k === f}">${l}</button>`).join("")}</div>` : ""}
+  <section class="stack" style="gap:10px">${list.length ? list.map(propCard).join("") : all.length ? `<p class="muted">אין נכסים בסינון הזה.</p>` : `<div class="card stack" style="justify-items:start"><b style="font-family:var(--font-display)">עוד אין נכסים במעקב</b><span class="small muted">מצאת מודעה ב-Zillow, פוסט בפייסבוק או נכס ממתווך? הוסף אותו עם הלינק, ולחץ ״נתח״ כדי לקבל פסק דין.</span><button class="btn primary" data-go="prop-new">+ הוסף נכס ראשון</button></div>`}</section>`;
+}
+function propCard(p) {
+  const rp = p.rent / p.price * 100, link = safeUrl(p.link), over = p.nextDate && p.nextDate <= todayISO() && p.status !== 5, an = p.an;
+  return `<div class="dcard">
+    <div class="top"><span class="addr" dir="auto">${esc(p.addr)}</span>${p.source ? `<span class="pill">${esc(p.source)}</span>` : ""}</div>
+    <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}</div>
+    ${an ? `<div class="row"><span class="pill ${an.pass ? "good" : "bad"}">${an.pass ? "קונים ✓" : "לא קונים ✕"}</span><span class="small">CoC <span class="num">${pct(an.coc)}</span> · תזרים <span class="num">${usd(an.cf)}</span> · DSCR בנק <span class="num">${(+an.bank).toFixed(2)}</span></span></div>` : ""}
+    ${p.nextAction || p.nextDate ? `<div class="small" style="color:${over ? "var(--red)" : "inherit"};font-weight:${over ? 700 : 400}">הצעד הבא: ${esc(p.nextAction || "—")}${p.nextDate ? ` · <span class="num">${esc(p.nextDate.split("-").reverse().join("/"))}</span>` : ""}</div>` : ""}
+    <div class="row"><select class="sel" data-pst="${esc(p.id)}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${p.status === j ? "selected" : ""}>${s}</option>`).join("")}</select>
+      <button class="btn sm dark" data-an="${esc(p.id)}">נתח</button>
+      ${link ? `<a class="btn sm soft" href="${esc(link)}" target="_blank" rel="noopener noreferrer">מודעה ↗</a>` : ""}
+      <button class="btn sm soft" data-go="prop:${esc(p.id)}">ערוך</button></div>
+  </div>`;
+}
+function viewProp() {
+  const p = S.ui.editId ? getProp(S.ui.editId) : null, v = p || { status: 0, source: "Zillow", units: 2 };
+  const f = (id, label, val, type = "text", extra = "") => `<label${extra}>${label}<input class="field-in" id="${id}" type="${type}" value="${esc(val ?? "")}"${type === "number" ? ' step="any" inputmode="decimal"' : ""}></label>`;
+  return `<section class="stack" style="gap:6px"><h1>${p ? "עריכת נכס" : "נכס חדש"}</h1><span class="muted">חובה: כתובת, מחיר ושכירות. השאר משפר את הניתוח.</span></section>
+  <form id="propForm" class="card form">
+    <label class="full">כתובת<input class="field-in" id="f_addr" required value="${esc(v.addr ?? "")}"></label>
+    <label class="full">לינק למודעה או לפוסט<input class="field-in" id="f_link" inputmode="url" placeholder="https://www.zillow.com/..." value="${esc(v.link ?? "")}" style="direction:ltr"></label>
+    <label>מקור<select class="field-in" id="f_source">${SOURCES.map(s => `<option ${v.source === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+    ${f("f_zip", "מיקוד", v.zip)}
+    <label>מחיר ($)<input class="field-in" id="f_price" type="number" step="any" inputmode="decimal" required value="${esc(v.price ?? "")}"></label>
+    <label>שכירות כוללת לחודש ($)<input class="field-in" id="f_rent" type="number" step="any" inputmode="decimal" required value="${esc(v.rent ?? "")}"></label>
+    ${f("f_units", "יחידות", v.units, "number")}${f("f_beds", "חדרי שינה (סה״כ)", v.beds, "number")}
+    ${f("f_sqft", "שטח (sqft)", v.sqft, "number")}${f("f_year", "שנת בנייה", v.year, "number")}
+    ${f("f_tax", "מס נכס שנתי ($)", v.tax, "number")}${f("f_hoa", "ועד חודשי ($)", v.hoa, "number")}
+    <label>סטטוס<select class="field-in" id="f_status">${STATUSES.map((s, j) => `<option value="${j}" ${v.status === j ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+    ${f("f_date", "תאריך הצעד הבא", v.nextDate, "date")}
+    ${f("f_next", "הצעד הבא", v.nextAction, "text", ' class="full"')}
+    <label class="full">הערות<textarea class="field-in" id="f_notes" rows="3">${esc(v.notes ?? "")}</textarea></label>
+    <button class="btn primary full" type="submit">${p ? "שמור שינויים" : "הוסף לטבלה"}</button>
+    ${p ? `<span id="delProp" class="full"></span>` : ""}
+  </form>`;
+}
+function analyzeProp(id) {
+  const p = getProp(id); if (!p) return;
+  const v = Object.assign(dealDefaults(), S.calc.deal || {}), u = Math.max(1, +p.units || 1);
+  v.price = +p.price; v.units = u; v.rent = Math.round(+p.rent / u);
+  if (+p.tax > 0 && +p.price > 0) v.taxPct = +(p.tax / p.price * 100).toFixed(2);
+  v.hoa = +p.hoa || 0;
+  S.calc.deal = v; S.ui.analyzing = id; save(); go("c-deal");
 }
 function renderDD() {
   let done = 0, tot = 0;
@@ -1373,15 +1460,25 @@ function renderTeam() {
     <label class="row small" style="color:var(--red);font-weight:700"><input type="checkbox" data-c="${i}-flag" ${c.flag ? "checked" : ""}> זיהיתי דגל אדום</label></section>`).join("")}
   <button class="btn" id="addCand">+ מועמד ל${r.role}</button>`;
 }
+const MARKET_SRC = [["Census", "https://data.census.gov"], ["FRED", "https://fred.stlouisfed.org"], ["Census", "https://data.census.gov"], ["Rentometer", "https://www.rentometer.com"], ["Census", "https://data.census.gov"], ["Census", "https://data.census.gov"], ["Redfin", "https://www.redfin.com"], ["Niche", "https://www.niche.com"], ["GreatSchools", "https://www.greatschools.org"], ["City-Data", "https://www.city-data.com"]];
+function viewMarket() {
+  return `<section class="stack" style="gap:6px"><span class="tiny muted">מודול 3 · כלי 2</span><h1>בחירת שוק ומיקוד</h1><p class="muted">דרג כל מיקום 1–5 לפי נתונים. הציון הגבוה מנצח, ושם מחפשים עסקאות.</p></section><div id="mwrap" class="stack" style="gap:12px"></div>`;
+}
 function renderMarket() {
   const v = S.t2, c = v.loc;
   const tot = i => { let s = 0, mx = 0; MARKET_METRICS.forEach((_, r) => { s += v.scores[i][r] * v.weights[r]; mx += 5 * v.weights[r]; }); return Math.round(s / mx * 100); };
-  const totals = [0, 1, 2].map(tot), best = Math.max(...totals);
-  $("#dwrap").innerHTML = `${v.example ? `<div class="warnline">הציונים הם דוגמה. החלף בנתונים שבדקת, עם מקור. <button class="btn sm soft" id="mClear">אפס ל-3</button></div>` : ""}
-  <section class="row" style="justify-content:space-around">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" style="justify-items:center;background:${i === c ? "var(--inv)" : "var(--soft)"};color:${i === c ? "var(--inv-ink)" : "inherit"};flex:1">${ring(totals[i], 64, 8, totals[i] === best ? "var(--green)" : "var(--red)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b>${esc(v.names[i])}</b></button>`).join("")}</section>
-  <label class="small muted">שם המיקום<input class="field-in" id="locName" value="${esc(v.names[c])}" style="background:var(--soft)"></label>
-  ${MARKET_METRICS.map((m, r) => `<div class="metric"><div class="mt"><b class="en">${m[0]}</b><select class="wsel" data-w="${r}" aria-label="משקל">${[1, 2, 3].map(x => `<option value="${x}" ${v.weights[r] == x ? "selected" : ""}>משקל ${x}</option>`).join("")}</select></div><span class="tiny muted">${m[1]}</span><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-ms="${r}-${x}" class="${v.scores[c][r] === x ? "on" : ""}" aria-label="ציון ${x}">${x}</button>`).join("")}</span></div>`).join("")}
-  <label class="small muted">מקורות ונימוק<textarea class="field-in" id="locNote" rows="3" style="background:var(--soft)">${esc(v.notes[c])}</textarea></label>`;
+  const totals = [0, 1, 2].map(tot), best = Math.max(...totals), winners = [0, 1, 2].filter(i => totals[i] === best);
+  const allSame = v.scores.every(row => row.every(x => x === 3));
+  $("#mwrap").innerHTML = `
+  <div class="steps"><div><span>בחר מיקום למטה (לחיצה על הכרטיס)</span></div><div><span>לכל מדד: פתח את המקור, בדוק את הנתון ותן ציון 1–5</span></div><div><span>חזור על זה לשני המיקומים האחרים, והמנצח יופיע כאן</span></div></div>
+  ${v.example ? `<div class="warnline row" style="justify-content:space-between"><span>הציונים הם דוגמה, לא נתונים אמיתיים.</span><button class="btn sm soft" id="mClear">התחל מאפס</button></div>` : ""}
+  <div class="verdict ${allSame ? "" : winners.length === 1 ? "good" : ""}" style="${allSame || winners.length > 1 ? "background:var(--soft);color:var(--ink)" : ""}">
+    <span class="small" style="opacity:.85">${allSame ? "עוד לא דירגת" : winners.length === 1 ? "המנצח — כאן מחפשים עסקאות" : "תיקו"}</span>
+    <div class="vt" style="font-size:1.8rem">${allSame ? "דרג לפי נתונים" : winners.length === 1 ? `${esc(v.names[winners[0]])} · ${best}` : winners.map(i => esc(v.names[i])).join(" / ")}</div></div>
+  <section class="calc-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" aria-pressed="${i === c}" style="justify-items:center;text-align:center;${i === c ? "outline:3px solid var(--red);background:var(--surface)" : ""}">${ring(totals[i], 60, 7, winners.includes(i) && !allSame ? "var(--green)" : "var(--muted)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b>${esc(v.names[i])}</b>${i === c ? `<span style="color:var(--red);font-weight:700">מדרג עכשיו</span>` : `<span>הקש לדירוג</span>`}</button>`).join("")}</section>
+  <label class="small muted">שם המיקום שמדרגים<input class="field-in" id="locName" value="${esc(v.names[c])}" style="background:var(--soft)"></label>
+  ${MARKET_METRICS.map((m, r) => `<div class="metric"><div class="mt"><b class="en">${m[0]}</b><a class="pill dark" href="${MARKET_SRC[r][1]}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">${MARKET_SRC[r][0]} ↗</a></div><span class="tiny muted">טוב = ${m[1]}</span><div class="mt"><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-ms="${r}-${x}" class="${v.scores[c][r] === x ? "on" : ""}" aria-label="ציון ${x}">${x}</button>`).join("")}</span><select class="wsel" data-w="${r}" aria-label="חשיבות">${[[1, "חשיבות רגילה"], [2, "חשוב"], [3, "קריטי"]].map(([x, l]) => `<option value="${x}" ${v.weights[r] == x ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>`).join("")}
+  <label class="small muted">מקורות ונימוק ל${esc(v.names[c])}<textarea class="field-in" id="locNote" rows="3" style="background:var(--soft)">${esc(v.notes[c])}</textarea></label>`;
 }
 
 /* ===================== BACKUP ===================== */
@@ -1443,7 +1540,28 @@ function wire(r) {
   if (r === "c-deal") {
     const v = S.calc.deal;
     wireInputs(v, () => { const open = $("#res details")?.open; $("#res").innerHTML = dealResult(v); if (open) $("#res details").open = true; save(); });
-    $("#resetCalc").onclick = () => { delete S.calc.deal; save(); go(r); toast("נטענה דוגמת מודול 4"); };
+    $("#resetCalc").onclick = () => { delete S.calc.deal; S.ui.analyzing = null; save(); go(r); toast("נטענה דוגמת מודול 4"); };
+    if ($("#saveAn")) {
+      $("#saveAn").onclick = async () => {
+        const p = getProp(S.ui.analyzing); if (!p) { S.ui.analyzing = null; go("deals:pipeline"); return; }
+        const d = calcDeal(v), pass = d.coc >= 10 && d.s.cf > 0 && d.dscr >= 1.25;
+        const np = { ...p, price: v.price, units: v.units, rent: v.rent * v.units, an: { coc: d.coc, cf: d.cf, cap: d.cap, dscr: d.dscr, bank: d.bankDscr, pass, at: todayISO() } };
+        if (np.status < 2 && np.status !== 5) np.status = pass ? 2 : 1;
+        S.ui.analyzing = null; await saveProp(np); toast("התוצאה נשמרה לנכס"); go("deals:pipeline");
+      };
+      $("#stopAn").onclick = () => { S.ui.analyzing = null; save(); go("c-deal"); };
+    }
+  }
+  if (r === "prop") {
+    const form = $("#propForm"), ex = S.ui.editId ? getProp(S.ui.editId) : null;
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const g = id => $("#" + id).value.trim(), n = id => { const x = parseFloat(g(id)); return isFinite(x) ? x : null; };
+      const p = { ...(ex || { id: newId(), created: Date.now() }), addr: g("f_addr"), link: g("f_link"), source: g("f_source"), zip: g("f_zip"), price: n("f_price"), rent: n("f_rent"), units: n("f_units") || 1, beds: n("f_beds"), sqft: n("f_sqft"), year: n("f_year"), tax: n("f_tax"), hoa: n("f_hoa"), status: +g("f_status"), nextDate: g("f_date"), nextAction: g("f_next"), notes: g("f_notes") };
+      if (p.link && !safeUrl(p.link)) { toast("הלינק לא תקין. הדבק כתובת שמתחילה ב-https://"); return; }
+      await saveProp(p); toast(ex ? "נשמר" : "הנכס נוסף לטבלה"); go("deals:pipeline");
+    };
+    if (ex) confirmBtn("delProp", "מחק נכס", async () => { await deleteProp(ex.id); toast("הנכס נמחק"); go("deals:pipeline"); });
   }
   if (r === "c-rehab") {
     const v = S.rehab, upd = () => { $("#res").innerHTML = rehabResult(); save(); };
@@ -1457,9 +1575,12 @@ function wire(r) {
     const w = $("#dwrap"), sub = S.ui.deals;
     if (sub === "pipeline") {
       renderPipeline();
-      w.onsubmit = e => { e.preventDefault(); const g = id => $("#" + id).value.trim(); S.t7.deals.unshift({ addr: g("d_addr"), zip: g("d_zip"), price: +g("d_price"), units: +g("d_units") || 1, rent: +g("d_rent"), coc: g("d_coc") === "" ? null : +g("d_coc"), note: g("d_note"), status: 0 }); save(); renderPipeline(); toast("נוסף לצנרת"); };
-      w.onchange = e => { const s = e.target.dataset.st; if (s != null) { S.t7.deals[+s].status = +e.target.value; save(); renderPipeline(); } };
-      w.onclick = e => { const d = e.target.closest("[data-ddel]"); if (d) { S.t7.deals.splice(+d.dataset.ddel, 1); save(); renderPipeline(); } if (e.target.id === "clearEx") { S.t7.deals = S.t7.deals.filter(x => !x.ex); save(); renderPipeline(); } };
+      w.onchange = e => { const id = e.target.dataset.pst; if (id) { const p = getProp(id); if (p) { saveProp({ ...p, status: +e.target.value }); renderPipeline(); } } };
+      w.onclick = e => {
+        const t = e.target.closest("button"); if (!t) return;
+        if (t.dataset.pf) { S.ui.pf = t.dataset.pf; save(); renderPipeline(); }
+        else if (t.dataset.an) analyzeProp(t.dataset.an);
+      };
     } else if (sub === "dd") {
       renderDD();
       w.onchange = e => { const k = e.target.dataset.dd; if (k) { S.dd[k] = e.target.checked; save(); const open = $$("details", w).map(d => d.open); renderDD(); $$("details", w).forEach((d, i) => d.open = open[i]); } };
@@ -1475,7 +1596,11 @@ function wire(r) {
         save(); renderTeam();
       };
       w.onchange = e => { const k = e.target.dataset.c; if (!k) return; const [i, f] = k.split("-"), c = S.t5.cands[S.t5.role][+i]; if (f === "name") c.name = e.target.value; else if (f === "flag") c.flag = e.target.checked; save(); renderTeam(); };
-    } else {
+    }
+  }
+  if (r === "market") {
+    const w = $("#mwrap");
+    {
       renderMarket();
       w.onclick = e => {
         const t = e.target.closest("button"); if (!t) return;
@@ -1499,4 +1624,5 @@ function wire(r) {
 /* ===================== BOOT ===================== */
 const h0 = (location.hash || "").slice(1);
 go(validRoute(h0) ? h0 : (S.ui.route || "home"));
+initStore();
 </script>
