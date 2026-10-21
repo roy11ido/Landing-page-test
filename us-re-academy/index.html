@@ -2,225 +2,296 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Assistant:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: sticky ledger-style tab bar, single reading column (max 1080px), cards only for interactive objects */
+/* Layout: app shell, one 720px column, fixed bottom nav (4 tabs). Black / white / red, green only for "passes". */
 :root {
-  --bg: #F2F4F6;
+  --bg: #FFFFFF;
   --surface: #FFFFFF;
-  --surface-2: #E9EDF1;
-  --ink: #15212C;
-  --muted: #5A6774;
-  --line: #D6DDE4;
-  --accent: #1D4C86;
-  --accent-ink: #FFFFFF;
-  --accent-soft: #E1E9F4;
-  --good: #1D7449;
-  --good-soft: #E0F1E8;
-  --warn: #9C6208;
-  --warn-soft: #FBEFD9;
-  --bad: #B0281F;
-  --bad-soft: #FBE3E1;
-  --font-display: "Frank Ruhl Libre", "David", "Times New Roman", serif;
-  --font-body: "IBM Plex Sans Hebrew", "Segoe UI", "Arial Hebrew", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
-  --r: 10px;
+  --soft: #F4F4F5;
+  --soft-2: #E7E7EA;
+  --ink: #0A0A0B;
+  --muted: #6B6B73;
+  --line: #E4E4E7;
+  --red: #E10600;
+  --red-ink: #FFFFFF;
+  --red-soft: #FDECEB;
+  --green: #0E9348;
+  --green-soft: #E3F5EA;
+  --yellow: #B97C00;
+  --yellow-soft: #FFF3D1;
+  --inv: #0A0A0B;
+  --inv-ink: #FFFFFF;
+  --font-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --font-body: "Assistant", "Rubik", "Segoe UI", Arial, sans-serif;
+  --r: 18px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0E141A; --surface: #161F28; --surface-2: #1E2933; --ink: #E5ECF2; --muted: #9AA7B4; --line: #2B3844;
-    --accent: #86ADE3; --accent-ink: #0E141A; --accent-soft: #1B2B40;
-    --good: #5FC491; --good-soft: #15302A; --warn: #E2AA4D; --warn-soft: #33281A; --bad: #F0817A; --bad-soft: #3A1E1F;
-    color-scheme: dark;
+    --bg: #0A0A0B; --surface: #141416; --soft: #1B1B1E; --soft-2: #2A2A2F; --ink: #F7F7F8; --muted: #9C9CA5; --line: #2A2A2E;
+    --red: #FF3B30; --red-ink: #FFFFFF; --red-soft: #3A1412; --green: #38C871; --green-soft: #10291B; --yellow: #F2B33D; --yellow-soft: #33280F;
+    --inv: #F7F7F8; --inv-ink: #0A0A0B; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0E141A; --surface: #161F28; --surface-2: #1E2933; --ink: #E5ECF2; --muted: #9AA7B4; --line: #2B3844;
-  --accent: #86ADE3; --accent-ink: #0E141A; --accent-soft: #1B2B40;
-  --good: #5FC491; --good-soft: #15302A; --warn: #E2AA4D; --warn-soft: #33281A; --bad: #F0817A; --bad-soft: #3A1E1F;
-  color-scheme: dark;
+  --bg: #0A0A0B; --surface: #141416; --soft: #1B1B1E; --soft-2: #2A2A2F; --ink: #F7F7F8; --muted: #9C9CA5; --line: #2A2A2E;
+  --red: #FF3B30; --red-ink: #FFFFFF; --red-soft: #3A1412; --green: #38C871; --green-soft: #10291B; --yellow: #F2B33D; --yellow-soft: #33280F;
+  --inv: #F7F7F8; --inv-ink: #0A0A0B; color-scheme: dark;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { direction: rtl; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
-h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
-h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; }
-h2 { font-size: 1.45rem; font-weight: 700; }
-h3 { font-size: 1.1rem; font-weight: 700; font-family: var(--font-body); }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: 1.75rem; font-weight: 800; }
+h2 { font-size: 1.25rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 600; }
 p { margin: 0; }
-a { color: var(--accent); }
-.num, .ltr { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
-.en { direction: ltr; unicode-bidi: isolate; }
 button, input, select, textarea { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* top bar */
-.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
-.top-inner { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px 4px; }
-.brand-name { font-family: var(--font-display); font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
-.seal { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--accent); }
-.mini-progress { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); white-space: nowrap; }
-.mini-bar { width: 90px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
-.mini-bar i { display: block; height: 100%; background: var(--accent); }
-.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab { border: 0; background: none; padding: 10px 12px; cursor: pointer; color: var(--muted); font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; }
-.tab:hover { color: var(--ink); }
-.tab[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-
-main { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 64px; display: grid; gap: 28px; }
-.stack { display: grid; gap: 14px; min-width: 0; }
-.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+.num { font-family: var(--font-display); direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.en { direction: ltr; unicode-bidi: isolate; }
 .muted { color: var(--muted); }
-.small { font-size: 13px; }
-.eyebrow { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
-.note { border-inline-start: 3px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 14px; }
-.note.info { border-color: var(--accent); background: var(--accent-soft); }
-.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 500; }
-.btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.btn.ghost { background: transparent; }
-.btn.danger { color: var(--bad); }
-.btn.sm { padding: 4px 10px; font-size: 13px; }
-.pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
-.pill.good { background: var(--good-soft); color: var(--good); }
-.pill.warn { background: var(--warn-soft); color: var(--warn); }
-.pill.bad { background: var(--bad-soft); color: var(--bad); }
-.pill.acc { background: var(--accent-soft); color: var(--accent); }
-.bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
-.bar i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
-.bar.good i { background: var(--good); }
+.small { font-size: 14px; }
+.tiny { font-size: 12.5px; }
 
-/* tables */
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-th, td { text-align: start; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { background: var(--surface-2); font-weight: 600; font-size: 13px; color: var(--muted); }
-tr:last-child td { border-bottom: 0; }
-td.term { font-weight: 600; white-space: nowrap; direction: ltr; unicode-bidi: isolate; text-align: right; }
-td.n, th.n { text-align: left; font-family: var(--font-mono); font-variant-numeric: tabular-nums; direction: ltr; white-space: nowrap; }
+/* shell */
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bg); }
+.topbar .wrap { display: flex; align-items: center; gap: 10px; padding-block: 12px; min-height: 60px; }
+.topbar .ttl { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.back { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--soft); display: grid; place-items: center; flex: none; }
+.back svg { width: 20px; height: 20px; }
+.chip-pct { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 14px; background: var(--soft); border-radius: 999px; padding: 4px 12px 4px 6px; }
+.chip-pct .dot-ring { width: 22px; height: 22px; }
+main { padding-block: 4px calc(110px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 22px; }
+.nav { position: fixed; inset: auto 0 0 0; z-index: 8; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.nav .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding-block: 6px; }
+.nav button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 12.5px; font-weight: 600; color: var(--muted); border-radius: 14px; }
+.nav button svg { width: 24px; height: 24px; }
+.nav button .ic { width: 56px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background .2s; }
+.nav button[aria-current="page"] { color: var(--ink); }
+.nav button[aria-current="page"] .ic { background: var(--red); color: var(--red-ink); }
+
+/* atoms */
+.stack { display: grid; gap: 12px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1.5px solid var(--ink); background: transparent; border-radius: 999px; padding: 11px 20px; font-weight: 700; font-family: var(--font-display); font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; }
+.btn.primary { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+.btn.dark { background: var(--inv); border-color: var(--inv); color: var(--inv-ink); }
+.btn.soft { background: var(--soft); border-color: var(--soft); }
+.btn.sm { padding: 6px 14px; min-height: 36px; font-size: 14px; }
+.btn.block { width: 100%; }
+.btn.danger { color: var(--red); border-color: var(--red); }
+.btn:active { transform: scale(.98); }
+.icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--soft); display: grid; place-items: center; font-weight: 700; flex: none; }
+.card { background: var(--soft); border-radius: var(--r); padding: 18px; min-width: 0; }
+.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 11px; font-size: 13px; font-weight: 700; background: var(--soft); white-space: nowrap; }
+.pill.good { background: var(--green-soft); color: var(--green); }
+.pill.mid { background: var(--yellow-soft); color: var(--yellow); }
+.pill.bad { background: var(--red-soft); color: var(--red); }
+.pill.dark { background: var(--inv); color: var(--inv-ink); }
+.bar { height: 8px; border-radius: 99px; background: var(--soft-2); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; background: var(--red); transition: width .3s; }
+.bar.good i { background: var(--green); }
+.seg { display: flex; background: var(--soft); border-radius: 999px; padding: 4px; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.seg::-webkit-scrollbar { display: none; }
+.seg button { flex: 1 0 auto; border: 0; background: none; border-radius: 999px; padding: 9px 14px; font-weight: 700; font-family: var(--font-display); font-size: 14px; color: var(--muted); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--inv); color: var(--inv-ink); }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.chips::-webkit-scrollbar { display: none; }
+.chips button { flex: none; border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 14px; font-family: var(--font-display); }
+.chips button[aria-pressed="true"] { background: var(--inv); color: var(--inv-ink); border-color: var(--inv); }
+.ringbox { position: relative; display: inline-grid; place-items: center; flex: none; }
+.ringbox .in { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-family: var(--font-display); }
+.ring circle { transition: stroke-dashoffset .5s; }
+.sec-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 
 /* home */
-.hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: stretch; }
-.hero-main { display: grid; gap: 12px; align-content: start; }
-.week-big { font-family: var(--font-mono); font-size: 3.4rem; font-weight: 600; line-height: 1; color: var(--accent); }
-.phases { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
-.phase { border-top: 4px solid var(--line); padding-top: 8px; font-size: 13px; min-width: 0; }
-.phase b { display: block; font-size: 13px; }
-.phase .muted { font-size: 12px; }
-.phase.done { border-color: var(--good); }
-.phase.now { border-color: var(--accent); }
-.method { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: m; }
-.method div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; font-size: 14px; min-width: 0; }
-.method div::before { counter-increment: m; content: counter(m); font-family: var(--font-mono); color: var(--accent); font-weight: 600; display: block; }
-.mods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.mod-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 8px; cursor: pointer; text-align: start; min-width: 0; }
-.mod-card:hover { border-color: var(--accent); }
-.mod-card .mn { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-.mod-card h3 { font-family: var(--font-display); font-size: 1.1rem; }
-.mod-card.current { box-shadow: 0 0 0 2px var(--accent); }
+.hero { background: var(--inv); color: var(--inv-ink); border-radius: 24px; padding: 22px; display: grid; gap: 16px; }
+.hero .top { display: flex; gap: 18px; align-items: center; }
+.hero .wk { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; line-height: 1; }
+.hero .wk small { font-size: 1rem; font-weight: 500; opacity: .7; }
+.weeks { display: grid; grid-template-columns: repeat(24, 1fr); gap: 3px; }
+.weeks span { height: 10px; border-radius: 3px; background: color-mix(in srgb, var(--inv-ink) 22%, transparent); }
+.weeks span.done { background: var(--inv-ink); }
+.weeks span.now { background: var(--red); }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tile { border: 0; background: var(--soft); border-radius: var(--r); padding: 16px 12px; display: grid; gap: 8px; justify-items: start; text-align: start; min-width: 0; }
+.tile svg { width: 26px; height: 26px; }
+.tile b { font-family: var(--font-display); font-size: 15px; }
+.tile span { font-size: 13px; color: var(--muted); }
+.tile.red { background: var(--red); color: var(--red-ink); }
+.tile.red span { color: var(--red-ink); opacity: .85; }
 
-/* module */
-.mod-head { display: grid; gap: 10px; }
-.subtabs { display: flex; gap: 6px; flex-wrap: wrap; }
-.subtab { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 500; }
-.subtab[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.steps { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; }
-.steps li::marker { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
-ul.plain { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; }
-.formula { font-family: var(--font-mono); direction: ltr; text-align: left; background: var(--surface-2); padding: 10px 14px; border-radius: 8px; font-size: 14px; overflow-x: auto; }
-.tasks { display: grid; gap: 8px; }
-.task { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
-.task input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--good); flex: none; }
-.task.done span.t { color: var(--muted); text-decoration: line-through; }
-.task .t { flex: 1; min-width: 0; }
-.exam { border: 1px dashed var(--accent); border-radius: var(--r); padding: 14px; background: var(--accent-soft); display: grid; gap: 8px; }
+/* lists */
+.list { display: grid; gap: 8px; }
+.li { border: 0; background: var(--soft); border-radius: var(--r); padding: 14px 16px; display: flex; align-items: center; gap: 14px; text-align: start; width: 100%; min-width: 0; }
+.li .nbadge { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; background: var(--surface); border: 2px solid var(--line); flex: none; }
+.li .nbadge.done { background: var(--green); border-color: var(--green); color: #fff; }
+.li .nbadge.now { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+.li .body { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.li .body b { font-family: var(--font-display); font-weight: 600; }
+.li .chev { color: var(--muted); flex: none; }
+
+/* module: terms accordion */
+details.term { background: var(--soft); border-radius: 14px; }
+details.term summary { list-style: none; padding: 13px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; font-weight: 700; font-family: var(--font-display); }
+details.term summary::-webkit-details-marker { display: none; }
+details.term summary::after { content: "+"; width: 26px; height: 26px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-weight: 700; flex: none; }
+details.term[open] summary::after { content: "−"; background: var(--red); color: var(--red-ink); }
+details.term .ans { padding: 0 16px 14px; display: grid; gap: 6px; }
+details.term .ex { font-size: 14px; background: var(--surface); border-radius: 10px; padding: 6px 10px; }
+.terms { display: grid; gap: 6px; }
+.steps { display: grid; gap: 8px; counter-reset: s; }
+.steps div { display: flex; gap: 12px; align-items: flex-start; background: var(--soft); border-radius: 14px; padding: 12px 14px; }
+.steps div::before { counter-increment: s; content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--inv); color: var(--inv-ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; flex: none; font-size: 14px; }
+.bul { display: grid; gap: 6px; }
+.bul div { display: flex; gap: 10px; align-items: flex-start; }
+.bul div::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); margin-top: 9px; flex: none; }
+.bul.warn div::before { background: var(--red); }
+.formula { font-family: var(--font-display); direction: ltr; background: var(--inv); color: var(--inv-ink); border-radius: 12px; padding: 10px 14px; font-weight: 600; text-align: center; }
+.goal { font-size: 15px; color: var(--muted); }
+
+/* tasks */
+.task { position: relative; display: flex; gap: 14px; align-items: flex-start; background: var(--soft); border-radius: 14px; padding: 14px; cursor: pointer; }
+.task input { position: absolute; opacity: 0; pointer-events: none; }
+.task .box { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--ink); flex: none; display: grid; place-items: center; transition: background .15s; }
+.task .box svg { width: 16px; height: 16px; opacity: 0; color: #fff; }
+.task.done .box { background: var(--green); border-color: var(--green); }
+.task.done .box svg { opacity: 1; }
+.task.done .t { color: var(--muted); text-decoration: line-through; }
+.task:has(input:focus-visible) { outline: 3px solid var(--red); }
+.task .t { flex: 1; min-width: 0; padding-top: 2px; }
 
 /* flashcards */
-.fc-wrap { display: grid; gap: 14px; justify-items: center; }
-.fc { width: min(560px, 100%); min-height: 220px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; display: grid; place-items: center; padding: 24px; text-align: center; cursor: pointer; }
-.fc .ft { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; direction: ltr; }
-.fc .fb { font-size: 1.05rem; max-width: 46ch; }
-.fc .fx { margin-top: 10px; font-size: 13px; color: var(--muted); }
+.fc { min-height: 240px; border-radius: 24px; background: var(--inv); color: var(--inv-ink); display: grid; place-items: center; padding: 28px; text-align: center; cursor: pointer; border: 0; width: 100%; }
+.fc.back { background: var(--soft); color: var(--ink); }
+.fc .ft { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; direction: ltr; }
+.fc .fb { font-size: 1.1rem; max-width: 40ch; }
+.fc .hint { font-size: 13px; opacity: .6; margin-top: 10px; }
 
 /* quiz */
-.q { display: grid; gap: 8px; padding-block: 14px; border-bottom: 1px solid var(--line); }
-.q:last-of-type { border-bottom: 0; }
-.q-title { font-weight: 600; }
-.q-title .qn { font-family: var(--font-mono); color: var(--muted); margin-inline-end: 6px; }
-.opts { display: grid; gap: 6px; }
-.opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; background: var(--surface); }
-.opt input { margin-top: 4px; flex: none; }
-.opt.correct { border-color: var(--good); background: var(--good-soft); }
-.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
-.q-ex { font-size: 13px; color: var(--muted); }
-.score { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.score .big { font-family: var(--font-mono); font-size: 2rem; font-weight: 600; }
+.qcard { display: grid; gap: 14px; }
+.qtext { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; }
+.opt { border: 2px solid var(--line); background: var(--surface); border-radius: 16px; padding: 14px 16px; text-align: start; font-weight: 600; width: 100%; display: flex; gap: 12px; align-items: center; }
+.opt .l { width: 28px; height: 28px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-family: var(--font-display); font-size: 14px; flex: none; }
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt.correct { border-color: var(--green); background: var(--green-soft); }
+.opt.correct .l { background: var(--green); color: #fff; }
+.opt.wrong { border-color: var(--red); background: var(--red-soft); }
+.opt.wrong .l { background: var(--red); color: #fff; }
+.opt:disabled { cursor: default; }
+.feedback { border-radius: 14px; padding: 12px 14px; font-weight: 600; }
+.feedback.good { background: var(--green-soft); color: var(--green); }
+.feedback.bad { background: var(--red-soft); color: var(--red); }
+.feedback p { color: var(--ink); font-weight: 400; margin-top: 4px; font-size: 15px; }
+.exam { border: 2px dashed var(--ink); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; }
 
-/* tools */
-.tool-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
-.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
-.field { display: grid; gap: 3px; min-width: 0; }
-.field label { font-size: 13px; color: var(--muted); }
-.field input, .field select, textarea, .cell-in { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 10px; width: 100%; min-width: 0; }
-.field input[type="number"], .cell-in[type="number"] { font-family: var(--font-mono); direction: ltr; text-align: left; }
-.fieldset-title { grid-column: 1 / -1; font-weight: 600; font-size: 13px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
-.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; min-width: 0; }
-.kpi .k { font-size: 12px; color: var(--muted); }
-.kpi .v { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 600; direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
-.kpi.good { border-color: var(--good); }
-.kpi.bad { border-color: var(--bad); }
-.checks { display: grid; gap: 6px; }
-.check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
-.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--muted); }
-.dot.good { background: var(--good); }
-.dot.bad { background: var(--bad); }
-.verdict { padding: 12px 14px; border-radius: var(--r); font-weight: 600; }
-.verdict.good { background: var(--good-soft); color: var(--good); }
-.verdict.bad { background: var(--bad-soft); color: var(--bad); }
-.cell-in { padding: 5px 8px; font-size: 14px; }
-.cell-in.sc { width: 64px; }
-.tool-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+/* calculators */
+.calc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.ctile { border: 0; background: var(--soft); border-radius: var(--r); padding: 16px; text-align: start; display: grid; gap: 4px; min-width: 0; }
+.ctile b { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.ctile span { font-size: 13px; color: var(--muted); }
+.feature { border: 0; background: var(--red); color: var(--red-ink); border-radius: 24px; padding: 20px; text-align: start; display: flex; align-items: center; gap: 16px; width: 100%; }
+.feature b { font-family: var(--font-display); font-size: 1.25rem; display: block; }
+.feature svg { width: 40px; height: 40px; flex: none; }
+.res { border-radius: 24px; padding: 20px; display: grid; gap: 10px; background: var(--soft); }
+.res.good { background: var(--green-soft); }
+.res.mid { background: var(--yellow-soft); }
+.res.bad { background: var(--red-soft); }
+.res .lbl { font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.res .big { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.2rem, 9vw, 3rem); line-height: 1.05; direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+.res.good .big { color: var(--green); }
+.res.mid .big { color: var(--yellow); }
+.res.bad .big { color: var(--red); }
+.rows { display: grid; gap: 0; background: var(--surface); border-radius: 14px; padding: 4px 14px; }
+.rows div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.rows div:last-child { border-bottom: 0; }
+.rows .v { font-family: var(--font-display); font-weight: 600; direction: ltr; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.help { background: var(--surface); border-radius: 14px; padding: 12px 14px; display: grid; gap: 8px; font-size: 15px; }
+.inps { display: grid; gap: 10px; }
+.inp { background: var(--soft); border-radius: 16px; padding: 12px 14px; display: grid; gap: 8px; }
+.inp-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.inp-top label { font-weight: 600; font-size: 15px; min-width: 0; }
+.inp-num { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border-radius: 999px; padding: 2px 4px 2px 12px; direction: ltr; flex: none; }
+.inp-num input { border: 0; background: transparent; width: 92px; padding: 6px 0; text-align: left; font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+.inp-num input:focus { outline: none; }
+.inp-num:focus-within { outline: 3px solid var(--red); }
+.inp-num .unit { font-size: 13px; color: var(--muted); padding-inline: 4px 8px; }
+input[type="range"] { width: 100%; accent-color: var(--red); height: 24px; margin: 0; }
+details.adv { background: var(--soft); border-radius: var(--r); }
+details.adv > summary { list-style: none; padding: 14px 16px; font-weight: 700; font-family: var(--font-display); cursor: pointer; display: flex; justify-content: space-between; }
+details.adv > summary::-webkit-details-marker { display: none; }
+details.adv > summary::after { content: "▾"; }
+details.adv[open] > summary::after { content: "▴"; }
+details.adv > .inps { padding: 0 10px 10px; }
+details.adv .inp { background: var(--surface); }
+.verdict { border-radius: 24px; padding: 22px; display: grid; gap: 14px; }
+.verdict.good { background: var(--green); color: #fff; }
+.verdict.bad { background: var(--red); color: #fff; }
+.verdict .vt { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
+.reasons { display: grid; gap: 8px; }
+.reasons div { display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,.16); border-radius: 12px; padding: 9px 12px; font-weight: 600; }
+.reasons .mk { width: 24px; height: 24px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-weight: 800; flex: none; font-size: 14px; }
+.reasons .mk.ok { color: #0E9348; }
+.reasons .mk.no { color: #E10600; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--soft); border-radius: 16px; padding: 14px; min-width: 0; }
+.kpi .k { font-size: 13px; color: var(--muted); font-weight: 600; }
+.kpi .v { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+.kpi.good .v { color: var(--green); }
+.kpi.bad .v { color: var(--red); }
+.tbl { overflow-x: auto; background: var(--soft); border-radius: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 9px 12px; text-align: start; border-bottom: 1px solid var(--line); }
+th { font-weight: 700; color: var(--muted); font-size: 13px; }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: left; direction: ltr; font-family: var(--font-display); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.item-row { display: grid; grid-template-columns: minmax(0, 1fr) 72px 92px 36px; gap: 6px; align-items: center; }
+.field-in { border: 0; background: var(--surface); border-radius: 10px; padding: 9px 10px; width: 100%; min-width: 0; }
+.field-in[type="number"] { direction: ltr; text-align: left; font-family: var(--font-display); }
+.warnline { background: var(--yellow-soft); color: var(--ink); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+
+/* deals */
 .funnel { display: grid; gap: 8px; }
-.funnel-row { display: grid; grid-template-columns: 150px 1fr 70px; gap: 10px; align-items: center; font-size: 14px; }
-.funnel-row .bar { height: 14px; }
-.example-tag { font-size: 11px; color: var(--warn); font-weight: 600; }
-.search { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 14px; width: 100%; font-size: 15px; }
-.inline-confirm { display: inline-flex; gap: 6px; align-items: center; }
-.toast { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 8px; font-size: 14px; z-index: 20; }
+.fstep { display: grid; grid-template-columns: 110px 1fr 54px; gap: 10px; align-items: center; font-size: 14px; font-weight: 600; }
+.fstep .bar { height: 14px; }
+.dcard { background: var(--soft); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 8px; }
+.dcard .top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.dcard .addr { font-family: var(--font-display); font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.sel { border: 0; background: var(--inv); color: var(--inv-ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.form .full { grid-column: 1 / -1; }
+.form label { font-size: 13px; font-weight: 600; color: var(--muted); display: grid; gap: 3px; }
+.dots5 { display: flex; gap: 6px; }
+.dots5 button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); font-weight: 700; font-family: var(--font-display); font-size: 14px; }
+.dots5 button.on { background: var(--inv); color: var(--inv-ink); border-color: var(--inv); }
+.metric { background: var(--soft); border-radius: 16px; padding: 12px 14px; display: grid; gap: 8px; }
+.metric .mt { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.wsel { border: 0; background: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 700; }
+.toast { position: fixed; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--inv); color: var(--inv-ink); padding: 10px 18px; border-radius: 999px; font-weight: 700; z-index: 20; }
+.example-tag { font-size: 12px; font-weight: 700; color: var(--yellow); }
+textarea.field-in { resize: vertical; }
 
-@media (max-width: 860px) {
-  .hero, .tool-grid { grid-template-columns: 1fr; }
-  .mods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .method { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .phases { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+@media (min-width: 640px) {
+  .calc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-@media (max-width: 520px) {
-  .mods, .fields { grid-template-columns: 1fr; }
-  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mini-bar { width: 50px; }
-  .funnel-row { grid-template-columns: 110px 1fr 56px; }
-  .week-big { font-size: 2.6rem; }
+@media (max-width: 420px) {
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .tiles .tile.red { grid-column: 1 / -1; }
+  .item-row { grid-template-columns: minmax(0, 1fr) 60px 80px 36px; }
+  .inp-num input { width: 80px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .btn:active { transform: none; } }
 </style>
 
-<header class="top">
-  <div class="top-inner">
-    <div class="brand">
-      <div class="brand-name"><span class="seal">US</span>מסלול נדל״ן ארה״ב</div>
-      <div class="mini-progress"><span id="miniTxt">0%</span><span class="mini-bar"><i id="miniBar" style="width:0"></i></span></div>
-    </div>
-    <nav class="tabs" id="tabs" aria-label="ניווט ראשי"></nav>
-  </div>
-</header>
-<main id="app"></main>
+<header class="topbar"><div class="wrap" id="topbar"></div></header>
+<main class="wrap" id="app"></main>
+<nav class="nav" aria-label="ניווט ראשי"><div class="wrap" id="nav"></div></nav>
 <div class="toast" id="toast" hidden></div>
-
 <script>
 /* ===================== CONTENT ===================== */
 const PHASES = [
@@ -748,359 +819,160 @@ const DD_LISTS = {
 const STATUSES = ["סינון", "ניתוח מלא", "עבר Buy Box", "הצעה על נייר", "בדיקה בשטח", "נפסל"];
 const FUNNEL_TARGET = [50, 20, 5, 3, 1];
 
-/* ===================== STATE ===================== */
-const KEY = "usre-academy-v1";
-const todayISO = () => new Date().toISOString().slice(0, 10);
-function defaults() {
-  return {
-    start: todayISO(), tasks: {}, quiz: {}, exam: {}, known: {}, dd: {},
-    t1: { price: 250000, down: 25, rate: 7.5, years: 30, points: 1, closing: 3, resMonths: 6, taxIns: 550, noi: 1500, cash: 80000 },
-    t2: { names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4,4,3,3,3,4,4,3,3,4],[3,4,3,4,3,3,3,3,3,3],[3,3,3,3,3,3,3,3,3,3]], notes: ["", "", ""], example: true },
-    t3: { price: 260000, units: 4, rent: 1100, vac: 6, taxPct: 2, ins: 150, mgmt: 9, maint: 8, capex: 8, util: 200, leasing: 50, down: 25, rate: 7.5, years: 30, points: 1, closing: 3, repairs: 5000, sVac: 12, sRate: 8.5 },
-    t4: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
-    t5: { role: 0, cands: {} },
-    t7: { deals: [
-      { addr: "123 Example Ave", zip: "43205", price: 240000, units: 3, rent: 2850, status: 1, coc: 9.1, note: "דוגמה: מס גבוה מהמודעה", ex: true },
-      { addr: "456 Sample St", zip: "45238", price: 295000, units: 4, rent: 3600, status: 2, coc: 11.4, note: "דוגמה: עבר stress test", ex: true },
-      { addr: "789 Demo Rd", zip: "43207", price: 180000, units: 2, rent: 1500, status: 5, coc: 4.2, note: "דוגמה: Flood Zone AE", ex: true }
-    ] },
-    ui: { tab: "home", sub: {} }
-  };
-}
-let S;
-try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { S = defaults(); }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} updateMini(); }
 
-/* ===================== HELPERS ===================== */
-const $ = (s, r = document) => r.querySelector(s);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const usd = v => isFinite(v) ? (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US") : "—";
-const pct = (v, d = 1) => isFinite(v) ? v.toFixed(d) + "%" : "—";
-const fx = (v, d = 2) => isFinite(v) ? v.toFixed(d) : "—";
-const pmt = (loan, ratePct, years) => { const r = ratePct / 100 / 12, n = years * 12; if (!loan) return 0; return r === 0 ? loan / n : loan * r / (1 - Math.pow(1 + r, -n)); };
-const num = id => { const v = parseFloat($("#" + id)?.value); return isFinite(v) ? v : 0; };
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); }
-
-function currentWeek() {
-  const d0 = new Date(S.start + "T00:00:00"), now = new Date();
-  const w = Math.floor((now - d0) / (7 * 864e5)) + 1;
-  return Math.max(1, Math.min(24, w));
+/* ===================== CALCULATORS ===================== */
+const CATS = [["yield", "תשואה"], ["income", "הכנסות"], ["expense", "הוצאות"], ["finance", "מימון"], ["value", "שווי ושיפוץ"], ["tax", "מסים"], ["fx", "מט״ח"]];
+const I = (k, label, def, min, max, step, unit = "$") => ({ k, label, def, min, max, step, unit });
+const lv = (x, g, m) => !isFinite(x) ? null : x >= g ? "good" : x >= m ? "mid" : "bad";
+const lvLow = (x, g, m) => !isFinite(x) ? null : x <= g ? "good" : x <= m ? "mid" : "bad";
+function balanceAfter(loan, ratePct, years, months) {
+  const r = ratePct / 1200, P = pmt(loan, ratePct, years);
+  return r ? loan * Math.pow(1 + r, months) - P * (Math.pow(1 + r, months) - 1) / r : loan - P * months;
 }
-function moduleForWeek(w) { return MODULES.find(m => w >= m.weeks[0] && w <= m.weeks[1]) || MODULES[MODULES.length - 1]; }
-function modStats(m) {
-  const done = m.tasks.filter((_, i) => S.tasks[m.id + "-" + i]).length;
-  const q = S.quiz[m.id];
-  const quizPassed = q && (q.best / q.total * 100) >= m.passPct;
-  const examOk = !!S.exam[m.id];
-  return { done, total: m.tasks.length, q, quizPassed, examOk, complete: quizPassed && examOk };
+function interestFirstYear(loan, ratePct, years) {
+  const r = ratePct / 1200, P = pmt(loan, ratePct, years); let b = loan, s = 0;
+  for (let i = 0; i < 12; i++) { const it = b * r; s += it; b -= P - it; }
+  return s;
 }
-function overall() {
-  let pts = 0, max = 0;
-  MODULES.forEach(m => { const s = modStats(m); pts += s.done + (s.quizPassed ? 2 : 0) + (s.examOk ? 2 : 0); max += s.total + 4; });
-  return Math.round(pts / max * 100);
-}
-function updateMini() { const p = overall(); $("#miniTxt").textContent = p + "% הושלם"; $("#miniBar").style.width = p + "%"; }
-
-/* ===================== ROUTER ===================== */
-const NAV = [["home", "מסלול"], ...MODULES.map(m => [m.id, "מודול " + m.n]), ["tools", "כלים"], ["glossary", "מילון"], ["backup", "גיבוי"]];
-function renderTabs(active) {
-  const top = active.startsWith("t") && active !== "tools" ? "tools" : active;
-  $("#tabs").innerHTML = NAV.map(([id, l]) => `<button class="tab" data-go="${id}" ${id === top ? 'aria-current="page"' : ""}>${l}</button>`).join("");
-}
-function go(id, push = true) {
-  const valid = ["home", "tools", "glossary", "backup", ...MODULES.map(m => m.id), ...TOOLS.map(t => t.id)];
-  if (!valid.includes(id)) id = "home";
-  S.ui.tab = id; save();
-  if (push) { try { history.replaceState(null, "", "#" + id); } catch (e) {} }
-  renderTabs(id);
-  const app = $("#app");
-  if (id === "home") app.innerHTML = viewHome();
-  else if (id === "tools") app.innerHTML = viewTools();
-  else if (id === "glossary") app.innerHTML = viewGlossary();
-  else if (id === "backup") app.innerHTML = viewBackup();
-  else if (id.startsWith("m")) app.innerHTML = viewModule(MODULES.find(m => m.id === id));
-  else app.innerHTML = viewTool(id);
-  afterRender(id);
-  window.scrollTo(0, 0);
-}
-document.addEventListener("click", e => {
-  const g = e.target.closest("[data-go]");
-  if (g) { e.preventDefault(); go(g.dataset.go); }
-});
-
-/* ===================== HOME ===================== */
-function viewHome() {
-  const w = currentWeek(), cm = moduleForWeek(w), p = overall();
-  const phases = PHASES.map(ph => {
-    const cls = w > ph.weeks[1] ? "done" : (w >= ph.weeks[0] ? "now" : "");
-    return `<div class="phase ${cls}"><b>${ph.name}</b><span class="muted">שבועות <span class="num">${ph.weeks[0]}–${ph.weeks[1]}</span></span></div>`;
-  }).join("");
-  const mods = MODULES.map(m => {
-    const s = modStats(m);
-    const st = s.complete ? `<span class="pill good">הושלם</span>` : (s.quizPassed ? `<span class="pill acc">בוחן עבר, ממתין למבחן מעבר</span>` : (m.id === cm.id ? `<span class="pill warn">השבוע</span>` : `<span class="pill">שבועות ${m.weeks[0] === m.weeks[1] ? m.weeks[0] : m.weeks[0] + "–" + m.weeks[1]}</span>`));
-    return `<button class="mod-card ${m.id === cm.id ? "current" : ""}" data-go="${m.id}">
-      <span class="mn">מודול ${m.n} · שבועות ${m.weeks[0]}${m.weeks[1] !== m.weeks[0] ? "–" + m.weeks[1] : ""}</span>
-      <h3>${m.title}</h3>
-      <div class="bar ${s.complete ? "good" : ""}"><i style="width:${Math.round(s.done / s.total * 100)}%"></i></div>
-      <div class="row small muted"><span>משימות <span class="num">${s.done}/${s.total}</span></span>${s.q ? `<span>בוחן <span class="num">${s.q.best}/${s.q.total}</span></span>` : ""}</div>
-      <div>${st}</div>
-    </button>`;
-  }).join("");
-  return `
-  <section class="hero">
-    <div class="hero-main">
-      <span class="eyebrow">תכנית לימודים · 24 שבועות · 9 מודולים · 7 כלים</span>
-      <h1>מאפס לעסקה ראשונה בארה״ב</h1>
-      <p class="muted">בסוף שבוע 10 בערך תדע לנתח עסקה מלאה לבד, ובסוף שבוע 24 תהיה מוכן להגיש הצעה אמיתית: עם צוות בשטח, שוק שאתה מכיר לעומק ומימון שנבדק מראש.</p>
-      <div class="note"><b>כלל ברזל:</b> כל מספר שאתה משתמש בו צריך מקור (אתר, מתווך, חברת ניהול). ניחוש מותר רק במשימת האבחון.</div>
-    </div>
-    <div class="card stack">
-      <span class="eyebrow">השבוע שלך</span>
-      <div class="row" style="align-items:baseline"><span class="week-big">${w}</span><span class="muted">/ 24</span></div>
-      <p>מודול ${cm.n}: <b>${cm.title}</b></p>
-      <div class="bar"><i style="width:${p}%"></i></div>
-      <span class="small muted">התקדמות כוללת <span class="num">${p}%</span></span>
-      <div class="field"><label for="startDate">תאריך התחלה</label><input type="date" id="startDate" value="${esc(S.start)}"></div>
-      <button class="btn primary" data-go="${cm.id}">המשך למודול ${cm.n}</button>
-    </div>
-  </section>
-  <section class="stack">
-    <h2>השלבים</h2>
-    <div class="phases">${phases}</div>
-    <p class="small muted">הנחה: 6–8 שעות בשבוע. אם בפועל יש לך 3–4 שעות בשבוע, כל הזמנים מוכפלים.</p>
-  </section>
-  <section class="stack">
-    <h2>שיטת העבודה בכל שבוע</h2>
-    <div class="method">
-      <div><b>לימוד</b><br>קורא את המושגים של המודול.</div>
-      <div><b>משימה</b><br>מבצע את המשימות המסומנות ושולח תוצאה.</div>
-      <div><b>בדיקה</b><br>בודקים את המספרים וההנחות, לא רק את התוצאה.</div>
-      <div><b>מבחן מעבר</b><br>לא עוברים למודול הבא בלי לעבור אותו.</div>
-    </div>
-  </section>
-  <section class="stack">
-    <h2>המודולים</h2>
-    <div class="mods">${mods}</div>
-  </section>`;
+function irr(flows) {
+  const npv = x => flows.reduce((a, f, t) => a + f / Math.pow(1 + x, t), 0);
+  let lo = -0.95, hi = 2;
+  if (npv(lo) * npv(hi) > 0) return NaN;
+  for (let i = 0; i < 100; i++) { const mid = (lo + hi) / 2; if (npv(lo) * npv(mid) <= 0) hi = mid; else lo = mid; }
+  return (lo + hi) / 2;
 }
 
-/* ===================== MODULE ===================== */
-function termsTable(head, rows) {
-  return `<div class="tbl-wrap"><table><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr><td class="term">${esc(r[0])}</td>${r.slice(1).map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-}
-function exampleTable() {
-  const d = calcDeal(defaults().t3);
-  const rows = [
-    ["הכנסה ברוטו", d.gross, "4 × 1,100"], ["Vacancy", -d.vacancy, "6%"], ["EGI", d.egi, ""], ["מס נכס", -d.tax, "2% לשנה מ-260,000"],
-    ["ביטוח", -d.ins, "הצעת מחיר"], ["ניהול", -d.mgmt, "9% מ-EGI"], ["תחזוקה", -d.maint, "8% מהברוטו"], ["CapEx", -d.capex, "8% מהברוטו"],
-    ["מים, ביוב, אשפה (על הבעלים)", -d.util, "לפי חשבונות"], ["השמת דיירים", -d.leasing, "ממוצע"], ["NOI", d.noi, `הוצאות ${Math.round(d.opex / d.gross * 100)}%, עובר את בדיקת ה-50%`],
-    ["משכנתא", -d.debt, "הלוואה של 195,000"], ["תזרים", d.cf, `${usd(d.cf * 12)} לשנה`]
-  ];
-  return `<div class="tbl-wrap"><table><thead><tr><th>שורה</th><th class="n">חודשי</th><th>איך חישבנו</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${usd(r[1])}</td><td class="muted">${r[2]}</td></tr>`).join("")}</tbody></table></div>
-  <p class="small">הון מושקע: 65,000 מקדמה + 7,800 סגירה + 1,950 נקודות + 5,000 תיקונים ראשוניים = <span class="num">${usd(d.cash)}</span></p>
-  <p><b>תוצאות:</b> Cap Rate <span class="num">${pct(d.cap)}</span> · CoC <span class="num">${pct(d.coc)}</span> · DSCR <span class="num">${fx(d.dscr)}</span></p>
-  <div class="note"><b>Stress test:</b> ריבית 8.5% (משכנתא <span class="num">${usd(d.s.debt)}</span>) ו-12% דירות ריקות (NOI <span class="num">${usd(d.s.noi)}</span>) נותנים תזרים של <span class="num">${usd(d.s.cf)}</span> בחודש. העסקה נשארת חיובית, ולכן עוברת. עסקה שהופכת לשלילית בתרחיש הזה, לא קונים.</div>
-  <button class="btn sm" data-go="t3">פתח במחשבון העסקה</button>`;
-}
-function rolesTable() {
-  return `<div class="tbl-wrap"><table><thead><tr><th>בעל מקצוע</th><th>מה הוא עושה</th><th>מה מודדים</th><th>שאלה שחייבים לשאול</th><th>דגל אדום</th></tr></thead><tbody>${ROLES.map(r => `<tr><td><b>${r.role}</b></td><td>${r.does}</td><td>${r.measure}</td><td>${r.ask}</td><td style="color:var(--bad)">${r.flag}</td></tr>`).join("")}</tbody></table></div>`;
-}
-function renderSection(sec) {
-  let body = "";
-  if (sec.type === "terms") body = termsTable(["מושג", "הסבר"], sec.rows);
-  else if (sec.type === "terms3") body = termsTable(sec.head, sec.rows);
-  else if (sec.type === "steps") body = `<ol class="steps">${sec.items.map(i => `<li>${i}</li>`).join("")}</ol>`;
-  else if (sec.type === "list") body = `<ul class="plain" ${sec.warn ? 'style="color:var(--bad)"' : ""}>${sec.items.map(i => `<li>${i}</li>`).join("")}</ul>`;
-  else if (sec.type === "formulas") body = sec.items.map(f => `<div class="formula">${esc(f)}</div>`).join("");
-  else if (sec.type === "example") body = `<p class="muted small">בניין 4 יחידות במחיר 260,000 דולר, כל יחידה מושכרת ב-1,100 דולר, מימון 75% בריבית 7.5% ל-30 שנה.</p>` + exampleTable();
-  else if (sec.type === "roles") body = rolesTable();
-  else if (sec.type === "kpis") body = `<div class="tbl-wrap"><table><thead><tr><th>מדד</th><th>יעד</th></tr></thead><tbody>${sec.rows.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</tbody></table></div>`;
-  return `<section class="stack"><h3>${sec.title}</h3>${body}</section>`;
-}
-function moduleTerms(m) {
-  const out = [];
-  m.sections.forEach(s => { if (s.type === "terms" || s.type === "terms3") s.rows.forEach(r => out.push({ t: r[0], d: r[1], x: s.type === "terms3" && r[2] && r[2] !== "—" ? r[2] : "" })); });
-  return out;
-}
-function viewModule(m) {
-  const sub = S.ui.sub[m.id] || "learn";
-  const s = modStats(m);
-  const prev = MODULES[m.n - 2];
-  const locked = prev && !modStats(prev).complete;
-  const subs = [["learn", "חומר"], ["cards", "כרטיסיות"], ["tasks", `משימות (${s.done}/${s.total})`], ["quiz", "בוחן ומבחן מעבר"]];
-  let body = "";
-  if (sub === "learn") body = m.sections.map(renderSection).join("");
-  else if (sub === "cards") body = viewCards(m);
-  else if (sub === "tasks") body = viewTasks(m);
-  else body = viewQuiz(m);
-  const next = MODULES[m.n];
-  return `
-  <section class="mod-head">
-    <span class="eyebrow">מודול ${m.n} · שבועות ${m.weeks[0]}${m.weeks[1] !== m.weeks[0] ? "–" + m.weeks[1] : ""}</span>
-    <h1>${m.title}</h1>
-    <p><b>המטרה:</b> ${m.goal}</p>
-    ${locked ? `<div class="note">מודול ${prev.n} עוד לא הושלם. אפשר לקרוא, אבל לפי השיטה לא עוברים למודול הבא בלי לעבור את מבחן המעבר שלו.</div>` : ""}
-    <div class="row">${s.complete ? '<span class="pill good">הושלם</span>' : ""}${s.quizPassed ? '<span class="pill good">בוחן עבר</span>' : ""}${s.examOk ? '<span class="pill good">מבחן מעבר אושר</span>' : ""}</div>
-    <div class="subtabs" role="group" aria-label="חלקי המודול">${subs.map(([k, l]) => `<button class="subtab" data-sub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
-  </section>
-  ${body}
-  <div class="row" style="justify-content:space-between">
-    ${prev ? `<button class="btn ghost" data-go="${prev.id}">→ מודול ${prev.n}</button>` : "<span></span>"}
-    ${next ? `<button class="btn" data-go="${next.id}">מודול ${next.n} ←</button>` : `<button class="btn" data-go="home">חזרה למסלול</button>`}
-  </div>`;
-}
-function viewTasks(m) {
-  const tl = (m.toolLinks || []).map(id => { const t = TOOLS.find(x => x.id === id); return `<button class="btn sm" data-go="${id}">כלי ${t.n}: ${t.name}</button>`; }).join("");
-  return `<section class="stack">
-    <div class="tasks">${m.tasks.map((t, i) => { const k = m.id + "-" + i, d = !!S.tasks[k]; return `<label class="task ${d ? "done" : ""}"><input type="checkbox" data-task="${k}" ${d ? "checked" : ""}><span class="t">${esc(t)}</span></label>`; }).join("")}</div>
-    ${tl ? `<div class="row"><span class="small muted">כלים למודול:</span>${tl}</div>` : ""}
-  </section>`;
-}
-function viewCards(m) {
-  const terms = moduleTerms(m);
-  const known = new Set(S.known[m.id] || []);
-  const pool = terms.filter(t => !known.has(t.t));
-  const st = viewCards.st[m.id] || (viewCards.st[m.id] = { i: 0, flip: false });
-  if (!pool.length) return `<section class="fc-wrap"><div class="fc"><div><div class="ft">✓</div><p class="fb">סימנת את כל <span class="num">${terms.length}</span> המושגים כידועים.</p></div></div><button class="btn" data-fc="reset">התחל מחדש</button></section>`;
-  const c = pool[st.i % pool.length];
-  return `<section class="fc-wrap">
-    <span class="small muted">נשארו <span class="num">${pool.length}</span> מתוך <span class="num">${terms.length}</span> · לחץ על הכרטיס כדי להפוך</span>
-    <div class="fc" data-fc="flip" tabindex="0" role="button" aria-label="הפוך כרטיס">${st.flip ? `<div><p class="fb">${esc(c.d)}</p>${c.x ? `<p class="fx">דוגמה: ${esc(c.x)}</p>` : ""}</div>` : `<div class="ft">${esc(c.t)}</div>`}</div>
-    <div class="row"><button class="btn" data-fc="no">עוד לא</button><button class="btn primary" data-fc="yes">ידעתי</button></div>
-    ${known.size ? `<button class="btn ghost sm" data-fc="reset">אפס כרטיסיות (${known.size} ידועים)</button>` : ""}
-  </section>`;
-}
-viewCards.st = {};
-function viewQuiz(m) {
-  const st = viewQuiz.st[m.id] || (viewQuiz.st[m.id] = { ans: {}, done: false });
-  const s = modStats(m);
-  const need = Math.ceil(m.quiz.length * m.passPct / 100);
-  let score = 0;
-  if (st.done) m.quiz.forEach((q, i) => { if (st.ans[i] === q.a) score++; });
-  const qs = m.quiz.map((q, i) => `<div class="q">
-    <div class="q-title"><span class="qn">${i + 1}.</span>${esc(q.q)}</div>
-    <div class="opts">${q.o.map((o, j) => {
-      let cls = "";
-      if (st.done) { if (j === q.a) cls = "correct"; else if (st.ans[i] === j) cls = "wrong"; }
-      return `<label class="opt ${cls}"><input type="radio" name="q${i}" data-q="${i}" value="${j}" ${st.ans[i] === j ? "checked" : ""} ${st.done ? "disabled" : ""}><span>${esc(o)}</span></label>`;
-    }).join("")}</div>
-    ${st.done && q.x ? `<p class="q-ex">${esc(q.x)}</p>` : ""}
-  </div>`).join("");
-  return `<section class="stack">
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><h3>בוחן ידע</h3><span class="small muted">עוברים עם <span class="num">${need}/${m.quiz.length}</span>${s.q ? ` · הכי טוב: <span class="num">${s.q.best}/${s.q.total}</span>` : ""}</span></div>
-      ${st.done ? `<div class="score"><span class="big">${score}/${m.quiz.length}</span><span class="pill ${score >= need ? "good" : "bad"}">${score >= need ? "עברת" : "לא עברת. חזור על החומר ונסה שוב"}</span><button class="btn" data-quiz="retry">נסה שוב</button></div>` : ""}
-      ${qs}
-      ${!st.done ? `<div class="row"><button class="btn primary" data-quiz="submit">בדוק תשובות</button><span class="small muted" id="qLeft"></span></div>` : ""}
-    </div>
-    <div class="exam">
-      <h3>מבחן מעבר (עם המנחה)</h3>
-      <p>${esc(m.exam)}</p>
-      <label class="check"><input type="checkbox" data-exam="${m.id}" ${S.exam[m.id] ? "checked" : ""}> המבחן אושר, אפשר לעבור למודול הבא</label>
-    </div>
-  </section>`;
-}
-viewQuiz.st = {};
+const CALCS = [
+  /* --- yield --- */
+  { id: "coc", cat: "yield", name: "תשואה שנתית על ההון", sub: "Cash-on-Cash",
+    inputs: [I("cf", "תזרים חודשי", 863, -1000, 5000, 10), I("cash", "הון שהושקע", 79750, 5000, 500000, 250)],
+    f: "CoC = תזרים חודשי × 12 ÷ הון שהושקע", help: "כמה ריבית מקבל הכסף שלך. היעד ב-Buy Box: 10% ומעלה.",
+    run: v => { const a = v.cf * 12, r = a / v.cash * 100; return { main: ["תשואה שנתית", r, "pct"], light: lv(r, 10, 6), rows: [["תזרים שנתי", a, "usd"]] }; } },
+  { id: "cap", cat: "yield", name: "Cap Rate", sub: "תשואת הנכס בלי מימון",
+    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
+    f: "Cap Rate = NOI × 12 ÷ מחיר", help: "משווה בין נכסים בלי קשר למימון. כאילו קנית במזומן.",
+    run: v => { const r = v.noi * 12 / v.price * 100; return { main: ["Cap Rate", r, "pct"], light: lv(r, 8, 6), rows: [["NOI שנתי", v.noi * 12, "usd"]] }; } },
+  { id: "gross", cat: "yield", name: "תשואה ברוטו", sub: "ו-GRM",
+    inputs: [I("rent", "שכירות חודשית (כל היחידות)", 4400, 0, 30000, 25), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
+    f: "תשואה ברוטו = שכירות × 12 ÷ מחיר", help: "סינון מהיר לפני הוצאות. GRM = כמה שנות שכירות ברוטו שווה המחיר (נמוך = טוב).",
+    run: v => { const r = v.rent * 12 / v.price * 100; return { main: ["תשואה ברוטו", r, "pct"], light: lv(r, 12, 9), rows: [["שכירות שנתית", v.rent * 12, "usd"], ["GRM", v.price / (v.rent * 12), "x"]] }; } },
+  { id: "irr", cat: "yield", name: "תשואה כוללת ו-IRR", sub: "תזרים + קרן + עליית ערך",
+    inputs: [I("price", "מחיר קנייה", 260000, 30000, 2000000, 1000), I("cash", "הון שהושקע", 79750, 5000, 500000, 250), I("cf", "תזרים חודשי", 863, -1000, 5000, 10),
+      I("down", "מקדמה", 25, 0, 100, 1, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("appr", "עליית ערך שנתית", 3, -5, 10, 0.5, "%"), I("hold", "שנות החזקה", 5, 1, 15, 1, "שנים"), I("sell", "עלויות מכירה", 6, 0, 12, 0.5, "%")],
+    f: "IRR = תשואה שנתית ממוצעת על כל תזרימי העסקה, כולל המכירה", help: "עליית ערך היא בונוס, לא בסיס. נסה 0% כדי לראות את העסקה בלי בונוס.",
+    run: v => {
+      const loan = v.price * (1 - v.down / 100), bal = balanceAfter(loan, v.rate, 30, v.hold * 12);
+      const value = v.price * Math.pow(1 + v.appr / 100, v.hold), saleNet = value * (1 - v.sell / 100) - bal;
+      const flows = [-v.cash]; for (let y = 1; y <= v.hold; y++) flows.push(v.cf * 12 + (y === v.hold ? saleNet : 0));
+      const r = irr(flows) * 100, cfSum = v.cf * 12 * v.hold;
+      return { main: ["IRR שנתי", r, "pct"], light: lv(r, 15, 10), rows: [["תזרים מצטבר", cfSum, "usd"], ["פירעון קרן", loan - bal, "usd"], ["עליית ערך", value - v.price, "usd"], ["נטו ממכירה", saleNet, "usd"], ["רווח כולל", cfSum + saleNet - v.cash, "usd"], ["מכפיל הון", (cfSum + saleNet) / v.cash, "x"]] };
+    } },
+  /* --- income --- */
+  { id: "r2p", cat: "income", name: "Rent-to-Price", sub: "כלל ה-1%",
+    inputs: [I("rent", "שכירות חודשית (כל היחידות)", 4400, 0, 30000, 25), I("price", "מחיר הנכס", 260000, 30000, 2000000, 1000)],
+    f: "שכירות חודשית ÷ מחיר", help: "סינון ראשוני של 5 דקות. 0.8% ומעלה = ממשיכים לניתוח. 1% = מצוין.",
+    run: v => { const r = v.rent / v.price * 100; return { main: ["Rent-to-Price", r, "pct2"], light: lv(r, 1, 0.8), rows: [["שכירות שנדרשת ל-1%", v.price / 100, "usd"], ["שכירות שנדרשת ל-0.8%", v.price * 0.008, "usd"]] }; } },
+  { id: "egi", cat: "income", name: "הכנסה אפקטיבית", sub: "EGI אחרי דירות ריקות",
+    inputs: [I("units", "יחידות", 4, 1, 50, 1, "יח׳"), I("rent", "שכירות ליחידה", 1100, 0, 5000, 25), I("vac", "Vacancy", 6, 0, 30, 0.5, "%"), I("other", "הכנסה נוספת (כביסה, חנייה)", 0, 0, 2000, 10)],
+    f: "EGI = שכירות ברוטו − Vacancy + הכנסות נוספות", help: "מחשבים 5%–8% Vacancy גם אם הבניין מלא היום.",
+    run: v => { const g = v.units * v.rent, l = g * v.vac / 100, e = g - l + v.other; return { main: ["EGI חודשי", e, "usd"], light: null, rows: [["שכירות ברוטו", g, "usd"], ["הפסד Vacancy", -l, "usd"], ["EGI שנתי", e * 12, "usd"]] }; } },
+  { id: "be", cat: "income", name: "תפוסת איזון", sub: "Break-even Occupancy",
+    inputs: [I("gross", "שכירות ברוטו חודשית", 4400, 100, 30000, 25), I("opex", "הוצאות תפעול חודשיות", 1909, 0, 20000, 10), I("debt", "משכנתא חודשית", 1364, 0, 20000, 10)],
+    f: "(הוצאות + משכנתא) ÷ שכירות ברוטו", help: "מתחת לאחוז התפוסה הזה אתה מוציא כסף מהכיס. ככל שנמוך יותר, העסקה בטוחה יותר.",
+    run: v => { const r = (v.opex + v.debt) / v.gross * 100; return { main: ["תפוסת איזון", r, "pct"], light: lvLow(r, 75, 85), rows: [["מרווח ביטחון", 100 - r, "pct"]] }; } },
+  /* --- expense --- */
+  { id: "noi", cat: "expense", name: "NOI", sub: "רווח תפעולי נקי",
+    inputs: [I("gross", "שכירות ברוטו חודשית", 4400, 0, 30000, 25), I("vac", "Vacancy", 6, 0, 30, 0.5, "%"), I("tax", "מס נכס חודשי", 433, 0, 5000, 5), I("ins", "ביטוח חודשי", 150, 0, 2000, 5),
+      I("mgmt", "ניהול (% מ-EGI)", 9, 0, 15, 0.5, "%"), I("maint", "תחזוקה (% מברוטו)", 8, 0, 15, 0.5, "%"), I("capex", "CapEx (% מברוטו)", 8, 0, 15, 0.5, "%"), I("util", "Utilities על הבעלים", 200, 0, 2000, 10), I("other", "השמת דיירים ושונות", 50, 0, 1000, 10)],
+    f: "NOI = EGI − הוצאות תפעול (בלי משכנתא)", help: "המדד הכי חשוב. מכאן מחשבים Cap Rate ו-DSCR.",
+    run: v => { const egi = v.gross * (1 - v.vac / 100), op = v.tax + v.ins + egi * v.mgmt / 100 + v.gross * (v.maint + v.capex) / 100 + v.util + v.other, n = egi - op, ratio = op / v.gross * 100;
+      return { main: ["NOI חודשי", n, "usd"], light: ratio >= 35 && ratio <= 55 ? "good" : "mid", lightText: `הוצאות ${Math.round(ratio)}% מהברוטו`, rows: [["EGI", egi, "usd"], ["סך הוצאות", -op, "usd"], ["NOI שנתי", n * 12, "usd"]] }; } },
+  { id: "r50", cat: "expense", name: "בדיקת כלל ה-50%", sub: "האם שכחת הוצאה?",
+    inputs: [I("gross", "שכירות ברוטו חודשית", 4400, 100, 30000, 25), I("opex", "סך הוצאות תפעול חודשיות", 1909, 0, 20000, 10)],
+    f: "הוצאות ÷ שכירות ברוטו", help: "הוצאות תפעול הן בדרך כלל 40%–50% מהברוטו. מתחת ל-35%: כנראה שכחת משהו.",
+    run: v => { const r = v.opex / v.gross * 100; return { main: ["יחס הוצאות", r, "pct"], light: r < 35 ? "mid" : r <= 55 ? "good" : "bad", lightText: r < 35 ? "נמוך מדי — בדוק שוב" : r <= 55 ? "סביר" : "גבוה", rows: [["לפי כלל ה-50%", v.gross / 2, "usd"]] }; } },
+  { id: "turn", cat: "expense", name: "עלות החלפת דייר", sub: "Turnover",
+    inputs: [I("rent", "שכירות חודשית ליחידה", 1100, 0, 5000, 25), I("days", "ימים ריקים", 30, 0, 120, 1, "ימים"), I("ready", "ניקיון, צבע, תיקונים", 1500, 0, 15000, 50), I("lease", "Leasing Fee (% מחודש)", 75, 0, 100, 5, "%"), I("per", "החלפות בשנה (כל הבניין)", 1, 0, 10, 1, "פעמים")],
+    f: "שכירות שאבדה + הכנה + עמלת השמה", help: "כל החלפת דייר עולה בערך חודש וחצי של שכירות. דייר טוב שווה כסף.",
+    run: v => { const one = v.rent * v.days / 30 + v.ready + v.rent * v.lease / 100, y = one * v.per; return { main: ["עלות שנתית", y, "usd"], light: null, rows: [["עלות להחלפה אחת", one, "usd"], ["הפרשה חודשית", y / 12, "usd"]] }; } },
+  { id: "capex", cat: "expense", name: "תקציב CapEx", sub: "גג, HVAC, דוד",
+    inputs: [I("roof", "עלות גג", 12000, 0, 60000, 500), I("roofL", "אורך חיים גג", 20, 5, 40, 1, "שנים"), I("hvac", "עלות HVAC", 7000, 0, 40000, 250), I("hvacL", "אורך חיים HVAC", 15, 5, 30, 1, "שנים"), I("wh", "עלות דוד מים", 1500, 0, 8000, 50), I("whL", "אורך חיים דוד", 10, 3, 20, 1, "שנים"), I("gross", "שכירות ברוטו חודשית", 4400, 100, 30000, 25)],
+    f: "הפרשה = Σ עלות ÷ אורך חיים ÷ 12", help: "כמה לשים בצד כל חודש כדי שהתיקון הגדול לא ייפול בבת אחת.",
+    run: v => { const m = (v.roof / v.roofL + v.hvac / v.hvacL + v.wh / v.whL) / 12; return { main: ["הפרשה חודשית", m, "usd"], light: null, rows: [["% מהשכירות ברוטו", m / v.gross * 100, "pct"], ["הפרשה שנתית", m * 12, "usd"]] }; } },
+  /* --- finance --- */
+  { id: "mort", cat: "finance", name: "תשלום משכנתא", sub: "קרן + ריבית",
+    inputs: [I("price", "מחיר", 260000, 30000, 2000000, 1000), I("down", "מקדמה", 25, 0, 100, 1, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("years", "תקופה", 30, 5, 40, 5, "שנים")],
+    f: "PMT = L × r ÷ (1 − (1+r)^−n)", help: "לזרים הריבית לרוב גבוהה ב-1%–2%. לאמת מול 3 ברוקרים.",
+    run: v => { const L = v.price * (1 - v.down / 100), p = pmt(L, v.rate, v.years); return { main: ["תשלום חודשי", p, "usd"], light: null, rows: [["הלוואה", L, "usd"], ["מקדמה", v.price - L, "usd"], ["סך ריבית לאורך התקופה", p * v.years * 12 - L, "usd"]] }; } },
+  { id: "dscr", cat: "finance", name: "DSCR", sub: "יחס כיסוי חוב",
+    inputs: [I("noi", "NOI חודשי", 2227, 0, 20000, 10), I("debt", "משכנתא חודשית", 1364, 1, 20000, 10)],
+    f: "DSCR = NOI ÷ משכנתא", help: "הבנקים רוצים 1.25 לפחות. מתחת ל-1.0 הנכס לא מכסה את ההלוואה.",
+    run: v => { const r = v.noi / v.debt; return { main: ["DSCR", r, "x"], light: lv(r, 1.25, 1), rows: [["NOI מינימלי ל-1.25", v.debt * 1.25, "usd"], ["משכנתא מקסימלית ל-1.25", v.noi / 1.25, "usd"]] }; } },
+  { id: "ctc", cat: "finance", name: "Cash to Close", sub: "כמה כסף ביום הסגירה",
+    inputs: [I("price", "מחיר", 250000, 30000, 2000000, 1000), I("down", "מקדמה", 25, 0, 100, 1, "%"), I("points", "נקודות", 1, 0, 4, 0.25, "%"), I("closing", "עלויות סגירה", 3, 0, 8, 0.5, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("taxIns", "מס + ביטוח חודשי", 550, 0, 5000, 10), I("res", "רזרבות", 6, 0, 12, 1, "חודשים")],
+    f: "מקדמה + נקודות + סגירה (+ רזרבות)", help: "רזרבות = כסף שהבנק דורש שיישאר בחשבון אחרי הסגירה.",
+    run: v => { const L = v.price * (1 - v.down / 100), d = v.price - L, pts = L * v.points / 100, cl = v.price * v.closing / 100, piti = pmt(L, v.rate, 30) + v.taxIns, ctc = d + pts + cl, res = piti * v.res;
+      return { main: ["סך ההון הנדרש", ctc + res, "usd"], light: null, rows: [["מקדמה", d, "usd"], ["נקודות", pts, "usd"], ["עלויות סגירה", cl, "usd"], ["Cash to Close", ctc, "usd"], ["רזרבות", res, "usd"]] }; } },
+  { id: "maxp", cat: "finance", name: "תקציב קנייה מקסימלי", sub: "לפי ההון שיש לך",
+    inputs: [I("cash", "ההון שיש לך", 80000, 10000, 1000000, 1000), I("down", "מקדמה", 25, 5, 100, 1, "%"), I("closing", "עלויות סגירה", 3, 0, 8, 0.5, "%"), I("points", "נקודות", 1, 0, 4, 0.25, "%"), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("res", "רזרבות", 6, 0, 12, 1, "חודשים"), I("taxIns", "מס + ביטוח חודשי", 550, 0, 5000, 10)],
+    f: "מחיר מקסימלי שבו ההון מכסה מקדמה, נקודות, סגירה ורזרבות", help: "הנחה: מס וביטוח קבועים כפי שהוזנו.",
+    run: v => { const d = v.down / 100, f = pmt(1, v.rate, 30), p = (v.cash - v.res * v.taxIns) / (d + v.closing / 100 + v.points / 100 * (1 - d) + v.res * (1 - d) * f);
+      return { main: ["מחיר מקסימלי", p, "usd"], light: null, rows: [["הלוואה", p * (1 - d), "usd"], ["משכנתא חודשית", pmt(p * (1 - d), v.rate, 30), "usd"]] }; } },
+  /* --- value --- */
+  { id: "arv", cat: "value", name: "ARV משוער", sub: "שווי אחרי שיפוץ מ-3 comps",
+    inputs: [I("sqft", "שטח הנכס שלך", 1400, 300, 6000, 10, "sqft"), I("p1", "Comp 1 — מחיר", 210000, 0, 1500000, 1000), I("s1", "Comp 1 — שטח", 1300, 300, 6000, 10, "sqft"), I("p2", "Comp 2 — מחיר", 235000, 0, 1500000, 1000), I("s2", "Comp 2 — שטח", 1500, 300, 6000, 10, "sqft"), I("p3", "Comp 3 — מחיר", 199000, 0, 1500000, 1000), I("s3", "Comp 3 — שטח", 1250, 300, 6000, 10, "sqft")],
+    f: "ARV = ממוצע $/sqft של ה-comps × השטח שלך", help: "Comps = נכסים משופצים דומים שנמכרו ב-6 החודשים האחרונים, קרוב לנכס. 1 sqft ≈ 0.093 מ״ר.",
+    run: v => { const a = [v.p1 / v.s1, v.p2 / v.s2, v.p3 / v.s3].filter(isFinite), avg = a.reduce((x, y) => x + y, 0) / a.length;
+      return { main: ["ARV משוער", avg * v.sqft, "usd"], light: null, rows: [["ממוצע $/sqft", avg, "usd"], ["טווח נמוך", Math.min(...a) * v.sqft, "usd"], ["טווח גבוה", Math.max(...a) * v.sqft, "usd"]] }; } },
+  { id: "r70", cat: "value", name: "כלל ה-70%", sub: "מחיר קנייה מקסימלי לפליפ",
+    inputs: [I("arv", "ARV", 230000, 20000, 2000000, 1000), I("rehab", "עלות שיפוץ", 60000, 0, 500000, 500)],
+    f: "מקסימום = ARV × 70% − שיפוץ", help: "30% שנשארים מכסים עלויות קנייה, החזקה, מכירה ורווח.",
+    run: v => ({ main: ["הצעה מקסימלית", v.arv * 0.7 - v.rehab, "usd"], light: null, rows: [["ARV × 70%", v.arv * 0.7, "usd"]] }) },
+  { id: "brrrr", cat: "value", name: "BRRRR", sub: "כמה הון נשאר בעסקה",
+    inputs: [I("buy", "מחיר קנייה", 150000, 20000, 1500000, 1000), I("rehab", "שיפוץ", 40000, 0, 500000, 500), I("costs", "סגירה + החזקה", 8000, 0, 100000, 250), I("arv", "ARV", 240000, 20000, 2000000, 1000), I("ltv", "LTV במחזור", 70, 50, 80, 1, "%")],
+    f: "הון שנשאר = עלות כוללת − הלוואת המחזור", help: "מחזור אפשרי רק אחרי seasoning (לרוב 6–12 חודשים). 0$ שנשאר = כל ההון חזר.",
+    run: v => { const t = v.buy + v.rehab + v.costs, L = v.arv * v.ltv / 100, left = t - L;
+      return { main: ["הון שנשאר בעסקה", left, "usd"], light: lvLow(left / t * 100, 10, 25), lightText: left <= 0 ? "כל ההון חזר" : `${Math.round(left / t * 100)}% מהעלות`, rows: [["עלות כוללת", t, "usd"], ["הלוואה חדשה", L, "usd"], ["% מההון שחזר", Math.min(100, L / t * 100), "pct"]] }; } },
+  { id: "rehab", cat: "value", name: "מעריך שיפוץ", sub: "פריט אחרי פריט + בלת״מ", custom: true },
+  /* --- tax --- */
+  { id: "ptax", cat: "tax", name: "מס נכס", sub: "Property Tax",
+    inputs: [I("value", "שווי / מחיר קנייה", 260000, 20000, 2000000, 1000), I("rate", "שיעור אפקטיבי שנתי", 2, 0.3, 4, 0.05, "%")],
+    f: "מס = שווי × שיעור אפקטיבי", help: "לא בטוח: באוהיו המחוז מעריך לפי 35% מהשווי × מילאז׳ מקומי. לאמת: אתר ה-Auditor של המחוז (Franklin / Hamilton). מחשבים לפי מחיר הקנייה שלך, לא לפי המודעה.",
+    run: v => { const y = v.value * v.rate / 100; return { main: ["מס שנתי", y, "usd"], light: null, rows: [["מס חודשי", y / 12, "usd"]] }; } },
+  { id: "dep", cat: "tax", name: "פחת", sub: "Depreciation",
+    inputs: [I("price", "מחיר קנייה", 260000, 20000, 2000000, 1000), I("land", "חלק הקרקע", 20, 0, 60, 1, "%")],
+    f: "פחת שנתי = מחיר × (1 − קרקע) ÷ 27.5", help: "רק המבנה מתבלה, לא הקרקע. הפחת מקטין את הרווח החייב במס.",
+    run: v => { const y = v.price * (1 - v.land / 100) / 27.5; return { main: ["פחת שנתי", y, "usd"], light: null, rows: [["בסיס לפחת (מבנה)", v.price * (1 - v.land / 100), "usd"], ["פחת חודשי", y / 12, "usd"]] }; } },
+  { id: "rtax", cat: "tax", name: "מס על השכירות", sub: "אחרי ריבית ופחת",
+    inputs: [I("noi", "NOI שנתי", 26724, 0, 300000, 100), I("loan", "הלוואה", 195000, 0, 2000000, 1000), I("rate", "ריבית", 7.5, 0, 15, 0.125, "%"), I("price", "מחיר קנייה", 260000, 20000, 2000000, 1000), I("land", "חלק הקרקע", 20, 0, 60, 1, "%"), I("tr", "שיעור מס משוער", 22, 0, 40, 1, "%")],
+    f: "הכנסה חייבת = NOI − ריבית שנה 1 − פחת", help: "הנחה: שיעור המס הוא ערך להמחשה. השיעור בפועל (פדרלי + אוהיו) ושילוב עם ישראל — לאמת מול רו״ח דו-לאומי.",
+    run: v => { const it = interestFirstYear(v.loan, v.rate, 30), dp = v.price * (1 - v.land / 100) / 27.5, tx = v.noi - it - dp, t = Math.max(0, tx) * v.tr / 100;
+      return { main: ["מס משוער לשנה", t, "usd"], light: tx <= 0 ? "good" : null, lightText: tx <= 0 ? "הפחת מאפס את הרווח" : "", rows: [["ריבית שנה 1", -it, "usd"], ["פחת", -dp, "usd"], ["הכנסה חייבת", tx, "usd"]] }; } },
+  { id: "firpta", cat: "tax", name: "FIRPTA", sub: "ניכוי במקור במכירה",
+    inputs: [I("sale", "מחיר מכירה", 320000, 20000, 3000000, 1000), I("rate", "שיעור ניכוי", 15, 0, 15, 1, "%")],
+    f: "ניכוי = מחיר מכירה × 15%", help: "נלקח מהכסף שלך ביום המכירה. ההפרש מול המס בפועל מוחזר בדוח השנתי. תכנן תזרים בהתאם.",
+    run: v => { const w = v.sale * v.rate / 100; return { main: ["סכום שינוכה", w, "usd"], light: null, rows: [["נשאר לפני משכנתא ועלויות", v.sale - w, "usd"]] }; } },
+  { id: "cg", cat: "tax", name: "מס במכירה", sub: "רווח הון + Recapture",
+    inputs: [I("buy", "מחיר קנייה", 260000, 20000, 2000000, 1000), I("sale", "מחיר מכירה", 320000, 20000, 3000000, 1000), I("sell", "עלויות מכירה", 6, 0, 12, 0.5, "%"), I("yrs", "שנות החזקה", 5, 1, 27, 1, "שנים"), I("land", "חלק הקרקע", 20, 0, 60, 1, "%"), I("cgr", "מס רווח הון משוער", 15, 0, 30, 1, "%"), I("rr", "מס Recapture משוער", 25, 0, 30, 1, "%")],
+    f: "רווח = מכירה נטו − (קנייה − פחת שנצבר)", help: "הנחה: השיעורים להמחשה. לאמת מול רו״ח. הפחת שקיבלת בהחזקה ״חוזר״ כמס במכירה.",
+    run: v => { const acc = Math.min(v.yrs, 27.5) * v.buy * (1 - v.land / 100) / 27.5, net = v.sale * (1 - v.sell / 100), gain = net - (v.buy - acc), rec = Math.max(0, Math.min(acc, gain)), cg = Math.max(0, gain - rec), t = rec * v.rr / 100 + cg * v.cgr / 100;
+      return { main: ["מס משוער", t, "usd"], light: null, rows: [["פחת שנצבר", acc, "usd"], ["רווח חייב", gain, "usd"], ["Recapture", rec * v.rr / 100, "usd"], ["רווח הון", cg * v.cgr / 100, "usd"], ["FIRPTA שינוכה ביום המכירה", v.sale * 0.15, "usd"]] }; } },
+  /* --- fx --- */
+  { id: "fx", cat: "fx", name: "תשואה בשקלים", sub: "השפעת שער הדולר",
+    inputs: [I("usd", "הון שהושקע", 79750, 5000, 1000000, 250), I("buyR", "שער בקנייה", 3.7, 2.5, 5, 0.01, "₪"), I("sellR", "שער ביציאה", 3.5, 2.5, 5, 0.01, "₪"), I("ret", "תשואה כוללת בדולרים", 40, -50, 200, 1, "%")],
+    f: "תשואה בשקלים = (דולרים ביציאה × שער יציאה) ÷ (דולרים בכניסה × שער כניסה) − 1", help: "ההון שלך בשקלים והנכס בדולרים. ירידת דולר אוכלת תשואה.",
+    run: v => { const inI = v.usd * v.buyR, outU = v.usd * (1 + v.ret / 100), outI = outU * v.sellR, r = (outI / inI - 1) * 100;
+      return { main: ["תשואה בשקלים", r, "pct"], light: r >= v.ret ? "good" : r >= 0 ? "mid" : "bad", lightText: `בדולרים: ${v.ret}%`, rows: [["השקעה בשקלים", inI, "ils"], ["שווי ביציאה בשקלים", outI, "ils"], ["רווח בשקלים", outI - inI, "ils"]] }; } }
+];
 
-/* ===================== TOOLS ===================== */
-function viewTools() {
-  return `<section class="stack">
-    <h1>הכלים</h1>
-    <p class="muted">כל כלי נבנה בשבוע שבו הוא נדרש. אחרי שהחישוב עובד, מכניסים לינק או צילום של מודעה, ממלאים את הניתוח הראשוני ובודקים את ההנחות.</p>
-    <div class="tool-list">${TOOLS.map(t => `<button class="mod-card" data-go="${t.id}"><span class="mn">כלי ${t.n} · שבוע ${t.week}</span><h3>${t.name}</h3><span class="small muted">${t.desc}</span></button>`).join("")}</div>
-  </section>`;
-}
-function toolHead(id) {
-  const t = TOOLS.find(x => x.id === id);
-  return `<section class="mod-head"><button class="btn ghost sm" data-go="tools" style="justify-self:start">→ כל הכלים</button><span class="eyebrow">כלי ${t.n} · נבנה בשבוע ${t.week}</span><h1>${t.name}</h1><p class="muted">${t.desc}</p></section>`;
-}
-function field(id, label, val, step = "any") { return `<div class="field"><label for="${id}">${label}</label><input type="number" id="${id}" value="${esc(val)}" step="${step}" inputmode="decimal"></div>`; }
-function viewTool(id) {
-  if (id === "t1") { const v = S.t1; return toolHead(id) + `<section class="tool-grid">
-    <div class="card"><div class="fields" id="t1f">
-      ${field("t1price", "מחיר נכס ($)", v.price)}${field("t1down", "מקדמה (%)", v.down)}
-      ${field("t1rate", "ריבית שנתית (%)", v.rate)}${field("t1years", "תקופה (שנים)", v.years)}
-      ${field("t1points", "נקודות (%)", v.points)}${field("t1closing", "עלויות סגירה (%)", v.closing)}
-      ${field("t1resMonths", "רזרבות (חודשים)", v.resMonths)}${field("t1taxIns", "מס + ביטוח חודשי ($)", v.taxIns)}
-      ${field("t1noi", "NOI חודשי צפוי ($)", v.noi)}${field("t1cash", "ההון שיש לך ($)", v.cash)}
-    </div><p class="small muted" style="margin-top:10px">הנחה: ריבית לזרים גבוהה ב-1%–2% מאזרחים. לאמת מול 3 ברוקרים (משימה במודול 2).</p></div>
-    <div class="stack" id="t1out"></div></section>`; }
-  if (id === "t2") return toolHead(id) + `<section class="stack" id="t2wrap"></section>`;
-  if (id === "t3") { const v = S.t3; return toolHead(id) + `<section class="tool-grid">
-    <div class="card"><div class="fields">
-      <div class="fieldset-title">נכס והכנסות</div>
-      ${field("t3price", "מחיר ($)", v.price)}${field("t3units", "יחידות", v.units, 1)}
-      ${field("t3rent", "שכירות ליחידה ($/חודש)", v.rent)}${field("t3vac", "Vacancy (%)", v.vac)}
-      <div class="fieldset-title">הוצאות תפעול</div>
-      ${field("t3taxPct", "מס נכס (% לשנה מהמחיר)", v.taxPct)}${field("t3ins", "ביטוח ($/חודש)", v.ins)}
-      ${field("t3mgmt", "ניהול (% מ-EGI)", v.mgmt)}${field("t3maint", "תחזוקה (% מהברוטו)", v.maint)}
-      ${field("t3capex", "CapEx (% מהברוטו)", v.capex)}${field("t3util", "Utilities על הבעלים ($)", v.util)}
-      ${field("t3leasing", "השמת דיירים ($/חודש)", v.leasing)}
-      <div class="fieldset-title">מימון והון</div>
-      ${field("t3down", "מקדמה (%)", v.down)}${field("t3rate", "ריבית (%)", v.rate)}
-      ${field("t3years", "תקופה (שנים)", v.years)}${field("t3points", "נקודות (%)", v.points)}
-      ${field("t3closing", "עלויות סגירה (%)", v.closing)}${field("t3repairs", "תיקונים ראשוניים ($)", v.repairs)}
-      <div class="fieldset-title">Stress test</div>
-      ${field("t3sVac", "Vacancy בתרחיש קיצון (%)", v.sVac)}${field("t3sRate", "ריבית בתרחיש קיצון (%)", v.sRate)}
-    </div><div class="row" style="margin-top:12px"><button class="btn sm" id="t3reset">טען את דוגמת מודול 4</button></div></div>
-    <div class="stack" id="t3out"></div></section>`; }
-  if (id === "t4") return toolHead(id) + `<section class="stack" id="t4wrap"></section>`;
-  if (id === "t5") return toolHead(id) + `<section class="stack" id="t5wrap"></section>`;
-  if (id === "t6") return toolHead(id) + `<section class="stack" id="t6wrap"></section>`;
-  if (id === "t7") return toolHead(id) + `<section class="stack" id="t7wrap"></section>`;
-  return "";
-}
+const DEAL_IN = {
+  basic: [I("price", "מחיר", 260000, 50000, 1000000, 5000), I("units", "יחידות", 4, 1, 8, 1, "יח׳"), I("rent", "שכירות ליחידה", 1100, 300, 4000, 25)],
+  exp: [I("vac", "Vacancy", 6, 0, 20, 0.5, "%"), I("taxPct", "מס נכס שנתי (% מהמחיר)", 2, 0.5, 4, 0.1, "%"), I("ins", "ביטוח חודשי", 150, 0, 1000, 10), I("mgmt", "ניהול (% מ-EGI)", 9, 0, 15, 0.5, "%"), I("maint", "תחזוקה (% מברוטו)", 8, 0, 15, 0.5, "%"), I("capex", "CapEx (% מברוטו)", 8, 0, 15, 0.5, "%"), I("util", "Utilities על הבעלים", 200, 0, 1000, 10), I("leasing", "השמת דיירים חודשי", 50, 0, 300, 10)],
+  fin: [I("down", "מקדמה", 25, 15, 100, 1, "%"), I("rate", "ריבית", 7.5, 3, 14, 0.125, "%"), I("years", "תקופה", 30, 10, 40, 5, "שנים"), I("points", "נקודות", 1, 0, 4, 0.25, "%"), I("closing", "עלויות סגירה", 3, 0, 8, 0.5, "%"), I("repairs", "תיקונים ראשוניים", 5000, 0, 100000, 500)],
+  stress: [I("sVac", "Vacancy בקיצון", 12, 0, 30, 1, "%"), I("sRate", "ריבית בקיצון", 8.5, 3, 16, 0.125, "%")]
+};
+const ALL_DEAL_IN = [...DEAL_IN.basic, ...DEAL_IN.exp, ...DEAL_IN.fin, ...DEAL_IN.stress];
 
-/* --- T1 --- */
-function renderT1() {
-  const v = S.t1;
-  ["price", "down", "rate", "years", "points", "closing", "resMonths", "taxIns", "noi", "cash"].forEach(k => v[k] = num("t1" + k));
-  const d = v.down / 100, loan = v.price * (1 - d), pi = pmt(loan, v.rate, v.years);
-  const downAmt = v.price * d, pts = loan * v.points / 100, clo = v.price * v.closing / 100;
-  const ctc = downAmt + pts + clo, piti = pi + v.taxIns, res = v.resMonths * piti, need = ctc + res;
-  const dscr = pi ? v.noi / pi : NaN;
-  const f = pmt(1, v.rate, v.years);
-  const maxP = (v.cash - v.resMonths * v.taxIns) / (d + v.closing / 100 + (v.points / 100) * (1 - d) + v.resMonths * (1 - d) * f);
-  const ok = v.cash >= need;
-  $("#t1out").innerHTML = `
-    <div class="kpis">
-      <div class="kpi"><div class="k">הלוואה</div><div class="v">${usd(loan)}</div></div>
-      <div class="kpi"><div class="k">תשלום חודשי (קרן + ריבית)</div><div class="v">${usd(pi)}</div></div>
-      <div class="kpi ${dscr >= 1.25 ? "good" : "bad"}"><div class="k">DSCR</div><div class="v">${fx(dscr)}</div></div>
-    </div>
-    <div class="tbl-wrap"><table><tbody>
-      <tr><td>מקדמה</td><td class="n">${usd(downAmt)}</td></tr>
-      <tr><td>נקודות</td><td class="n">${usd(pts)}</td></tr>
-      <tr><td>עלויות סגירה</td><td class="n">${usd(clo)}</td></tr>
-      <tr><td><b>Cash to Close</b></td><td class="n"><b>${usd(ctc)}</b></td></tr>
-      <tr><td>רזרבות (${v.resMonths} × ${usd(piti)} PITI)</td><td class="n">${usd(res)}</td></tr>
-      <tr><td><b>סך ההון הנדרש</b></td><td class="n"><b>${usd(need)}</b></td></tr>
-    </tbody></table></div>
-    <div class="verdict ${ok ? "good" : "bad"}">${ok ? `ההון שלך מספיק. נשאר <span class="num">${usd(v.cash - need)}</span>.` : `חסרים <span class="num">${usd(need - v.cash)}</span> לעסקה הזו.`}</div>
-    <div class="card"><span class="eyebrow">תקציב קנייה מקסימלי לפי ההון שלך</span><div class="week-big" style="font-size:2rem;direction:ltr;text-align:right">${usd(maxP)}</div><p class="small muted">כולל מקדמה, נקודות, סגירה ורזרבות. הנחה: מס וביטוח קבועים כפי שהוזנו.</p></div>
-    ${dscr < 1.25 ? `<div class="note">DSCR מתחת ל-1.25. רוב הבנקים ידרשו מקדמה גדולה יותר או יסרבו.</div>` : ""}`;
-  save();
-}
-
-/* --- T2 --- */
-function renderT2() {
-  const v = S.t2;
-  const totals = [0, 1, 2].map(c => { let s = 0, mx = 0; MARKET_METRICS.forEach((_, r) => { s += (v.scores[c][r] || 0) * v.weights[r]; mx += 5 * v.weights[r]; }); return Math.round(s / mx * 100); });
-  const best = Math.max(...totals);
-  $("#t2wrap").innerHTML = `
-    ${v.example ? `<div class="note">הציונים כאן הם <b>דוגמה</b> ולא נתונים אמיתיים. החלף כל ציון בנתון שבדקת, עם מקור. <button class="btn sm" id="t2clear">אפס לציון 3</button></div>` : ""}
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>מדד</th><th>מה מחפשים</th><th>משקל</th>${[0, 1, 2].map(c => `<th><input class="cell-in" id="t2n${c}" value="${esc(v.names[c])}" aria-label="שם מיקום ${c + 1}"></th>`).join("")}</tr></thead>
-      <tbody>${MARKET_METRICS.map((m, r) => `<tr><td class="term">${m[0]}</td><td class="small muted">${m[1]}</td>
-        <td><select class="cell-in" data-w="${r}" aria-label="משקל">${[1, 2, 3].map(x => `<option ${v.weights[r] == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>
-        ${[0, 1, 2].map(c => `<td><select class="cell-in sc" data-s="${c}-${r}" aria-label="ציון">${[1, 2, 3, 4, 5].map(x => `<option ${v.scores[c][r] == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>`).join("")}</tr>`).join("")}
-        <tr><td colspan="3"><b>ציון משוקלל (מתוך 100)</b></td>${totals.map(t => `<td class="n"><b style="color:${t === best ? "var(--good)" : "inherit"}">${t}</b></td>`).join("")}</tr>
-      </tbody></table></div>
-    <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${[0, 1, 2].map(c => `<div class="field"><label for="t2note${c}">מקורות ונימוק: ${esc(v.names[c])}</label><textarea id="t2note${c}" rows="3" data-note="${c}">${esc(v.notes[c])}</textarea></div>`).join("")}</div>
-    <p class="small muted">ציון 1 = גרוע, 5 = מצוין. משקל 3 = מדד קריטי. כל ציון צריך נתון עם מקור (Census, FRED, Niche, Rentometer, אתר המחוז).</p>`;
-}
-
-/* --- T3 --- */
 function calcDeal(v) {
   const one = (vac, rate) => {
     const gross = v.units * v.rent, vacancy = gross * vac / 100, egi = gross - vacancy;
@@ -1111,289 +983,489 @@ function calcDeal(v) {
   };
   const b = one(v.vac, v.rate), s = one(v.sVac, v.sRate);
   const cash = v.price * v.down / 100 + v.price * v.closing / 100 + b.loan * v.points / 100 + v.repairs;
-  return Object.assign(b, { s, cash, cap: b.noi * 12 / v.price * 100, coc: b.cf * 12 / cash * 100, dscr: b.noi / b.debt, sCoc: s.cf * 12 / cash * 100, sDscr: s.noi / s.debt, expRatio: b.opex / b.gross * 100 });
-}
-function renderT3() {
-  const v = S.t3;
-  ["price", "units", "rent", "vac", "taxPct", "ins", "mgmt", "maint", "capex", "util", "leasing", "down", "rate", "years", "points", "closing", "repairs", "sVac", "sRate"].forEach(k => v[k] = num("t3" + k));
-  const d = calcDeal(v);
-  const checks = [
-    [d.coc >= 10, `CoC של 10% לפחות בתרחיש הבסיס (${pct(d.coc)})`],
-    [d.s.cf > 0, `תזרים חיובי בתרחיש ה-stress (${usd(d.s.cf)})`],
-    [d.dscr >= 1.25, `DSCR של 1.25 לפחות (${fx(d.dscr)})`],
-    [d.expRatio >= 35 && d.expRatio <= 55, `הוצאות ${pct(d.expRatio, 0)} מהברוטו (כלל ה-50%: צפוי 40%–50%)`]
-  ];
-  const pass = checks.slice(0, 3).every(c => c[0]);
-  const line = (l, a, b) => `<tr><td>${l}</td><td class="n">${usd(a)}</td><td class="n">${usd(b)}</td></tr>`;
-  $("#t3out").innerHTML = `
-    <div class="kpis">
-      <div class="kpi"><div class="k">Cap Rate</div><div class="v">${pct(d.cap)}</div></div>
-      <div class="kpi ${d.coc >= 10 ? "good" : "bad"}"><div class="k">Cash-on-Cash</div><div class="v">${pct(d.coc)}</div></div>
-      <div class="kpi ${d.dscr >= 1.25 ? "good" : "bad"}"><div class="k">DSCR</div><div class="v">${fx(d.dscr)}</div></div>
-      <div class="kpi"><div class="k">NOI חודשי</div><div class="v">${usd(d.noi)}</div></div>
-      <div class="kpi ${d.cf > 0 ? "good" : "bad"}"><div class="k">תזרים חודשי</div><div class="v">${usd(d.cf)}</div></div>
-      <div class="kpi"><div class="k">הון מושקע</div><div class="v">${usd(d.cash)}</div></div>
-    </div>
-    <div class="verdict ${pass ? "good" : "bad"}">${pass ? "עובר את ה-Buy Box. ממשיכים ל-comps ולהצעה על נייר." : "לא עובר את ה-Buy Box. לא קונים במחיר הזה."}</div>
-    <div class="checks">${checks.map(c => `<div class="check"><span class="dot ${c[0] ? "good" : "bad"}"></span>${c[1]}</div>`).join("")}</div>
-    <div class="tbl-wrap"><table><thead><tr><th>שורה (חודשי)</th><th class="n">בסיס</th><th class="n">Stress</th></tr></thead><tbody>
-      ${line("הכנסה ברוטו", d.gross, d.s.gross)}${line("Vacancy", -d.vacancy, -d.s.vacancy)}${line("EGI", d.egi, d.s.egi)}
-      ${line("מס נכס", -d.tax, -d.s.tax)}${line("ביטוח", -d.ins, -d.s.ins)}${line("ניהול", -d.mgmt, -d.s.mgmt)}${line("תחזוקה", -d.maint, -d.s.maint)}
-      ${line("CapEx", -d.capex, -d.s.capex)}${line("Utilities", -d.util, -d.s.util)}${line("השמת דיירים", -d.leasing, -d.s.leasing)}
-      <tr><td><b>NOI</b></td><td class="n"><b>${usd(d.noi)}</b></td><td class="n"><b>${usd(d.s.noi)}</b></td></tr>
-      ${line("משכנתא", -d.debt, -d.s.debt)}
-      <tr><td><b>תזרים</b></td><td class="n"><b>${usd(d.cf)}</b></td><td class="n"><b style="color:${d.s.cf > 0 ? "var(--good)" : "var(--bad)"}">${usd(d.s.cf)}</b></td></tr>
-      <tr><td>CoC / DSCR</td><td class="n">${pct(d.coc)} / ${fx(d.dscr)}</td><td class="n">${pct(d.sCoc)} / ${fx(d.sDscr)}</td></tr>
-    </tbody></table></div>`;
-  save();
+  return Object.assign(b, { s, cash, cap: b.noi * 12 / v.price * 100, coc: b.cf * 12 / cash * 100, dscr: b.noi / b.debt, expRatio: b.opex / b.gross * 100 });
 }
 
-/* --- T4 --- */
-function renderT4() {
-  const v = S.t4;
-  const sub = v.items.reduce((a, it) => a + (+it[1] || 0) * (+it[2] || 0), 0), cont = sub * v.cont / 100, total = sub + cont;
-  const maxP = v.arv * 0.7 - total;
-  $("#t4wrap").innerHTML = `
-    ${v.example ? `<div class="note">מחירי דוגמה בלבד. מאמתים מול 3 הצעות מחיר מפורטות של קבלן (מודול 6).</div>` : ""}
-    <section class="tool-grid">
-      <div class="stack">
-        <div class="tbl-wrap"><table><thead><tr><th>פריט</th><th class="n">כמות</th><th class="n">עלות ליחידה ($)</th><th class="n">סה״כ</th><th></th></tr></thead><tbody>
-          ${v.items.map((it, i) => `<tr><td><input class="cell-in" data-it="${i}-0" value="${esc(it[0])}" aria-label="פריט"></td><td><input class="cell-in" type="number" data-it="${i}-1" value="${esc(it[1])}" style="width:80px" aria-label="כמות"></td><td><input class="cell-in" type="number" data-it="${i}-2" value="${esc(it[2])}" style="width:100px" aria-label="עלות"></td><td class="n">${usd(it[1] * it[2])}</td><td><button class="btn ghost sm danger" data-del="${i}" aria-label="מחק שורה">✕</button></td></tr>`).join("")}
-        </tbody></table></div>
-        <div class="row"><button class="btn sm" id="t4add">+ הוסף פריט</button></div>
+/* ===================== STATE ===================== */
+const KEY = "usre-academy-v2", OLD_KEY = "usre-academy-v1";
+const todayISO = () => new Date().toISOString().slice(0, 10);
+function defaults() {
+  return {
+    start: todayISO(), tasks: {}, quiz: {}, exam: {}, known: {}, dd: {}, calc: {},
+    rehab: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
+    t2: { names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [3, 4, 3, 4, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: true, loc: 0 },
+    t5: { role: 0, cands: {} },
+    t7: { deals: [
+      { addr: "123 Example Ave", zip: "43205", price: 240000, units: 3, rent: 2850, status: 1, coc: 9.1, note: "מס גבוה מהמודעה", ex: true },
+      { addr: "456 Sample St", zip: "45238", price: 295000, units: 4, rent: 3600, status: 2, coc: 11.4, note: "עבר stress test", ex: true },
+      { addr: "789 Demo Rd", zip: "43207", price: 180000, units: 2, rent: 1500, status: 5, coc: 4.2, note: "Flood Zone AE", ex: true }
+    ] },
+    ui: { route: "home", sub: {}, cat: "yield", deals: "pipeline" }
+  };
+}
+let S;
+function load() {
+  const d = defaults();
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return deepMerge(d, JSON.parse(raw));
+    const old = localStorage.getItem(OLD_KEY);
+    if (old) { const o = JSON.parse(old); ["start", "tasks", "quiz", "exam", "known", "dd", "t5", "t7"].forEach(k => { if (o[k]) d[k] = o[k]; }); if (o.t2) d.t2 = Object.assign(d.t2, o.t2); }
+  } catch (e) {}
+  return d;
+}
+function deepMerge(a, b) { for (const k in b) { if (b[k] && typeof b[k] === "object" && !Array.isArray(b[k]) && a[k] && typeof a[k] === "object" && !Array.isArray(a[k])) deepMerge(a[k], b[k]); else a[k] = b[k]; } return a; }
+S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ===================== HELPERS ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const usd = v => isFinite(v) ? (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US") : "—";
+const pct = (v, d = 1) => isFinite(v) ? v.toFixed(d) + "%" : "—";
+const pmt = (loan, ratePct, years) => { const r = ratePct / 100 / 12, n = years * 12; if (!loan) return 0; return r === 0 ? loan / n : loan * r / (1 - Math.pow(1 + r, -n)); };
+function fmt(v, t) {
+  if (!isFinite(v)) return "—";
+  if (t === "usd") return usd(v);
+  if (t === "pct") return pct(v);
+  if (t === "pct2") return pct(v, 2);
+  if (t === "x") return v.toFixed(2);
+  if (t === "ils") return (v < 0 ? "-₪" : "₪") + Math.round(Math.abs(v)).toLocaleString("en-US");
+  return Math.round(v).toLocaleString("en-US");
+}
+const LIGHT_TXT = { good: "מצוין", mid: "גבולי", bad: "חלש" };
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); }
+const IC = {
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>',
+  calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="3"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v3M8 18h.01M12 18h.01"/></svg>',
+  deals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  chev: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>'
+};
+function ring(p, size = 96, stroke = 10, color = "var(--red)", track = "var(--soft-2)", inner = "") {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(100, p)) / 100), h = size / 2;
+  return `<span class="ringbox" style="width:${size}px;height:${size}px"><svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="${track}" stroke-width="${stroke}"/><circle cx="${h}" cy="${h}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 ${h} ${h})"/></svg><span class="in">${inner}</span></span>`;
+}
+
+function currentWeek() { const w = Math.floor((new Date() - new Date(S.start + "T00:00:00")) / (7 * 864e5)) + 1; return Math.max(1, Math.min(24, w)); }
+function moduleForWeek(w) { return MODULES.find(m => w >= m.weeks[0] && w <= m.weeks[1]) || MODULES[MODULES.length - 1]; }
+function modStats(m) {
+  const done = m.tasks.filter((_, i) => S.tasks[m.id + "-" + i]).length, q = S.quiz[m.id];
+  const quizPassed = !!q && q.best / q.total * 100 >= m.passPct, examOk = !!S.exam[m.id];
+  return { done, total: m.tasks.length, q, quizPassed, examOk, complete: quizPassed && examOk };
+}
+function overall() { let p = 0, mx = 0; MODULES.forEach(m => { const s = modStats(m); p += s.done + (s.quizPassed ? 2 : 0) + (s.examOk ? 2 : 0); mx += s.total + 4; }); return Math.round(p / mx * 100); }
+const weeksTxt = m => m.weeks[0] === m.weeks[1] ? `שבוע ${m.weeks[0]}` : `שבועות ${m.weeks[0]}–${m.weeks[1]}`;
+const TOOL_DEST = { t1: "c-maxp", t2: "deals:market", t3: "c-deal", t4: "c-rehab", t5: "deals:team", t6: "deals:dd", t7: "deals:pipeline" };
+const TOOL_LABEL = { t1: "תקציב קנייה", t2: "ניקוד שוק", t3: "בדיקת עסקה", t4: "מעריך שיפוץ", t5: "כרטיסי צוות", t6: "צ׳קליסט", t7: "צנרת עסקאות" };
+
+/* ===================== ROUTER ===================== */
+function tabOf(r) { if (r === "learn" || /^m\d$/.test(r)) return "learn"; if (r === "calc" || r.startsWith("c-")) return "calc"; if (r === "deals") return "deals"; return "home"; }
+function parentOf(r) { if (/^m\d$/.test(r)) return "learn"; if (r.startsWith("c-")) return "calc"; return null; }
+function routeTitle(r) {
+  if (r === "home") return "מסלול נדל״ן ארה״ב";
+  if (r === "learn") return "לימוד";
+  if (r === "calc") return "מחשבונים";
+  if (r === "deals") return "העסקאות שלי";
+  if (/^m\d$/.test(r)) { const m = MODULES.find(x => x.id === r); return `מודול ${m.n}`; }
+  if (r === "c-deal") return "בדיקת עסקה";
+  if (r.startsWith("c-")) { const c = CALCS.find(x => x.id === r.slice(2)); return c ? c.name : "מחשבון"; }
+  return "";
+}
+function validRoute(r) {
+  if (["home", "learn", "calc", "deals", "c-deal", "backup"].includes(r)) return true;
+  if (/^m\d$/.test(r)) return MODULES.some(m => m.id === r);
+  if (r.startsWith("c-")) return CALCS.some(c => c.id === r.slice(2));
+  return false;
+}
+function go(r, opts = {}) {
+  if (r.startsWith("deals:")) { S.ui.deals = r.slice(6); r = "deals"; }
+  if (!validRoute(r)) r = "home";
+  S.ui.route = r; save();
+  try { history.replaceState(null, "", "#" + (r.includes(":") ? "deals" : r)); } catch (e) {}
+  const tab = tabOf(r), par = parentOf(r), p = overall();
+  $("#topbar").innerHTML = `${par ? `<button class="back" data-go="${par}" aria-label="חזרה">${IC.back}</button>` : ""}<span class="ttl">${routeTitle(r)}</span><span class="chip-pct">${ring(p, 22, 4, "var(--red)", "var(--soft-2)")}<span class="num">${p}%</span></span>`;
+  $("#nav").innerHTML = [["home", "בית"], ["learn", "לימוד"], ["calc", "מחשבונים"], ["deals", "עסקאות"]].map(([k, l]) => `<button data-go="${k}" ${tab === k ? 'aria-current="page"' : ""}><span class="ic">${IC[k]}</span>${l}</button>`).join("");
+  const app = $("#app");
+  if (r === "home") app.innerHTML = viewHome();
+  else if (r === "learn") app.innerHTML = viewLearn();
+  else if (/^m\d$/.test(r)) app.innerHTML = viewModule(MODULES.find(m => m.id === r));
+  else if (r === "calc") app.innerHTML = viewCalcList();
+  else if (r === "c-deal") app.innerHTML = viewDeal();
+  else if (r === "c-rehab") app.innerHTML = viewRehab();
+  else if (r.startsWith("c-")) app.innerHTML = viewCalc(CALCS.find(c => c.id === r.slice(2)));
+  else if (r === "deals") app.innerHTML = viewDeals();
+  else if (r === "backup") app.innerHTML = viewBackup();
+  wire(r);
+  if (!opts.keepScroll) window.scrollTo(0, 0);
+}
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); } });
+
+/* ===================== HOME ===================== */
+function viewHome() {
+  const w = currentWeek(), cm = moduleForWeek(w), p = overall(), ph = PHASES.find(x => w >= x.weeks[0] && w <= x.weeks[1]);
+  const weeks = Array.from({ length: 24 }, (_, i) => `<span class="${i + 1 < w ? "done" : i + 1 === w ? "now" : ""}"></span>`).join("");
+  return `
+  <section class="hero">
+    <div class="top">
+      ${ring(p, 92, 10, "var(--red)", "color-mix(in srgb, var(--inv-ink) 20%, transparent)", `<span><b class="num" style="font-size:1.4rem">${p}%</b></span>`)}
+      <div class="stack" style="gap:4px">
+        <span class="tiny" style="opacity:.7">השבוע שלך</span>
+        <div class="wk">${w}<small> / 24</small></div>
+        <span class="small" style="opacity:.85">שלב: ${ph.name}</span>
       </div>
-      <div class="stack">
-        <div class="fields">${field("t4arv", "ARV — שווי אחרי שיפוץ ($)", v.arv)}${field("t4cont", "בלת״מ (%)", v.cont)}</div>
-        <div class="tbl-wrap"><table><tbody>
-          <tr><td>סה״כ פריטים</td><td class="n">${usd(sub)}</td></tr>
-          <tr><td>בלת״מ ${v.cont}%</td><td class="n">${usd(cont)}</td></tr>
-          <tr><td><b>תקציב שיפוץ</b></td><td class="n"><b>${usd(total)}</b></td></tr>
-          <tr><td>ARV × 70%</td><td class="n">${usd(v.arv * 0.7)}</td></tr>
-        </tbody></table></div>
-        <div class="card"><span class="eyebrow">מחיר קנייה מקסימלי (כלל ה-70%)</span><div class="week-big" style="font-size:2rem;direction:ltr;text-align:right">${usd(maxP)}</div><p class="small muted">ARV × 70% פחות תקציב השיפוץ. ${v.cont < 10 ? '<span style="color:var(--bad)">בלת״מ מתחת ל-10% — מומלץ 10%–15%.</span>' : ""}</p></div>
-      </div>
-    </section>`;
-}
-
-/* --- T5 --- */
-const CRIT = ["מספרים ונתונים", "ניסיון עם משקיעים/זרים", "זמינות ותגובה", "שקיפות ומחיר"];
-function renderT5() {
-  const v = S.t5, r = ROLES[v.role], list = v.cands[v.role] || (v.cands[v.role] = []);
-  const avg = c => c.flag ? 0 : c.s.reduce((a, b) => a + b, 0) / c.s.length;
-  const best = list.length ? Math.max(...list.map(avg)) : -1;
-  $("#t5wrap").innerHTML = `
-    <div class="subtabs">${ROLES.map((x, i) => `<button class="subtab" data-role="${i}" aria-pressed="${i === v.role}">${x.role}</button>`).join("")}</div>
-    <div class="card stack">
-      <h3>${r.role}</h3>
-      <div class="tbl-wrap"><table><tbody>
-        <tr><td><b>מה הוא עושה</b></td><td>${r.does}</td></tr>
-        <tr><td><b>מה מודדים</b></td><td>${r.measure}</td></tr>
-        <tr><td><b>שאלה שחייבים לשאול</b></td><td>${r.ask}</td></tr>
-        <tr><td><b>דגל אדום</b></td><td style="color:var(--bad)">${r.flag}</td></tr>
-      </tbody></table></div>
     </div>
-    <div class="tbl-wrap"><table><thead><tr><th>מועמד</th>${CRIT.map(c => `<th>${c}</th>`).join("")}<th>דגל אדום</th><th class="n">ממוצע</th><th>הערות</th><th></th></tr></thead><tbody>
-      ${list.length ? list.map((c, i) => `<tr><td><input class="cell-in" data-c="${i}-name" value="${esc(c.name)}" aria-label="שם"></td>
-        ${c.s.map((sc, j) => `<td><select class="cell-in sc" data-c="${i}-s${j}" aria-label="${CRIT[j]}">${[1, 2, 3, 4, 5].map(x => `<option ${sc == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>`).join("")}
-        <td><input type="checkbox" data-c="${i}-flag" ${c.flag ? "checked" : ""} aria-label="דגל אדום"></td>
-        <td class="n"><b style="color:${c.flag ? "var(--bad)" : (avg(c) === best ? "var(--good)" : "inherit")}">${c.flag ? "נפסל" : fx(avg(c), 1)}</b></td>
-        <td><input class="cell-in" data-c="${i}-note" value="${esc(c.note)}" aria-label="הערות"></td>
-        <td><button class="btn ghost sm danger" data-cdel="${i}" aria-label="מחק מועמד">✕</button></td></tr>`).join("")
-      : `<tr><td colspan="9" class="muted">עוד אין מועמדים. היעד: 3 מתווכים, 3 חברות ניהול, 2 ברוקרים.</td></tr>`}
-    </tbody></table></div>
-    <div class="row"><button class="btn sm" id="t5add">+ הוסף מועמד</button><span class="small muted">ציון 1–5 לכל קריטריון. דגל אדום פוסל.</span></div>`;
-}
-
-/* --- T6 --- */
-function renderT6() {
-  const all = Object.entries(DD_LISTS);
-  let done = 0, tot = 0;
-  all.forEach(([k, l]) => l.items.forEach((_, i) => { tot++; if (S.dd[k + i]) done++; }));
-  $("#t6wrap").innerHTML = `
-    <div class="row"><div class="bar" style="flex:1;min-width:160px"><i style="width:${done / tot * 100}%"></i></div><span class="num small">${done}/${tot}</span><span id="t6reset"></span></div>
-    ${all.map(([k, l]) => `<section class="stack"><h3>${l.title}</h3><div class="tasks">${l.items.map((it, i) => `<label class="task ${S.dd[k + i] ? "done" : ""}"><input type="checkbox" data-dd="${k + i}" ${S.dd[k + i] ? "checked" : ""}><span class="t">${esc(it)}</span></label>`).join("")}</div></section>`).join("")}`;
-  renderConfirm("t6reset", "אפס צ׳קליסט (לעסקה חדשה)", () => { S.dd = {}; save(); renderT6(); });
-}
-
-/* --- T7 --- */
-function renderT7() {
-  const v = S.t7;
-  const counts = [0, 0, 0, 0, 0];
-  v.deals.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
-  const labels = ["סינון מהיר", "ניתוח מלא", "עבר Buy Box", "הצעה על נייר", "בדיקה בשטח"];
-  $("#t7wrap").innerHTML = `
-    <div class="card stack">
-      <span class="eyebrow">המשפך מול היעד</span>
-      <div class="funnel">${labels.map((l, i) => `<div class="funnel-row"><span>${l}</span><div class="bar ${counts[i] >= FUNNEL_TARGET[i] ? "good" : ""}"><i style="width:${Math.min(100, counts[i] / FUNNEL_TARGET[i] * 100)}%"></i></div><span class="num small">${counts[i]}/${FUNNEL_TARGET[i]}</span></div>`).join("")}</div>
-      <p class="small muted">קצב: 10 נכסים בשבוע לסינון, 3 בשבוע לניתוח מלא.</p>
-    </div>
-    <form class="card" id="t7form">
-      <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
-        <div class="field"><label for="d_addr">כתובת / לינק</label><input id="d_addr" required></div>
-        <div class="field"><label for="d_zip">מיקוד</label><input id="d_zip"></div>
-        <div class="field"><label for="d_price">מחיר ($)</label><input id="d_price" type="number" required></div>
-        <div class="field"><label for="d_units">יחידות</label><input id="d_units" type="number" value="2"></div>
-        <div class="field"><label for="d_rent">שכירות חודשית כוללת ($)</label><input id="d_rent" type="number" required></div>
-        <div class="field"><label for="d_coc">CoC מהמחשבון (%)</label><input id="d_coc" type="number" step="any"></div>
-        <div class="field"><label for="d_note">החלטה ונימוק</label><input id="d_note"></div>
-      </div>
-      <div class="row" style="margin-top:10px"><button class="btn primary" type="submit">+ הוסף נכס</button><span class="small muted">rent-to-price מחושב אוטומטית. מעל 0.8% עובר סינון ראשוני.</span></div>
-    </form>
-    <div class="tbl-wrap"><table><thead><tr><th>נכס</th><th>מיקוד</th><th class="n">מחיר</th><th class="n">יח׳</th><th class="n">Rent/Price</th><th class="n">CoC</th><th>סטטוס</th><th>נימוק</th><th></th></tr></thead><tbody>
-      ${v.deals.length ? v.deals.map((d, i) => { const rp = d.rent / d.price * 100; return `<tr>
-        <td>${esc(d.addr)}${d.ex ? ' <span class="example-tag">דוגמה</span>' : ""}</td><td class="num">${esc(d.zip)}</td><td class="n">${usd(d.price)}</td><td class="n">${esc(d.units)}</td>
-        <td class="n"><span class="pill ${rp >= 0.8 ? "good" : "bad"}">${pct(rp, 2)}</span></td><td class="n">${d.coc !== "" && d.coc != null && isFinite(d.coc) ? pct(+d.coc) : "—"}</td>
-        <td><select class="cell-in" data-st="${i}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${d.status == j ? "selected" : ""}>${s}</option>`).join("")}</select></td>
-        <td class="small">${esc(d.note)}</td><td><button class="btn ghost sm danger" data-ddel="${i}" aria-label="מחק">✕</button></td></tr>`; }).join("")
-      : `<tr><td colspan="9" class="muted">אין נכסים עדיין. הוסף את הנכס הראשון בטופס למעלה.</td></tr>`}
-    </tbody></table></div>
-    ${v.deals.some(d => d.ex) ? `<div class="row"><button class="btn sm" id="t7clearEx">מחק את שורות הדוגמה</button></div>` : ""}`;
-}
-
-/* ===================== GLOSSARY & BACKUP ===================== */
-function viewGlossary() {
-  return `<section class="stack"><h1>מילון מושגים</h1><p class="muted">כל המושגים מכל המודולים במקום אחד.</p>
-  <input class="search" id="gq" placeholder="חפש מושג או הסבר… (למשל DSCR, פחת, escrow)" aria-label="חיפוש">
-  <div id="glist"></div></section>`;
-}
-function renderGlossary(q = "") {
-  q = q.trim().toLowerCase();
-  const rows = [];
-  MODULES.forEach(m => moduleTerms(m).forEach(t => { if (!q || (t.t + " " + t.d).toLowerCase().includes(q)) rows.push([t.t, t.d, m]); }));
-  $("#glist").innerHTML = rows.length ? `<div class="tbl-wrap"><table><thead><tr><th>מושג</th><th>הסבר</th><th>מודול</th></tr></thead><tbody>${rows.map(r => `<tr><td class="term">${esc(r[0])}</td><td>${esc(r[1])}</td><td><button class="btn ghost sm" data-go="${r[2].id}">${r[2].n}</button></td></tr>`).join("")}</tbody></table></div><p class="small muted"><span class="num">${rows.length}</span> מושגים</p>` : `<p class="muted">לא נמצא מושג תואם.</p>`;
-}
-function viewBackup() {
-  return `<section class="stack"><h1>גיבוי ושחזור</h1>
-  <p class="muted">ההתקדמות נשמרת בדפדפן הזה בלבד. כדי לעבור למכשיר אחר או לשמור עותק: העתק את הקוד, ושמור אותו אצלך (למשל בהודעה לעצמך).</p>
-  <div class="card stack"><h3>ייצוא</h3><textarea id="bkOut" rows="5" readonly class="num" style="direction:ltr;font-size:12px">${esc(JSON.stringify(S))}</textarea><div class="row"><button class="btn primary" id="bkCopy">העתק</button></div></div>
-  <div class="card stack"><h3>שחזור</h3><textarea id="bkIn" rows="5" style="direction:ltr;font-size:12px" placeholder="הדבק כאן קוד גיבוי"></textarea><div class="row"><button class="btn" id="bkLoad">שחזר מהקוד</button><span id="bkMsg" class="small"></span></div></div>
-  <div class="card stack"><h3>איפוס מלא</h3><p class="small muted">מוחק את כל ההתקדמות, הציונים והנתונים בכלים.</p><div id="bkReset"></div></div>
+    <div class="weeks" aria-label="שבוע ${w} מתוך 24">${weeks}</div>
+    <button class="btn primary block" data-go="${cm.id}">המשך: מודול ${cm.n} · ${cm.title}</button>
+  </section>
+  <section class="tiles">
+    <button class="tile red" data-go="c-deal">${IC.bolt}<b>בדיקת עסקה</b><span>קונים או לא? 60 שניות</span></button>
+    <button class="tile" data-go="calc">${IC.calc}<b>מחשבונים</b><span>${CALCS.length} נוסחאות</span></button>
+    <button class="tile" data-go="deals">${IC.deals}<b>הצנרת שלי</b><span>${S.t7.deals.filter(d => !d.ex).length} נכסים</span></button>
+  </section>
+  <section class="stack">
+    <div class="sec-title"><h2>המודולים</h2><button class="btn sm soft" data-go="learn">הכל</button></div>
+    <div class="list">${MODULES.slice(Math.max(0, cm.n - 2), cm.n + 1).map(m => modRow(m, cm)).join("")}</div>
+  </section>
+  <section class="card stack" style="gap:6px">
+    <b style="font-family:var(--font-display)">כלל ברזל</b>
+    <span class="small">כל מספר צריך מקור: אתר, מתווך או חברת ניהול.</span>
+  </section>
+  <section class="row" style="justify-content:space-between">
+    <label class="small muted" for="startDate">תאריך התחלה</label>
+    <input type="date" id="startDate" class="field-in" style="width:auto;background:var(--soft)" value="${esc(S.start)}">
+    <button class="btn sm soft" data-go="backup">גיבוי</button>
   </section>`;
 }
-function renderConfirm(hostId, label, fn) {
-  const h = $("#" + hostId); if (!h) return;
+function modRow(m, cm) {
+  const s = modStats(m), cls = s.complete ? "done" : m.id === cm.id ? "now" : "";
+  return `<button class="li" data-go="${m.id}"><span class="nbadge ${cls}">${s.complete ? `<span style="width:20px;height:20px;display:grid">${IC.check}</span>` : m.n}</span>
+    <span class="body"><b>${m.title}</b><span class="tiny muted">${weeksTxt(m)} · משימות <span class="num">${s.done}/${s.total}</span>${s.q ? ` · בוחן <span class="num">${s.q.best}/${s.q.total}</span>` : ""}</span>
+    <span class="bar ${s.complete ? "good" : ""}"><i style="width:${Math.round((s.done + (s.quizPassed ? 2 : 0) + (s.examOk ? 2 : 0)) / (s.total + 4) * 100)}%"></i></span></span>
+    <span class="chev">${IC.chev}</span></button>`;
+}
+
+/* ===================== LEARN ===================== */
+function viewLearn() {
+  const cm = moduleForWeek(currentWeek());
+  return `<section class="stack"><h1>9 מודולים</h1><p class="muted">לא עוברים מודול בלי לעבור את המבחן שלו.</p></section>
+  <section class="list">${MODULES.map(m => modRow(m, cm)).join("")}</section>`;
+}
+function moduleTerms(m) {
+  const out = [];
+  m.sections.forEach(s => { if (s.type === "terms" || s.type === "terms3") s.rows.forEach(r => out.push({ t: r[0], d: r[1], x: s.type === "terms3" && r[2] && r[2] !== "—" ? r[2] : "", xh: s.head ? s.head[2] : "" })); });
+  return out;
+}
+function termItem(t, d, x, xh) { return `<details class="term"><summary><span class="en" style="text-align:start">${esc(t)}</span></summary><div class="ans"><span>${esc(d)}</span>${x ? `<span class="ex"><b>${esc(xh || "דוגמה")}:</b> ${esc(x)}</span>` : ""}</div></details>`; }
+function renderSection(sec) {
+  let b = "";
+  if (sec.type === "terms" || sec.type === "terms3") b = `<div class="terms">${sec.rows.map(r => termItem(r[0], r[1], r[2] && r[2] !== "—" ? r[2] : "", sec.head ? sec.head[2] : "")).join("")}</div>`;
+  else if (sec.type === "steps") b = `<div class="steps">${sec.items.map(i => `<div><span>${i}</span></div>`).join("")}</div>`;
+  else if (sec.type === "list") b = `<div class="bul ${sec.warn ? "warn" : ""}">${sec.items.map(i => `<div><span>${i}</span></div>`).join("")}</div>`;
+  else if (sec.type === "formulas") b = `<div class="stack" style="gap:8px">${sec.items.map(f => `<div class="formula">${esc(f)}</div>`).join("")}</div>`;
+  else if (sec.type === "example") { const d = calcDeal(dealDefaults()); b = `<div class="kpis">${kpi("Cap Rate", pct(d.cap))}${kpi("CoC", pct(d.coc), "good")}${kpi("DSCR", d.dscr.toFixed(2), "good")}${kpi("תזרים חודשי", usd(d.cf), "good")}</div><p class="small muted">בניין 4 יחידות ב-260,000$, שכירות 1,100$ ליחידה, מימון 75% ב-7.5%.</p><button class="btn dark" data-go="c-deal">פתח את הדוגמה במחשבון</button>`; }
+  else if (sec.type === "roles") b = `<div class="terms">${ROLES.map(r => `<details class="term"><summary>${r.role}</summary><div class="ans"><span><b>מודדים:</b> ${r.measure}</span><span><b>שואלים:</b> ${r.ask}</span><span style="color:var(--red)"><b>דגל אדום:</b> ${r.flag}</span></div></details>`).join("")}</div>`;
+  else if (sec.type === "kpis") b = `<div class="rows">${sec.rows.map(r => `<div><span>${r[0]}</span><span class="v" style="direction:rtl">${r[1]}</span></div>`).join("")}</div>`;
+  return `<section class="stack"><h3>${sec.title}</h3>${b}</section>`;
+}
+function kpi(k, v, cls = "") { return `<div class="kpi ${cls}"><div class="k">${k}</div><div class="v">${v}</div></div>`; }
+function viewModule(m) {
+  const sub = S.ui.sub[m.id] || "learn", s = modStats(m);
+  const prev = MODULES[m.n - 2], next = MODULES[m.n], locked = prev && !modStats(prev).complete;
+  const subs = [["learn", "חומר"], ["cards", "כרטיסיות"], ["tasks", `משימות ${s.done}/${s.total}`], ["quiz", s.complete ? "מבחן ✓" : "מבחן"]];
+  let body = sub === "learn" ? m.sections.map(renderSection).join("") : sub === "cards" ? viewCards(m) : sub === "tasks" ? viewTasks(m) : viewQuiz(m);
+  return `<section class="stack" style="gap:8px">
+    <span class="tiny muted">${weeksTxt(m)}</span>
+    <h1>${m.title}</h1>
+    <p class="goal">${m.goal}</p>
+    ${locked ? `<span class="pill mid" style="justify-self:start">מודול ${prev.n} עוד לא הושלם</span>` : ""}
+  </section>
+  <div class="seg" role="group" aria-label="חלקי המודול">${subs.map(([k, l]) => `<button data-sub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
+  ${body}
+  <div class="row" style="justify-content:space-between">${prev ? `<button class="btn sm soft" data-go="${prev.id}">→ מודול ${prev.n}</button>` : "<span></span>"}${next ? `<button class="btn sm dark" data-go="${next.id}">מודול ${next.n} ←</button>` : ""}</div>`;
+}
+function viewTasks(m) {
+  const links = (m.toolLinks || []).map(t => `<button class="btn sm soft" data-go="${TOOL_DEST[t]}">${TOOL_LABEL[t]}</button>`).join("");
+  return `<section class="stack" style="gap:8px">${m.tasks.map((t, i) => { const k = m.id + "-" + i, d = !!S.tasks[k]; return `<label class="task ${d ? "done" : ""}"><input type="checkbox" data-task="${k}" ${d ? "checked" : ""}><span class="box">${IC.check}</span><span class="t">${esc(t)}</span></label>`; }).join("")}</section>
+  ${links ? `<section class="row"><span class="small muted">כלים למשימות:</span>${links}</section>` : ""}`;
+}
+const cardSt = {};
+function viewCards(m) {
+  const terms = moduleTerms(m), known = new Set(S.known[m.id] || []), pool = terms.filter(t => !known.has(t.t));
+  const st = cardSt[m.id] || (cardSt[m.id] = { i: 0, flip: false });
+  if (!pool.length) return `<section class="stack" style="justify-items:center;text-align:center">${ring(100, 120, 12, "var(--green)", "var(--soft-2)", `<b class="num" style="font-size:1.4rem">${terms.length}/${terms.length}</b>`)}<h2>ידעת את כל המושגים</h2><button class="btn" data-fc="reset">התחל מחדש</button></section>`;
+  const c = pool[st.i % pool.length], doneN = terms.length - pool.length;
+  return `<section class="stack">
+    <div class="row" style="justify-content:space-between"><span class="small muted">ידועים <span class="num">${doneN}/${terms.length}</span></span>${doneN ? `<button class="btn sm soft" data-fc="reset">אפס</button>` : ""}</div>
+    <div class="bar good"><i style="width:${doneN / terms.length * 100}%"></i></div>
+    <button class="fc ${st.flip ? "back" : ""}" data-fc="flip">${st.flip ? `<span><span class="fb">${esc(c.d)}</span>${c.x ? `<span class="hint" style="display:block">${esc(c.x)}</span>` : ""}</span>` : `<span><span class="ft">${esc(c.t)}</span><span class="hint" style="display:block">הקש כדי לראות הסבר</span></span>`}</button>
+    <div class="row" style="justify-content:center"><button class="btn" data-fc="no">עוד לא</button><button class="btn primary" data-fc="yes">ידעתי ✓</button></div>
+  </section>`;
+}
+const quizSt = {};
+function viewQuiz(m) {
+  const st = quizSt[m.id] || (quizSt[m.id] = { i: 0, ans: [], picked: null, done: false });
+  const need = Math.ceil(m.quiz.length * m.passPct / 100), s = modStats(m);
+  const exam = `<section class="exam"><h3>מבחן מעבר עם המנחה</h3><p class="small">${esc(m.exam)}</p>
+    <label class="task ${S.exam[m.id] ? "done" : ""}" style="background:transparent;padding:0"><input type="checkbox" data-exam="${m.id}" ${S.exam[m.id] ? "checked" : ""}><span class="box">${IC.check}</span><span class="t">המבחן אושר</span></label></section>`;
+  if (st.done) {
+    const score = m.quiz.filter((q, i) => st.ans[i] === q.a).length, pass = score >= need;
+    return `<section class="stack" style="justify-items:center;text-align:center">
+      ${ring(score / m.quiz.length * 100, 140, 14, pass ? "var(--green)" : "var(--red)", "var(--soft-2)", `<b class="num" style="font-size:1.8rem">${score}/${m.quiz.length}</b>`)}
+      <h2>${pass ? "עברת את הבוחן" : "עוד לא. צריך " + need}</h2>
+      <div class="row" style="justify-content:center"><button class="btn ${pass ? "" : "primary"}" data-quiz="retry">נסה שוב</button>${!pass ? `<button class="btn soft" data-sub-go="learn">חזרה לחומר</button>` : ""}</div>
+    </section>${exam}`;
+  }
+  const q = m.quiz[st.i], L = ["א", "ב", "ג", "ד"];
+  return `<section class="qcard">
+    <div class="row" style="justify-content:space-between"><span class="small muted">שאלה <span class="num">${st.i + 1}/${m.quiz.length}</span></span><span class="small muted">עוברים עם <span class="num">${need}</span>${s.q ? ` · שיא <span class="num">${s.q.best}</span>` : ""}</span></div>
+    <div class="bar"><i style="width:${st.i / m.quiz.length * 100}%"></i></div>
+    <p class="qtext">${esc(q.q)}</p>
+    <div class="stack" style="gap:8px">${q.o.map((o, j) => { let c = ""; if (st.picked !== null) { if (j === q.a) c = "correct"; else if (j === st.picked) c = "wrong"; } return `<button class="opt ${c}" data-opt="${j}" ${st.picked !== null ? "disabled" : ""}><span class="l">${L[j]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
+    ${st.picked !== null ? `<div class="feedback ${st.picked === q.a ? "good" : "bad"}">${st.picked === q.a ? "נכון" : "לא נכון"}${q.x ? `<p>${esc(q.x)}</p>` : ""}</div><button class="btn dark block" data-quiz="next">${st.i + 1 < m.quiz.length ? "השאלה הבאה" : "סיים וראה ציון"}</button>` : ""}
+  </section>${exam}`;
+}
+
+/* ===================== CALCULATORS UI ===================== */
+function calcVals(id, inputs) { const v = S.calc[id] || (S.calc[id] = {}); inputs.forEach(d => { if (!isFinite(v[d.k])) v[d.k] = d.def; }); return v; }
+function inp(d, val) {
+  return `<div class="inp"><div class="inp-top"><label for="in-${d.k}">${d.label}</label><span class="inp-num"><input type="number" id="in-${d.k}" data-k="${d.k}" value="${val}" step="${d.step}" inputmode="decimal"><span class="unit">${d.unit}</span></span></div>
+  <input type="range" data-k="${d.k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${val}" aria-label="${d.label}"></div>`;
+}
+function viewCalcList() {
+  const cat = S.ui.cat;
+  return `<button class="feature" data-go="c-deal">${IC.bolt}<span><b>בדיקת עסקה מלאה</b><span class="small" style="opacity:.9">מחיר + שכירות → קונים או לא קונים</span></span></button>
+  <div class="chips" role="group" aria-label="קטגוריות">${CATS.map(([k, l]) => `<button data-cat="${k}" aria-pressed="${k === cat}">${l}</button>`).join("")}</div>
+  <section class="calc-grid">${CALCS.filter(c => c.cat === cat).map(c => `<button class="ctile" data-go="c-${c.id}"><b>${c.name}</b><span>${c.sub}</span></button>`).join("")}</section>`;
+}
+function resultHTML(c, v) {
+  const r = c.run(v), light = r.light, txt = r.lightText || (light ? LIGHT_TXT[light] : "");
+  return `<div class="res ${light || ""}"><div class="lbl"><span>${r.main[0]}</span>${txt ? `<span class="pill ${light || ""}">${txt}</span>` : ""}</div><div class="big">${fmt(r.main[1], r.main[2])}</div>
+    ${r.rows.length ? `<div class="rows">${r.rows.map(x => `<div><span>${x[0]}</span><span class="v">${fmt(x[1], x[2])}</span></div>`).join("")}</div>` : ""}</div>`;
+}
+function viewCalc(c) {
+  const v = calcVals(c.id, c.inputs);
+  return `<section class="stack" style="gap:6px"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h1>${c.name}</h1><button class="icon-btn" id="helpBtn" aria-expanded="false" aria-label="הסבר">?</button></div><span class="muted">${c.sub}</span></section>
+  <div class="help" id="help" hidden><div class="formula">${esc(c.f)}</div><span>${esc(c.help)}</span></div>
+  <div id="res">${resultHTML(c, v)}</div>
+  <section class="inps">${c.inputs.map(d => inp(d, v[d.k])).join("")}</section>
+  <button class="btn sm soft" id="resetCalc" style="justify-self:start">החזר לערכי הדוגמה</button>`;
+}
+function dealDefaults() { const v = {}; ALL_DEAL_IN.forEach(d => v[d.k] = d.def); return v; }
+function dealResult(v) {
+  const d = calcDeal(v);
+  const reasons = [[d.coc >= 10, `תשואה על ההון ${pct(d.coc)} (יעד 10%)`], [d.s.cf > 0, `בתרחיש קיצון: ${usd(d.s.cf)} בחודש`], [d.dscr >= 1.25, `DSCR ${d.dscr.toFixed(2)} (יעד 1.25)`]];
+  const pass = reasons.every(r => r[0]);
+  return `<div class="verdict ${pass ? "good" : "bad"}"><span class="small" style="opacity:.9">פסק דין לפי ה-Buy Box</span><div class="vt">${pass ? "קונים ✓" : "לא קונים ✕"}</div>
+    <div class="reasons">${reasons.map(r => `<div><span class="mk ${r[0] ? "ok" : "no"}">${r[0] ? "✓" : "✕"}</span>${r[1]}</div>`).join("")}</div></div>
+  <div class="kpis">${kpi("תזרים חודשי", usd(d.cf), d.cf > 0 ? "good" : "bad")}${kpi("CoC", pct(d.coc), d.coc >= 10 ? "good" : "bad")}${kpi("Cap Rate", pct(d.cap))}${kpi("DSCR", d.dscr.toFixed(2), d.dscr >= 1.25 ? "good" : "bad")}</div>
+  ${d.expRatio < 35 ? `<div class="warnline">הוצאות ${Math.round(d.expRatio)}% מהברוטו — נמוך מכלל ה-50%. כנראה שכחת הוצאה.</div>` : ""}
+  <details class="adv"><summary>פירוט חודשי: בסיס מול קיצון</summary><div class="tbl" style="margin:0 10px 10px;background:var(--surface)"><table><thead><tr><th>שורה</th><th class="n">בסיס</th><th class="n">קיצון</th></tr></thead><tbody>
+    ${[["הכנסה ברוטו", "gross", 1], ["Vacancy", "vacancy", -1], ["EGI", "egi", 1], ["מס נכס", "tax", -1], ["ביטוח", "ins", -1], ["ניהול", "mgmt", -1], ["תחזוקה", "maint", -1], ["CapEx", "capex", -1], ["Utilities", "util", -1], ["השמה", "leasing", -1], ["NOI", "noi", 1], ["משכנתא", "debt", -1], ["תזרים", "cf", 1]].map(([l, k, s]) => `<tr><td>${["NOI", "תזרים"].includes(l) ? `<b>${l}</b>` : l}</td><td class="n">${usd(s * d[k])}</td><td class="n">${usd(s * d.s[k])}</td></tr>`).join("")}
+    <tr><td>הון מושקע</td><td class="n" colspan="2">${usd(d.cash)}</td></tr></tbody></table></div></details>`;
+}
+function viewDeal() {
+  const v = calcVals("deal", ALL_DEAL_IN);
+  return `<section class="stack" style="gap:6px"><h1>קונים או לא?</h1><span class="muted">הזז מחיר ושכירות. השאר כבר מוגדר לפי השיטה.</span></section>
+  <section class="inps">${DEAL_IN.basic.map(d => inp(d, v[d.k])).join("")}</section>
+  <div id="res">${dealResult(v)}</div>
+  <details class="adv"><summary>הוצאות</summary><div class="inps">${DEAL_IN.exp.map(d => inp(d, v[d.k])).join("")}</div></details>
+  <details class="adv"><summary>מימון והון</summary><div class="inps">${DEAL_IN.fin.map(d => inp(d, v[d.k])).join("")}</div></details>
+  <details class="adv"><summary>תרחיש קיצון (stress test)</summary><div class="inps">${DEAL_IN.stress.map(d => inp(d, v[d.k])).join("")}</div></details>
+  <button class="btn sm soft" id="resetCalc" style="justify-self:start">טען את דוגמת מודול 4</button>`;
+}
+function rehabResult() {
+  const v = S.rehab, sub = v.items.reduce((a, it) => a + (+it[1] || 0) * (+it[2] || 0), 0), cont = sub * v.cont / 100, tot = sub + cont, mx = v.arv * 0.7 - tot;
+  return `<div class="res ${mx > 0 ? "" : "bad"}"><div class="lbl"><span>הצעה מקסימלית (כלל ה-70%)</span>${v.cont < 10 ? `<span class="pill bad">בלת״מ נמוך</span>` : ""}</div><div class="big">${usd(mx)}</div>
+    <div class="rows"><div><span>פריטים</span><span class="v">${usd(sub)}</span></div><div><span>בלת״מ ${v.cont}%</span><span class="v">${usd(cont)}</span></div><div><span><b>תקציב שיפוץ</b></span><span class="v">${usd(tot)}</span></div></div></div>`;
+}
+function viewRehab() {
+  const v = S.rehab;
+  return `<section class="stack" style="gap:6px"><h1>מעריך שיפוץ</h1><span class="muted">${v.example ? '<span class="example-tag">מחירי דוגמה.</span> ' : ""}לאמת מול 3 הצעות קבלן.</span></section>
+  <div id="res">${rehabResult()}</div>
+  <section class="inps">${inp(I("arv", "ARV", v.arv, 20000, 2000000, 1000), v.arv)}${inp(I("cont", "בלת״מ", v.cont, 0, 30, 1, "%"), v.cont)}</section>
+  <section class="card stack" style="gap:8px">
+    <div class="item-row tiny muted"><span>פריט</span><span>כמות</span><span>$ ליחידה</span><span></span></div>
+    <div id="items" class="stack" style="gap:6px">${v.items.map((it, i) => `<div class="item-row"><input class="field-in" data-it="${i}-0" value="${esc(it[0])}" aria-label="פריט"><input class="field-in" type="number" data-it="${i}-1" value="${esc(it[1])}" aria-label="כמות"><input class="field-in" type="number" data-it="${i}-2" value="${esc(it[2])}" aria-label="עלות ליחידה"><button class="icon-btn" data-del="${i}" aria-label="מחק">✕</button></div>`).join("")}</div>
+    <button class="btn sm" id="addItem" style="justify-self:start">+ פריט</button>
+  </section>`;
+}
+
+/* ===================== DEALS ===================== */
+function viewDeals() {
+  const sub = S.ui.deals;
+  const subs = [["pipeline", "צנרת"], ["dd", "צ׳קליסט"], ["team", "צוות"], ["market", "שוק"]];
+  return `<div class="seg" role="group" aria-label="אזורים">${subs.map(([k, l]) => `<button data-dsub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div><div id="dwrap" class="stack" style="gap:16px"></div>`;
+}
+function renderPipeline() {
+  const v = S.t7, counts = [0, 0, 0, 0, 0];
+  v.deals.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
+  const labels = ["סינון", "ניתוח מלא", "Buy Box", "הצעה על נייר", "בדיקה בשטח"];
+  $("#dwrap").innerHTML = `
+  <section class="card stack"><b style="font-family:var(--font-display)">המשפך מול היעד</b>
+    <div class="funnel">${labels.map((l, i) => `<div class="fstep"><span>${l}</span><div class="bar ${counts[i] >= FUNNEL_TARGET[i] ? "good" : ""}" style="background:var(--surface)"><i style="width:${Math.min(100, counts[i] / FUNNEL_TARGET[i] * 100)}%"></i></div><span class="num">${counts[i]}/${FUNNEL_TARGET[i]}</span></div>`).join("")}</div>
+    <span class="tiny muted">קצב: 10 לסינון ו-3 לניתוח מלא בכל שבוע.</span></section>
+  <details class="adv" id="addDeal"><summary>+ הוסף נכס</summary><form class="form" id="dealForm" style="padding:0 14px 14px">
+    <label class="full">כתובת או לינק<input class="field-in" id="d_addr" required></label>
+    <label>מחיר ($)<input class="field-in" type="number" id="d_price" required></label>
+    <label>שכירות כוללת ($/חודש)<input class="field-in" type="number" id="d_rent" required></label>
+    <label>מיקוד<input class="field-in" id="d_zip"></label>
+    <label>יחידות<input class="field-in" type="number" id="d_units" value="2"></label>
+    <label>CoC מהמחשבון (%)<input class="field-in" type="number" step="any" id="d_coc"></label>
+    <label>החלטה / נימוק<input class="field-in" id="d_note"></label>
+    <button class="btn primary full" type="submit">הוסף לצנרת</button></form></details>
+  <section class="stack" style="gap:8px">${v.deals.length ? v.deals.map((d, i) => { const rp = d.rent / d.price * 100; return `<div class="dcard">
+    <div class="top"><span class="addr">${esc(d.addr)}${d.ex ? ' <span class="example-tag">דוגמה</span>' : ""}</span><button class="icon-btn" data-ddel="${i}" aria-label="מחק">✕</button></div>
+    <div class="row"><span class="pill num">${usd(d.price)}</span><span class="pill ${rp >= 0.8 ? "good" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>${d.coc != null && d.coc !== "" && isFinite(d.coc) ? `<span class="pill ${+d.coc >= 10 ? "good" : "bad"}">CoC <span class="num">${pct(+d.coc)}</span></span>` : ""}${d.zip ? `<span class="pill num">${esc(d.zip)}</span>` : ""}</div>
+    <div class="row" style="justify-content:space-between"><select class="sel" data-st="${i}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${d.status == j ? "selected" : ""}>${s}</option>`).join("")}</select>${d.note ? `<span class="small muted">${esc(d.note)}</span>` : ""}</div></div>`; }).join("") : `<p class="muted">אין נכסים עדיין. הוסף את הראשון.</p>`}</section>
+  ${v.deals.some(d => d.ex) ? `<button class="btn sm soft" id="clearEx" style="justify-self:start">מחק שורות דוגמה</button>` : ""}`;
+}
+function renderDD() {
+  let done = 0, tot = 0;
+  Object.entries(DD_LISTS).forEach(([k, l]) => l.items.forEach((_, i) => { tot++; if (S.dd[k + i]) done++; }));
+  $("#dwrap").innerHTML = `<section class="row" style="gap:14px">${ring(done / tot * 100, 64, 8, "var(--green)", "var(--soft-2)", `<b class="num tiny">${done}/${tot}</b>`)}<span style="flex:1">צ׳קליסט לעסקה הנוכחית</span><span id="ddReset"></span></section>
+  ${Object.entries(DD_LISTS).map(([k, l]) => { const n = l.items.filter((_, i) => S.dd[k + i]).length; return `<details class="adv" ${n < l.items.length ? "open" : ""}><summary>${l.title} · <span class="num">${n}/${l.items.length}</span></summary><div class="stack" style="gap:6px;padding:0 10px 10px">${l.items.map((it, i) => `<label class="task ${S.dd[k + i] ? "done" : ""}" style="background:var(--surface)"><input type="checkbox" data-dd="${k + i}" ${S.dd[k + i] ? "checked" : ""}><span class="box">${IC.check}</span><span class="t">${esc(it)}</span></label>`).join("")}</div></details>`; }).join("")}`;
+  confirmBtn("ddReset", "אפס", () => { S.dd = {}; save(); renderDD(); });
+}
+const CRIT = ["מספרים", "ניסיון עם זרים", "זמינות", "שקיפות ומחיר"];
+function renderTeam() {
+  const v = S.t5, r = ROLES[v.role], list = v.cands[v.role] || (v.cands[v.role] = []);
+  const avg = c => c.flag ? -1 : c.s.reduce((a, b) => a + b, 0) / c.s.length, best = list.length ? Math.max(...list.map(avg)) : -1;
+  $("#dwrap").innerHTML = `<div class="chips">${ROLES.map((x, i) => `<button data-role="${i}" aria-pressed="${i === v.role}">${x.role}</button>`).join("")}</div>
+  <section class="card stack" style="gap:8px"><h3>${r.role}</h3><span class="small"><b>שואלים:</b> ${r.ask}</span><span class="small" style="color:var(--red)"><b>דגל אדום:</b> ${r.flag}</span><span class="small muted"><b>מודדים:</b> ${r.measure}</span></section>
+  ${list.map((c, i) => `<section class="dcard"><div class="top"><input class="field-in" data-c="${i}-name" value="${esc(c.name)}" placeholder="שם המועמד" style="font-weight:700"><span class="pill ${c.flag ? "bad" : avg(c) === best ? "good" : ""}" style="flex:none">${c.flag ? "נפסל" : `<span class="num">${avg(c).toFixed(1)}</span>`}</span><button class="icon-btn" data-cdel="${i}" aria-label="מחק">✕</button></div>
+    ${CRIT.map((cr, j) => `<div class="row" style="justify-content:space-between"><span class="small">${cr}</span><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-score="${i}-${j}-${x}" class="${c.s[j] === x ? "on" : ""}" aria-label="${cr} ${x}">${x}</button>`).join("")}</span></div>`).join("")}
+    <label class="row small" style="color:var(--red);font-weight:700"><input type="checkbox" data-c="${i}-flag" ${c.flag ? "checked" : ""}> זיהיתי דגל אדום</label></section>`).join("")}
+  <button class="btn" id="addCand">+ מועמד ל${r.role}</button>`;
+}
+function renderMarket() {
+  const v = S.t2, c = v.loc;
+  const tot = i => { let s = 0, mx = 0; MARKET_METRICS.forEach((_, r) => { s += v.scores[i][r] * v.weights[r]; mx += 5 * v.weights[r]; }); return Math.round(s / mx * 100); };
+  const totals = [0, 1, 2].map(tot), best = Math.max(...totals);
+  $("#dwrap").innerHTML = `${v.example ? `<div class="warnline">הציונים הם דוגמה. החלף בנתונים שבדקת, עם מקור. <button class="btn sm soft" id="mClear">אפס ל-3</button></div>` : ""}
+  <section class="row" style="justify-content:space-around">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" style="justify-items:center;background:${i === c ? "var(--inv)" : "var(--soft)"};color:${i === c ? "var(--inv-ink)" : "inherit"};flex:1">${ring(totals[i], 64, 8, totals[i] === best ? "var(--green)" : "var(--red)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b>${esc(v.names[i])}</b></button>`).join("")}</section>
+  <label class="small muted">שם המיקום<input class="field-in" id="locName" value="${esc(v.names[c])}" style="background:var(--soft)"></label>
+  ${MARKET_METRICS.map((m, r) => `<div class="metric"><div class="mt"><b class="en">${m[0]}</b><select class="wsel" data-w="${r}" aria-label="משקל">${[1, 2, 3].map(x => `<option value="${x}" ${v.weights[r] == x ? "selected" : ""}>משקל ${x}</option>`).join("")}</select></div><span class="tiny muted">${m[1]}</span><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-ms="${r}-${x}" class="${v.scores[c][r] === x ? "on" : ""}" aria-label="ציון ${x}">${x}</button>`).join("")}</span></div>`).join("")}
+  <label class="small muted">מקורות ונימוק<textarea class="field-in" id="locNote" rows="3" style="background:var(--soft)">${esc(v.notes[c])}</textarea></label>`;
+}
+
+/* ===================== BACKUP ===================== */
+function viewBackup() {
+  return `<section class="stack"><h1>גיבוי</h1><p class="muted">ההתקדמות נשמרת רק בדפדפן הזה. העתק את הקוד ושמור אותו אצלך.</p></section>
+  <section class="card stack"><textarea id="bkOut" class="field-in" rows="4" readonly style="direction:ltr;font-size:12px">${esc(JSON.stringify(S))}</textarea><button class="btn dark" id="bkCopy">העתק קוד גיבוי</button></section>
+  <section class="card stack"><textarea id="bkIn" class="field-in" rows="4" style="direction:ltr;font-size:12px" placeholder="הדבק כאן קוד גיבוי"></textarea><button class="btn" id="bkLoad">שחזר</button><span id="bkMsg" class="small"></span></section>
+  <section class="card stack"><b>איפוס מלא</b><span id="bkReset"></span></section>`;
+}
+function confirmBtn(host, label, fn) {
+  const h = $("#" + host); if (!h) return;
   const idle = () => { h.innerHTML = `<button class="btn sm danger">${label}</button>`; h.firstChild.onclick = ask; };
-  const ask = () => { h.innerHTML = `<span class="inline-confirm"><span class="small">בטוח?</span><button class="btn sm danger">כן, מחק</button><button class="btn sm">ביטול</button></span>`; const b = h.querySelectorAll("button"); b[0].onclick = fn; b[1].onclick = idle; };
+  const ask = () => { h.innerHTML = `<span class="row"><button class="btn sm primary">כן, מחק</button><button class="btn sm soft">ביטול</button></span>`; const b = h.querySelectorAll("button"); b[0].onclick = fn; b[1].onclick = idle; };
   idle();
 }
 
 /* ===================== WIRING ===================== */
-function afterRender(id) {
-  if (id === "home") $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
-  if (id.startsWith("m")) {
-    const m = MODULES.find(x => x.id === id);
-    const app = $("#app");
-    app.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => { S.ui.sub[m.id] = b.dataset.sub; save(); go(m.id); });
-    app.querySelectorAll("[data-task]").forEach(c => c.onchange = () => { S.tasks[c.dataset.task] = c.checked; c.closest(".task").classList.toggle("done", c.checked); save(); const st = app.querySelector('[data-sub="tasks"]'); const s = modStats(m); st.textContent = `משימות (${s.done}/${s.total})`; });
-    app.querySelectorAll("[data-fc]").forEach(b => { const act = () => {
-      const st = viewCards.st[m.id], terms = moduleTerms(m), known = new Set(S.known[m.id] || []), pool = terms.filter(t => !known.has(t.t));
-      const a = b.dataset.fc;
+function wireInputs(store, onChange) {
+  $$(".inp").forEach(box => {
+    const n = box.querySelector('input[type="number"]'), r = box.querySelector('input[type="range"]'), k = n.dataset.k;
+    n.oninput = () => { const x = parseFloat(n.value); if (!isFinite(x)) return; r.value = x; store[k] = x; onChange(); };
+    r.oninput = () => { n.value = r.value; store[k] = +r.value; onChange(); };
+  });
+}
+function wire(r) {
+  const app = $("#app");
+  if (r === "home") $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
+  if (/^m\d$/.test(r)) {
+    const m = MODULES.find(x => x.id === r), re = () => go(m.id, { keepScroll: true });
+    $$("[data-sub]").forEach(b => b.onclick = () => { S.ui.sub[m.id] = b.dataset.sub; save(); re(); });
+    $$("[data-sub-go]").forEach(b => b.onclick = () => { S.ui.sub[m.id] = b.dataset.subGo; save(); re(); });
+    $$("[data-task]").forEach(c => c.onchange = () => { S.tasks[c.dataset.task] = c.checked; save(); re(); });
+    $$("[data-exam]").forEach(c => c.onchange = () => { S.exam[c.dataset.exam] = c.checked; save(); re(); if (c.checked) toast(modStats(m).complete ? "המודול הושלם" : "נשאר לעבור את הבוחן"); });
+    $$("[data-fc]").forEach(b => b.onclick = () => {
+      const st = cardSt[m.id], known = new Set(S.known[m.id] || []), pool = moduleTerms(m).filter(t => !known.has(t.t)), a = b.dataset.fc;
       if (a === "flip") st.flip = !st.flip;
       else if (a === "yes") { known.add(pool[st.i % pool.length].t); S.known[m.id] = [...known]; st.flip = false; save(); }
       else if (a === "no") { st.i++; st.flip = false; }
-      else if (a === "reset") { S.known[m.id] = []; st.i = 0; st.flip = false; save(); }
-      go(m.id, false);
-    }; b.onclick = act; if (b.dataset.fc === "flip") b.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }; });
-    app.querySelectorAll("[data-q]").forEach(r => r.onchange = () => { viewQuiz.st[m.id].ans[+r.dataset.q] = +r.value; });
-    app.querySelectorAll("[data-quiz]").forEach(b => b.onclick = () => {
-      const st = viewQuiz.st[m.id];
-      if (b.dataset.quiz === "submit") {
-        const left = m.quiz.length - Object.keys(st.ans).length;
-        if (left > 0) { $("#qLeft").textContent = `נשארו ${left} שאלות בלי תשובה`; return; }
-        st.done = true;
-        const score = m.quiz.filter((q, i) => st.ans[i] === q.a).length;
-        const prev = S.quiz[m.id];
-        if (!prev || score > prev.best) S.quiz[m.id] = { best: score, total: m.quiz.length };
-        save();
-      } else { viewQuiz.st[m.id] = { ans: {}, done: false }; }
-      go(m.id, false);
+      else { S.known[m.id] = []; st.i = 0; st.flip = false; save(); }
+      re();
     });
-    app.querySelectorAll("[data-exam]").forEach(c => c.onchange = () => { S.exam[c.dataset.exam] = c.checked; save(); go(m.id, false); });
+    $$("[data-opt]").forEach(b => b.onclick = () => { const st = quizSt[m.id]; st.picked = +b.dataset.opt; st.ans[st.i] = st.picked; re(); });
+    $$("[data-quiz]").forEach(b => b.onclick = () => {
+      const st = quizSt[m.id];
+      if (b.dataset.quiz === "next") {
+        st.i++; st.picked = null;
+        if (st.i >= m.quiz.length) { st.done = true; const sc = m.quiz.filter((q, i) => st.ans[i] === q.a).length, p = S.quiz[m.id]; if (!p || sc > p.best) S.quiz[m.id] = { best: sc, total: m.quiz.length }; save(); }
+      } else quizSt[m.id] = { i: 0, ans: [], picked: null, done: false };
+      re();
+    });
   }
-  if (id === "t1") { $("#app").querySelectorAll("#t1f input").forEach(i => i.oninput = renderT1); renderT1(); }
-  if (id === "t2") wireT2();
-  if (id === "t3") {
-    $("#app").querySelectorAll(".tool-grid input").forEach(i => i.oninput = renderT3);
-    $("#t3reset").onclick = () => { S.t3 = defaults().t3; save(); go("t3", false); toast("נטענה דוגמת מודול 4"); };
-    renderT3();
+  if (r === "calc") $$("[data-cat]").forEach(b => b.onclick = () => { S.ui.cat = b.dataset.cat; save(); go("calc", { keepScroll: true }); });
+  if (r.startsWith("c-") && r !== "c-deal" && r !== "c-rehab") {
+    const c = CALCS.find(x => x.id === r.slice(2)), v = S.calc[c.id];
+    wireInputs(v, () => { $("#res").innerHTML = resultHTML(c, v); save(); });
+    $("#helpBtn").onclick = e => { const h = $("#help"); h.hidden = !h.hidden; e.currentTarget.setAttribute("aria-expanded", String(!h.hidden)); };
+    $("#resetCalc").onclick = () => { delete S.calc[c.id]; save(); go(r); toast("הוחזרו ערכי הדוגמה"); };
   }
-  if (id === "t4") wireT4();
-  if (id === "t5") wireT5();
-  if (id === "t6") { renderT6(); $("#t6wrap").addEventListener("change", e => { const k = e.target.dataset.dd; if (k) { S.dd[k] = e.target.checked; save(); renderT6(); } }); }
-  if (id === "t7") wireT7();
-  if (id === "glossary") { renderGlossary(); $("#gq").oninput = e => renderGlossary(e.target.value); }
-  if (id === "backup") {
-    $("#bkCopy").onclick = () => {
-      const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי את הטקסט, העתק ידנית"); };
-      try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); }
-    };
-    $("#bkLoad").onclick = () => { try { const o = JSON.parse($("#bkIn").value); if (typeof o !== "object" || !o.tasks) throw 0; S = Object.assign(defaults(), o); save(); $("#bkMsg").textContent = "שוחזר בהצלחה"; $("#bkMsg").style.color = "var(--good)"; } catch (e) { $("#bkMsg").textContent = "הקוד לא תקין. ודא שהדבקת את כל הטקסט מהייצוא."; $("#bkMsg").style.color = "var(--bad)"; } };
-    renderConfirm("bkReset", "מחק את כל ההתקדמות", () => { S = defaults(); save(); go("home"); toast("ההתקדמות אופסה"); });
+  if (r === "c-deal") {
+    const v = S.calc.deal;
+    wireInputs(v, () => { const open = $("#res details")?.open; $("#res").innerHTML = dealResult(v); if (open) $("#res details").open = true; save(); });
+    $("#resetCalc").onclick = () => { delete S.calc.deal; save(); go(r); toast("נטענה דוגמת מודול 4"); };
   }
-}
-function wireT2() {
-  renderT2();
-  const w = $("#t2wrap");
-  w.onchange = e => {
-    const t = e.target, v = S.t2;
-    if (t.dataset.w) v.weights[+t.dataset.w] = +t.value;
-    else if (t.dataset.s) { const [c, r] = t.dataset.s.split("-").map(Number); v.scores[c][r] = +t.value; }
-    else if (t.id && t.id.startsWith("t2n")) v.names[+t.id.slice(3)] = t.value;
-    else return;
-    save(); renderT2();
-  };
-  w.oninput = e => { if (e.target.dataset.note) { S.t2.notes[+e.target.dataset.note] = e.target.value; save(); } };
-  w.onclick = e => { if (e.target.id === "t2clear") { S.t2.scores = [0, 1, 2].map(() => MARKET_METRICS.map(() => 3)); S.t2.example = false; save(); renderT2(); } };
-}
-function wireT4() {
-  renderT4();
-  const w = $("#t4wrap");
-  w.onchange = e => {
-    const t = e.target, v = S.t4;
-    if (t.dataset.it) { const [i, j] = t.dataset.it.split("-").map(Number); v.items[i][j] = j ? +t.value : t.value; v.example = false; }
-    else if (t.id === "t4arv") v.arv = +t.value || 0;
-    else if (t.id === "t4cont") v.cont = +t.value || 0;
-    else return;
-    save(); renderT4();
-  };
-  w.onclick = e => {
-    if (e.target.id === "t4add") { S.t4.items.push(["פריט חדש", 1, 0]); save(); renderT4(); }
-    const d = e.target.closest("[data-del]"); if (d) { S.t4.items.splice(+d.dataset.del, 1); save(); renderT4(); }
-  };
-}
-function wireT5() {
-  renderT5();
-  const w = $("#t5wrap");
-  w.onclick = e => {
-    const r = e.target.closest("[data-role]"); if (r) { S.t5.role = +r.dataset.role; save(); renderT5(); return; }
-    if (e.target.id === "t5add") { (S.t5.cands[S.t5.role] ||= []).push({ name: "", s: [3, 3, 3, 3], flag: false, note: "" }); save(); renderT5(); return; }
-    const d = e.target.closest("[data-cdel]"); if (d) { S.t5.cands[S.t5.role].splice(+d.dataset.cdel, 1); save(); renderT5(); }
-  };
-  w.onchange = e => {
-    const k = e.target.dataset.c; if (!k) return;
-    const [i, f] = k.split("-"), c = S.t5.cands[S.t5.role][+i];
-    if (f === "name") c.name = e.target.value; else if (f === "note") c.note = e.target.value; else if (f === "flag") c.flag = e.target.checked; else c.s[+f.slice(1)] = +e.target.value;
-    save(); renderT5();
-  };
-}
-function wireT7() {
-  renderT7();
-  const w = $("#t7wrap");
-  w.onsubmit = e => {
-    e.preventDefault();
-    const g = id => $("#" + id).value.trim();
-    S.t7.deals.unshift({ addr: g("d_addr"), zip: g("d_zip"), price: +g("d_price"), units: +g("d_units") || 1, rent: +g("d_rent"), coc: g("d_coc") === "" ? null : +g("d_coc"), note: g("d_note"), status: 0 });
-    save(); renderT7(); toast("הנכס נוסף לצנרת");
-  };
-  w.onchange = e => { const s = e.target.dataset.st; if (s != null) { S.t7.deals[+s].status = +e.target.value; save(); renderT7(); } };
-  w.onclick = e => {
-    const d = e.target.closest("[data-ddel]"); if (d) { S.t7.deals.splice(+d.dataset.ddel, 1); save(); renderT7(); }
-    if (e.target.id === "t7clearEx") { S.t7.deals = S.t7.deals.filter(x => !x.ex); save(); renderT7(); }
-  };
+  if (r === "c-rehab") {
+    const v = S.rehab, upd = () => { $("#res").innerHTML = rehabResult(); save(); };
+    wireInputs(v, upd);
+    $("#items").oninput = e => { const k = e.target.dataset.it; if (!k) return; const [i, j] = k.split("-").map(Number); v.items[i][j] = j ? +e.target.value : e.target.value; v.example = false; upd(); };
+    $("#items").onclick = e => { const d = e.target.closest("[data-del]"); if (d) { v.items.splice(+d.dataset.del, 1); save(); go(r, { keepScroll: true }); } };
+    $("#addItem").onclick = () => { v.items.push(["פריט חדש", 1, 0]); save(); go(r, { keepScroll: true }); };
+  }
+  if (r === "deals") {
+    $$("[data-dsub]").forEach(b => b.onclick = () => { S.ui.deals = b.dataset.dsub; save(); go("deals", { keepScroll: true }); });
+    const w = $("#dwrap"), sub = S.ui.deals;
+    if (sub === "pipeline") {
+      renderPipeline();
+      w.onsubmit = e => { e.preventDefault(); const g = id => $("#" + id).value.trim(); S.t7.deals.unshift({ addr: g("d_addr"), zip: g("d_zip"), price: +g("d_price"), units: +g("d_units") || 1, rent: +g("d_rent"), coc: g("d_coc") === "" ? null : +g("d_coc"), note: g("d_note"), status: 0 }); save(); renderPipeline(); toast("נוסף לצנרת"); };
+      w.onchange = e => { const s = e.target.dataset.st; if (s != null) { S.t7.deals[+s].status = +e.target.value; save(); renderPipeline(); } };
+      w.onclick = e => { const d = e.target.closest("[data-ddel]"); if (d) { S.t7.deals.splice(+d.dataset.ddel, 1); save(); renderPipeline(); } if (e.target.id === "clearEx") { S.t7.deals = S.t7.deals.filter(x => !x.ex); save(); renderPipeline(); } };
+    } else if (sub === "dd") {
+      renderDD();
+      w.onchange = e => { const k = e.target.dataset.dd; if (k) { S.dd[k] = e.target.checked; save(); const open = $$("details", w).map(d => d.open); renderDD(); $$("details", w).forEach((d, i) => d.open = open[i]); } };
+    } else if (sub === "team") {
+      renderTeam();
+      w.onclick = e => {
+        const t = e.target.closest("button"); if (!t) return;
+        if (t.dataset.role) { S.t5.role = +t.dataset.role; }
+        else if (t.id === "addCand") { S.t5.cands[S.t5.role].push({ name: "", s: [3, 3, 3, 3], flag: false, note: "" }); }
+        else if (t.dataset.cdel) { S.t5.cands[S.t5.role].splice(+t.dataset.cdel, 1); }
+        else if (t.dataset.score) { const [i, j, x] = t.dataset.score.split("-").map(Number); S.t5.cands[S.t5.role][i].s[j] = x; }
+        else return;
+        save(); renderTeam();
+      };
+      w.onchange = e => { const k = e.target.dataset.c; if (!k) return; const [i, f] = k.split("-"), c = S.t5.cands[S.t5.role][+i]; if (f === "name") c.name = e.target.value; else if (f === "flag") c.flag = e.target.checked; save(); renderTeam(); };
+    } else {
+      renderMarket();
+      w.onclick = e => {
+        const t = e.target.closest("button"); if (!t) return;
+        if (t.dataset.loc) S.t2.loc = +t.dataset.loc;
+        else if (t.dataset.ms) { const [r2, x] = t.dataset.ms.split("-").map(Number); S.t2.scores[S.t2.loc][r2] = x; }
+        else if (t.id === "mClear") { S.t2.scores = [0, 1, 2].map(() => MARKET_METRICS.map(() => 3)); S.t2.example = false; }
+        else return;
+        save(); renderMarket();
+      };
+      w.onchange = e => { const t = e.target; if (t.dataset.w) { S.t2.weights[+t.dataset.w] = +t.value; save(); renderMarket(); } else if (t.id === "locName") { S.t2.names[S.t2.loc] = t.value; save(); renderMarket(); } };
+      w.oninput = e => { if (e.target.id === "locNote") { S.t2.notes[S.t2.loc] = e.target.value; save(); } };
+    }
+  }
+  if (r === "backup") {
+    $("#bkCopy").onclick = () => { const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי, העתק ידנית"); }; try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); } };
+    $("#bkLoad").onclick = () => { const m = $("#bkMsg"); try { const o = JSON.parse($("#bkIn").value); if (!o || typeof o !== "object" || !o.tasks) throw 0; S = deepMerge(defaults(), o); save(); m.textContent = "שוחזר"; m.style.color = "var(--green)"; } catch (e) { m.textContent = "הקוד לא תקין. הדבק את כל הטקסט מהייצוא."; m.style.color = "var(--red)"; } };
+    confirmBtn("bkReset", "מחק את כל ההתקדמות", () => { S = defaults(); save(); go("home"); toast("אופס"); });
+  }
 }
 
 /* ===================== BOOT ===================== */
-updateMini();
-const h = (location.hash || "").slice(1);
-go(h || S.ui.tab || "home", !!h);
+const h0 = (location.hash || "").slice(1);
+go(validRoute(h0) ? h0 : (S.ui.route || "home"));
 </script>
