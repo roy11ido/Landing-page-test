@@ -316,6 +316,9 @@ textarea.field-in { resize: vertical; }
 /* location picker */
 .locpick { display: grid; gap: 8px; min-width: 0; }
 .lp-box { position: relative; }
+/* the open list must sit above the following cards (each card is its own layer while it animates in) */
+#app > *:has(.lp-list:not([hidden])), #app > *:has(.locpick:focus-within) { position: relative; z-index: 5; }
+.locpick.open { position: relative; z-index: 5; }
 .lp-list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 28px rgba(28, 43, 36, .16); max-height: 320px; overflow-y: auto; }
 .lp-opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 12px 14px; text-align: start; color: var(--ink); }
 .lp-opt:last-child { border-bottom: 0; }
@@ -1288,19 +1291,25 @@ function wireLocPicker(key, onPick) {
   const box = $(`[data-lp="${key}"]`); if (!box) return;
   const input = box.querySelector("input"), list = box.querySelector(".lp-list");
   let items = [], t = 0;
-  const close = () => { list.hidden = true; input.setAttribute("aria-expanded", "false"); };
+  const lift = on => { let el = box; while (el && el.parentElement && el.parentElement.id !== "app") el = el.parentElement; if (el) { el.style.position = on ? "relative" : ""; el.style.zIndex = on ? "5" : ""; } box.classList.toggle("open", on); };
+  const close = () => { list.hidden = true; input.setAttribute("aria-expanded", "false"); lift(false); };
   const render = async () => {
     const q = input.value;
     const res = await searchPlaces(q);
     if (input.value !== q) return;
     if (res === null) { list.innerHTML = `<div class="lp-empty">רשימת הערים לא נטענה. נסה שוב בעוד רגע.</div>`; list.hidden = false; return; }
     items = res;
-    if (!res.length) { list.innerHTML = normQ(q).length >= 2 ? `<div class="lp-empty">לא נמצאה עיר. נסה איות אחר או מיקוד.</div>` : ""; list.hidden = !list.innerHTML; return; }
+    if (!res.length) { list.innerHTML = normQ(q).length >= 2 ? `<div class="lp-empty">לא נמצאה עיר. נסה איות אחר או מיקוד.</div>` : ""; list.hidden = !list.innerHTML; lift(!list.hidden); return; }
     list.innerHTML = res.map((r, i) => `<button type="button" role="option" class="lp-opt" data-i="${i}"><b dir="ltr">${esc(r.kind === "county" ? r.county : r.city)}${r.kind === "zip" ? ` <span class="num">${r.zip}</span>` : ""}</b><span class="tiny muted" dir="ltr">${r.kind === "county" ? stateName(r.st) : `${esc(r.county)}, ${r.st}`}</span></button>`).join("");
-    list.hidden = false; input.setAttribute("aria-expanded", "true");
+    list.hidden = false; input.setAttribute("aria-expanded", "true"); lift(true);
   };
   input.oninput = () => { clearTimeout(t); t = setTimeout(render, 90); };
-  input.onfocus = () => { placesData(); if (input.value && !box.querySelector(".pill.good")) render(); };
+  input.onfocus = () => {
+    placesData(); lift(true);
+    /* bring the field near the top so the list is not hidden by the phone keyboard */
+    setTimeout(() => { const y = input.getBoundingClientRect().top + window.scrollY - 76; window.scrollTo({ top: Math.max(0, y), behavior: calm() ? "auto" : "smooth" }); }, 280);
+    if (input.value && !box.querySelector(".pill.good")) render();
+  };
   input.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); if (items[0]) { close(); onPick(items[0]); } } else if (e.key === "Escape") close(); };
   input.onblur = () => setTimeout(close, 180);
   list.onpointerdown = e => e.preventDefault();
