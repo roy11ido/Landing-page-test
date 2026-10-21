@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Build per-state market data for the app from the U.S. Census Bureau (ACS 5-year).
 
-Writes <out>/index.json and <out>/<ST>.json (one file per state, keyed by ZIP / ZCTA).
-Standard library only. Optional: set CENSUS_API_KEY to raise the API rate limit.
+Reads the ACS table-based summary files on www2.census.gov (no API key needed) and
+writes <out>/index.json and <out>/<ST>.json (one file per state, keyed by ZIP / ZCTA).
+Population growth compares the latest 5-year release with the one 3 years earlier.
+Standard library only.
 
 Usage:
     python3 build_market_data.py --out .            # latest available ACS 5-year
@@ -10,18 +12,17 @@ Usage:
 """
 import argparse
 import datetime as dt
-import io
 import json
 import os
 import sys
 import time
 import urllib.error
-import urllib.parse
 import urllib.request
 
-API = "https://api.census.gov/data"
+SF = "https://www2.census.gov/programs-surveys/acs/summary_file/{y}/table-based-SF/data/5YRData/acsdt5y{y}-{t}.dat"
 REL = "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520"
-ZCTA = "zip code tabulation area:*"
+ZCTA, COUNTY = "860Z200US", "0500000US"
+GROWTH_YEARS = 3
 
 STATES = {
     "01": "AL", "02": "AK", "04": "AZ", "05": "AR", "06": "CA", "08": "CO", "09": "CT", "10": "DE", "11": "DC",
@@ -32,35 +33,30 @@ STATES = {
     "50": "VT", "51": "VA", "53": "WA", "54": "WV", "55": "WI", "56": "WY", "72": "PR",
 }
 
-# Per-ZIP fields, in the order the app decodes them (keep in sync with ZFIELDS in the app).
+# Per-ZIP fields, in the order the app decodes them (keep in sync with decodeZip in the app).
 ZVARS = [
-    ("pop", "B01003_001E"),        # total population
-    ("income", "B19013_001E"),     # median household income
-    ("units", "B25002_001E"),      # housing units
-    ("vacant", "B25002_003E"),     # vacant units
-    ("occ", "B25003_001E"),        # occupied units
-    ("owner", "B25003_002E"),      # owner-occupied units
-    ("rent", "B25064_001E"),       # median gross rent
-    ("value", "B25077_001E"),      # median home value
-    ("built", "B25035_001E"),      # median year structure built
-    ("labor", "B23025_003E"),      # civilian labor force
-    ("unemp", "B23025_005E"),      # unemployed
+    ("pop", "b01003", "B01003_E001"),     # total population
+    ("income", "b19013", "B19013_E001"),  # median household income
+    ("units", "b25002", "B25002_E001"),   # housing units
+    ("vacant", "b25002", "B25002_E003"),  # vacant units
+    ("occ", "b25003", "B25003_E001"),     # occupied units
+    ("owner", "b25003", "B25003_E002"),   # owner-occupied units
+    ("rent", "b25064", "B25064_E001"),    # median gross rent
+    ("value", "b25077", "B25077_E001"),   # median home value
+    ("built", "b25035", "B25035_E001"),   # median year structure built
+    ("labor", "b23025", "B23025_E003"),   # civilian labor force
+    ("unemp", "b23025", "B23025_E005"),   # unemployed
 ]
-# County industry shares (percent of employed), used for a diversification index.
-INDUSTRY = [f"DP03_00{n}PE" for n in range(33, 46)]
-COUNTY_UNEMP = "DP03_0009PE"
+# County employment by industry (13 sectors) for a diversification index.
+INDUSTRY = [f"C24050_E{n:03d}" for n in range(2, 15)]
 
 
-def fetch(url, tries=4):
-    key = os.environ.get("CENSUS_API_KEY")
-    if key and url.startswith(API):
-        url += ("&" if "?" in url else "?") + "key=" + urllib.parse.quote(key)
+def open_url(url, tries=4):
     for i in range(tries):
         try:
-            with urllib.request.urlopen(url, timeout=180) as r:
-                return r.read()
+            return urllib.request.urlopen(url, timeout=300)
         except urllib.error.HTTPError as e:
-            if e.code in (400, 404):
+            if e.code in (403, 404):
                 raise
             err = e
         except (urllib.error.URLError, TimeoutError) as e:
@@ -69,11 +65,25 @@ def fetch(url, tries=4):
     raise SystemExit(f"failed after {tries} tries: {url} ({err})")
 
 
-def acs(year, variables, geo, dataset="acs/acs5"):
-    url = f"{API}/{year}/{dataset}?get={','.join(variables)}&for={urllib.parse.quote(geo)}"
-    rows = json.loads(fetch(url))
-    head, body = rows[0], rows[1:]
-    return [dict(zip(head, r)) for r in body]
+def fetch(url):
+    with open_url(url) as r:
+        return r.read()
+
+
+def table(year, name, columns, prefixes=(ZCTA, COUNTY)):
+    """Stream one summary-file table and keep only the requested columns for ZCTA / county rows."""
+    out = {}
+    with open_url(SF.format(y=year, t=name)) as r:
+        head = r.readline().decode().rstrip("\r\n").split("|")
+        idx = [head.index(c) for c in columns]
+        for raw in r:
+            line = raw.decode("utf-8", "replace")
+            if not line.startswith(prefixes):
+                continue
+            c = line.rstrip("\r\n").split("|")
+            out[c[0]] = [c[i] for i in idx]
+    print(f"  {year} {name}: {len(out)} rows", file=sys.stderr)
+    return out
 
 
 def num(v):
@@ -90,11 +100,11 @@ def num(v):
 def latest_year(start):
     for y in range(start, start - 4, -1):
         try:
-            acs(y, ["B01003_001E"], "zip code tabulation area:43205")
+            open_url(SF.format(y=y, t="b01003"), tries=1).close()
             return y
         except urllib.error.HTTPError:
             continue
-    raise SystemExit("no ACS 5-year release found")
+    raise SystemExit("no ACS 5-year summary file found")
 
 
 def relationship(name, geo_col, name_col):
@@ -128,23 +138,39 @@ def main():
     ap.add_argument("--year", type=int)
     a = ap.parse_args()
     year = a.year or latest_year(dt.date.today().year - 1)
-    print(f"ACS 5-year {year}", file=sys.stderr)
+    past_year = year - GROWTH_YEARS
+    print(f"ACS 5-year {year} (growth vs {past_year})", file=sys.stderr)
 
-    zips = {r["zip code tabulation area"]: r for r in acs(year, [v for _, v in ZVARS], ZCTA)}
-    past = {r["zip code tabulation area"]: num(r["B01003_001E"]) for r in acs(year - 5, ["B01003_001E"], ZCTA)}
+    cols = {}
+    for _, t, c in ZVARS:
+        cols.setdefault(t, []).append(c)
+    data = {t: table(year, t, cs) for t, cs in cols.items()}
+    past = table(past_year, "b01003", ["B01003_E001"], (ZCTA,))
+    ind = table(year, "c24050", ["C24050_E001"] + INDUSTRY, (COUNTY,))
+
+    def val(geo, t, c):
+        row = data[t].get(geo)
+        return num(row[cols[t].index(c)]) if row else None
+
     county_of = relationship("tab20_zcta520_county20_natl.txt", "GEOID_COUNTY_20", "NAMELSAD_COUNTY_20")
     place_of = relationship("tab20_zcta520_place20_natl.txt", "GEOID_PLACE_20", "NAMELSAD_PLACE_20")
 
     counties = {}
-    for r in acs(year, INDUSTRY + [COUNTY_UNEMP, "NAME"], "county:*", "acs/acs5/profile"):
-        fips = r["state"] + r["county"]
-        shares = [num(r[v]) for v in INDUSTRY]
-        hhi = round(sum((s / 100) ** 2 for s in shares if s is not None), 4) if all(s is not None for s in shares) else None
-        counties[fips] = [r["NAME"].split(",")[0], hhi, num(r[COUNTY_UNEMP])]
+    for geo, row in ind.items():
+        fips = geo[len(COUNTY):]
+        total = num(row[0])
+        hhi = round(sum((num(x) / total) ** 2 for x in row[1:] if num(x) is not None), 4) if total else None
+        labor, unemp = val(geo, "b23025", "B23025_E003"), val(geo, "b23025", "B23025_E005")
+        counties[fips] = [None, hhi, round(unemp / labor * 100, 1) if labor and unemp is not None else None]
+    for z, (fips, name) in county_of.items():
+        if fips in counties and counties[fips][0] is None:
+            counties[fips][0] = name
+
+    zips = {geo[len(ZCTA):]: geo for geo in data["b01003"] if geo.startswith(ZCTA)}
 
     out = {}
     zip3 = {}
-    for z, r in zips.items():
+    for z, geo in zips.items():
         cty = county_of.get(z)
         if not cty:
             continue
@@ -152,7 +178,8 @@ def main():
         if not st:
             continue
         place = clean_place(place_of[z][1]) if z in place_of else ""
-        row = [num(r[v]) for _, v in ZVARS] + [past.get(z), cty[0], place]
+        p = past.get(geo)
+        row = [val(geo, t, c) for _, t, c in ZVARS] + [num(p[0]) if p else None, cty[0], place]
         s = out.setdefault(st, {"z": {}, "c": {}, "p": {}})
         s["z"][z] = row
         s["c"][cty[0]] = counties.get(cty[0], [cty[1], None, None])
@@ -165,11 +192,11 @@ def main():
     src = f"U.S. Census Bureau, American Community Survey 5-year {year}"
     os.makedirs(a.out, exist_ok=True)
     for st, s in out.items():
-        s.update({"v": 1, "year": year, "built": built, "src": src})
+        s.update({"v": 1, "year": year, "past": past_year, "built": built, "src": src})
         with open(os.path.join(a.out, f"{st}.json"), "w", encoding="utf-8") as f:
             json.dump(s, f, ensure_ascii=False, separators=(",", ":"))
     index = {
-        "v": 1, "year": year, "built": built, "src": src,
+        "v": 1, "year": year, "past": past_year, "built": built, "src": src,
         "zip3": {k: max(v, key=v.get) for k, v in sorted(zip3.items())},
         "states": {st: len(s["z"]) for st, s in sorted(out.items())},
     }

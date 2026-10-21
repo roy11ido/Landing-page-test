@@ -1110,7 +1110,7 @@ function decodeZip(zip, row, d, st) {
     vacancy: pct(vacant, units), ownerOcc: pct(owner, occ), unemp: pct(unemp, labor),
     r2p: rent && value ? rent / value * 100 : null,
     incRatio: income && rent ? income / (rent * 12) : null,
-    hhi: c[1] ?? null, countyUnemp: c[2] ?? null, year: d.year, src: d.src
+    hhi: c[1] ?? null, countyUnemp: c[2] ?? null, year: d.year, past: d.past || d.year - 5, src: d.src
   };
 }
 async function zipData(zip) {
@@ -1146,8 +1146,9 @@ async function placeZips(q) {
 const step = (x, cuts, desc = true) => x == null ? null : desc ? (x >= cuts[0] ? 5 : x >= cuts[1] ? 4 : x >= cuts[2] ? 3 : x >= cuts[3] ? 2 : 1) : (x <= cuts[0] ? 5 : x <= cuts[1] ? 4 : x <= cuts[2] ? 3 : x <= cuts[3] ? 2 : 1);
 function autoScores(z) {
   return {
-    0: step(z.growth, [5, 2, 0, -2]),
-    1: step(z.hhi, [0.085, 0.095, 0.105, 0.12], false),
+    0: step(z.growth, [3, 1.2, 0, -1.2]),
+    /* county industry concentration (HHI of 13 sectors); US counties: p10 ≈ 0.112, median ≈ 0.127, p90 ≈ 0.154 */
+    1: step(z.hhi, [0.112, 0.12, 0.13, 0.145], false),
     2: step(z.incRatio, [3.5, 3, 2.5, 2]),
     3: step(z.r2p, [1, 0.8, 0.65, 0.5]),
     4: step(z.ownerOcc, [65, 55, 45, 35]),
@@ -1158,10 +1159,10 @@ const fmtP = (v, d = 1) => v == null || !isFinite(v) ? "—" : v.toFixed(d) + "%
 const fmtD = v => v == null || !isFinite(v) ? "—" : "$" + Math.round(v).toLocaleString("en-US");
 function metricValue(r, z) {
   switch (r) {
-    case 0: return `צמיחה ב-5 שנים: ${fmtP(z.growth)} · אוכלוסייה ${z.pop ? z.pop.toLocaleString("en-US") : "—"}`;
+    case 0: return `צמיחה ${z.past}→${z.year}: ${fmtP(z.growth)} · אוכלוסייה ${z.pop ? z.pop.toLocaleString("en-US") : "—"}`;
     case 1: return `מדד ריכוזיות ענפים במחוז: ${z.hhi ?? "—"} (נמוך = מגוון) · אבטלה ${fmtP(z.unemp)}`;
     case 2: return `הכנסה חציונית ${fmtD(z.income)} = פי ${z.incRatio ? z.incRatio.toFixed(1) : "—"} מהשכירות השנתית`;
-    case 3: return `שכירות חציונית ${fmtD(z.rent)} ÷ שווי חציוני ${fmtD(z.value)} = ${fmtP(z.r2p, 2)}`;
+    case 3: return `שכירות חציונית ${fmtD(z.rent)} ÷ שווי חציוני ${z.value >= 2000000 ? "$2,000,000+" : fmtD(z.value)} = ${fmtP(z.r2p, 2)}`;
     case 4: return `בעלי בתים: ${fmtP(z.ownerOcc)}`;
     case 5: return `דירות ריקות: ${fmtP(z.vacancy)}`;
     default: return "";
