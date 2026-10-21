@@ -1104,7 +1104,7 @@ async function mktState(st) {
   return MKT.states[st];
 }
 function decodeZip(zip, row, d, st) {
-  const [pop, income, units, vacant, occ, owner, rent, value, built, labor, unemp, pop5, cfips, place] = row;
+  const [pop, income, units, vacant, occ, owner, rent, value, built, labor, unemp, pop5, cfips, place, tax] = row;
   const c = d.c[cfips] || [];
   const pct = (a, b) => a != null && b ? a / b * 100 : null;
   return {
@@ -1113,7 +1113,8 @@ function decodeZip(zip, row, d, st) {
     vacancy: pct(vacant, units), ownerOcc: pct(owner, occ), unemp: pct(unemp, labor),
     r2p: rent && value ? rent / value * 100 : null,
     incRatio: income && rent ? income / (rent * 12) : null,
-    hhi: c[1] ?? null, countyUnemp: c[2] ?? null, year: d.year, past: d.past || d.year - 5, src: d.src
+    hhi: c[1] ?? null, countyUnemp: c[2] ?? null, countyTax: c[3] ?? null,
+    zipTax: tax && tax < 10000 && value ? tax / value * 100 : null, year: d.year, past: d.past || d.year - 5, src: d.src
   };
 }
 async function zipData(zip) {
@@ -1123,6 +1124,21 @@ async function zipData(zip) {
   const st = idx.zip3[zip.slice(0, 3)]; if (!st) return { miss: true };
   const d = await mktState(st); if (!d || !d.z[zip]) return { miss: true };
   return decodeZip(zip, d.z[zip], d, st);
+}
+/* estimated effective property-tax rate for a picked place: county rate (stable), ZIP rate only as fallback.
+   Census figures are for owner-occupied homes; an investor often pays more (no homestead exemption / caps). */
+async function areaTax(l) {
+  if (!l || !l.st) return null;
+  const idx = await mktIndex(); if (!idx) return null;
+  const d = await mktState(l.st); if (!d) return null;
+  let c = Object.values(d.c).find(x => x[0] === l.county), zipRate = null;
+  if (l.zip && d.z[l.zip]) { const z = decodeZip(l.zip, d.z[l.zip], d, l.st); zipRate = z.zipTax; if (!c) c = d.c[d.z[l.zip][12]]; }
+  const rate = (c && c[3]) || zipRate;
+  if (!rate) return null;
+  return { rate: Math.round(rate * 100) / 100, county: (c && c[0]) || l.county, st: l.st, zipRate: zipRate && Math.round(zipRate * 100) / 100, year: d.year, key: locLabel(l) };
+}
+function taxNote(t, extra = "") {
+  return `<div class="warnline" style="background:var(--brand-soft);border-color:#BFE3CB"><b>מס נכס משוער: ${t.rate}% מהשווי לשנה</b> — ${esc(t.county)}, ${esc(t.st)} (Census ${t.year}${t.zipRate ? `, במיקוד ${t.zipRate}%` : ""}). ${extra}<br><span class="tiny">הנתון מבוסס על בעלי בתים שגרים בנכס. משקיע משלם לעיתים יותר (בלי הנחות מגורים). את המס המדויק של הנכס רואים במודעה: Zillow ← Public tax history, Redfin ← Property history / Tax. אפשר גם לצלם את המודעה ב״נכס חדש״ והמס יוזן לבד.</span></div>`;
 }
 /* free text -> {name, st}: "Akron ohio", "akron, OH", "Maricopa County Arizona", "new york ny" */
 const ST_BY_NAME = Object.fromEntries(Object.entries(ST_NAMES).map(([k, v]) => [v.toLowerCase(), k]));
@@ -1852,7 +1868,7 @@ function viewDeal() {
   if (v.loc === undefined) v.loc = S.set.loc || null;
   return `${ap ? `<section class="card stack" style="gap:8px;outline:2px solid var(--brand)"><span class="tiny muted">מנתח נכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><div class="row"><button class="btn sm primary" id="saveAn">שמור תוצאה לנכס</button><button class="btn sm soft" id="stopAn">ביטול</button></div></section>` : ""}
   <section class="stack" style="gap:6px"><h1>קונים או לא?</h1><span class="muted">הזז מחיר ושכירות. השאר כבר מוגדר לפי השיטה.</span></section>
-  <section class="card stack" style="gap:10px">${locPicker("deal", v.loc, "איפה הנכס?")}<span class="tiny muted">לפי האזור תקבל קישור למס הנכס האמיתי, להצפות ול-Comps. את המס מכניסים ב״הוצאות״ למטה.</span></section>
+  <section class="card stack" style="gap:10px">${locPicker("deal", v.loc, "איפה הנכס?")}<div id="dealTax">${v.loc && v.taxAuto && v.taxAuto.key === locLabel(v.loc) ? taxNote(v.taxAuto, v.taxManual ? `<b>הזנת מס ידנית: ${v.taxPct}%.</b> <button type="button" class="btn sm soft" id="taxBack">החזר ל-${v.taxAuto.rate}%</button>` : "הוזן אוטומטית ב״הוצאות״.") : v.loc ? `<span class="tiny muted">מחפש את שיעור המס באזור…</span>` : `<span class="tiny muted">בחר אזור והמס יוזן לבד לפי המחוז.</span>`}</div></section>
   <section class="inps">${DEAL_IN.basic.map(d => inp(d, v[d.k])).join("")}</section>
   <div class="stick" id="stick" hidden></div>
   <div id="res">${dealResult(v)}</div>
@@ -1987,7 +2003,7 @@ function viewProp() {
     ${f("f_units", "יחידות", v.units, "number")}${f("f_beds", "חדרי שינה (סה״כ)", v.beds, "number")}
     ${f("f_baths", "חדרי רחצה", v.baths, "number")}${f("f_arv", "ARV לפי המפרסם ($)", v.arv, "number")}
     ${f("f_sqft", "שטח (sqft)", v.sqft, "number")}${f("f_year", "שנת בנייה", v.year, "number")}
-    ${f("f_tax", "מס נכס שנתי ($)", v.tax, "number")}${f("f_hoa", "ועד חודשי ($)", v.hoa, "number")}
+    <label>מס נכס שנתי ($)<input class="field-in" id="f_tax" type="number" step="any" inputmode="decimal" value="${esc(v.tax ?? "")}"><span class="tiny" id="taxHint" style="color:var(--brand-strong);font-weight:500"></span></label>${f("f_hoa", "ועד חודשי ($)", v.hoa, "number")}
     <label>סטטוס<select class="field-in" id="f_status">${STATUSES.map((s, j) => `<option value="${j}" ${v.status === j ? "selected" : ""}>${s}</option>`).join("")}</select></label>
     ${f("f_date", "תאריך הצעד הבא", v.nextDate, "date")}
     ${f("f_next", "הצעד הבא", v.nextAction, "text", ' class="full"')}
@@ -2005,7 +2021,7 @@ Return ONLY a JSON object with these keys. Use null for anything not clearly sho
  "rent": total CURRENT or stated monthly rent for all units, number or null,
  "units": number of units (single-family = 1),
  "beds": total bedrooms, "baths": total bathrooms (1.5 allowed), "sqft": number, "year": year built,
- "tax": annual property tax in dollars, "hoa": monthly HOA in dollars,
+ "tax": annual property tax in dollars (latest year in "Public tax history" / "Property taxes" if shown), "hoa": monthly HOA in dollars,
  "arv": after-repair value; if a range is given use the LOW end,
  "source": one of ["Zillow","Redfin","Realtor.com","Facebook","Craigslist","מתווך","Wholesaler","אחר"] (a 'contract for sale' or assignment post is "Wholesaler"),
  "notes": up to 2 short sentences IN HEBREW: deal type, condition and repairs mentioned, and any seller claim that must be verified,
@@ -2138,8 +2154,8 @@ function confirmBtn(host, label, fn) {
 function wireInputs(store, onChange) {
   $$(".inp").forEach(box => {
     const n = box.querySelector('input[type="number"]'), r = box.querySelector('input[type="range"]'), k = n.dataset.k;
-    n.oninput = () => { const x = parseFloat(n.value); if (!isFinite(x)) return; r.value = x; store[k] = x; onChange(); };
-    r.oninput = () => { n.value = r.value; store[k] = +r.value; onChange(); };
+    n.oninput = () => { const x = parseFloat(n.value); if (!isFinite(x)) return; r.value = x; store[k] = x; onChange(k); };
+    r.oninput = () => { n.value = r.value; store[k] = +r.value; onChange(k); };
   });
 }
 function wire(r) {
@@ -2180,8 +2196,11 @@ function wire(r) {
   }
   if (r === "c-deal") {
     const v = S.calc.deal;
-    bindPicker("deal", "איפה הנכס?", {}, l => { v.loc = l; save(); });
-    wireInputs(v, () => { const open = $("#res details")?.open; $("#res").innerHTML = dealResult(v); if (open) $("#res details").open = true; renderStick(stickDeal(v)); save(); });
+    const autoTax = () => { if (!v.loc) return; const key = locLabel(v.loc); if (v.taxAuto && v.taxAuto.key === key) return; areaTax(v.loc).then(t => { if (!t || S.ui.route !== "c-deal" || !v.loc || locLabel(v.loc) !== key) { const el = $("#dealTax"); if (el && !t) el.innerHTML = `<span class="tiny muted">אין נתון מס לאזור הזה. הכנס ידנית ב״הוצאות״ לפי המודעה או אתר המחוז.</span>`; return; } v.taxAuto = t; v.taxManual = false; v.taxPct = t.rate; save(); go("c-deal", { keepScroll: true }); }); };
+    bindPicker("deal", "איפה הנכס?", {}, l => { v.loc = l; v.taxAuto = null; save(); autoTax(); });
+    autoTax();
+    if ($("#taxBack")) $("#taxBack").onclick = () => { v.taxPct = v.taxAuto.rate; v.taxManual = false; save(); go("c-deal", { keepScroll: true }); };
+    wireInputs(v, k => { if (k === "taxPct" && v.taxAuto) v.taxManual = true; const open = $("#res details")?.open; $("#res").innerHTML = dealResult(v); if (open) $("#res details").open = true; renderStick(stickDeal(v)); save(); });
     watchStick(() => stickDeal(v));
     $("#resetCalc").onclick = () => { delete S.calc.deal; S.ui.analyzing = null; save(); go(r); toast("נטענה דוגמת מודול 4"); };
     if ($("#saveAn")) {
@@ -2208,7 +2227,10 @@ function wire(r) {
       toast(ex ? "נשמר" : "הנכס נוסף לטבלה"); go("deals:pipeline");
     };
     draftPhotos = ex && ex.photos ? ex.photos.map(x => ({ ...x })) : []; removedPhotos = []; renderThumbs();
-    bindPicker("prop", "עיר / אזור", { full: true }, l => { draftLoc = l; if (l && l.zip && !$("#f_zip").value) $("#f_zip").value = l.zip; });
+    const fillTax = () => { const price = parseFloat($("#f_price").value), tx = $("#f_tax"); if (!draftLoc || !(price > 0) || (tx.value && !tx.dataset.auto)) return; areaTax(draftLoc).then(t => { if (!t || (tx.value && !tx.dataset.auto)) return; tx.value = Math.round(price * t.rate / 100); tx.dataset.auto = "1"; tx.classList.add("filled"); const h = $("#taxHint"); if (h) h.textContent = `הערכה לפי ${t.county} (${t.rate}%). עדכן מהמודעה אם יש מספר מדויק.`; }); };
+    bindPicker("prop", "עיר / אזור", { full: true }, l => { draftLoc = l; if (l && l.zip && !$("#f_zip").value) $("#f_zip").value = l.zip; fillTax(); });
+    $("#f_price").addEventListener("change", fillTax); $("#f_tax").addEventListener("input", e => { delete e.target.dataset.auto; e.target.classList.remove("filled"); const h = $("#taxHint"); if (h) h.textContent = ""; });
+    fillTax();
     $("#thumbs").onclick = e => { const b = e.target.closest("[data-rmph]"); if (!b) return; const [rm] = draftPhotos.splice(+b.dataset.rmph, 1); if (rm) removedPhotos.push(rm.id); renderThumbs(); };
     $("#phFile").onchange = async e => { const files = [...e.target.files]; const m = $("#phMsg"); m.textContent = `מעלה ${files.length} תמונות…`; let ok = 0; for (const f of files) if (await uploadPhoto(f)) ok++; if (ok === files.length) m.textContent = `הועלו ${ok} תמונות. לחץ שמור.`; e.target.value = ""; };
     $("#aiFile").onchange = e => { const f = e.target.files[0]; if (f && Caps.sample) readScreenshot(f); };
@@ -2315,7 +2337,7 @@ function napState() {
 }
 /* effective numbers for the current mode, or the list of missing required fields */
 function napValues(v) {
-  const out = { mode: v.mode, noMgmt: v.noMgmt, taxOk: v.taxOk }, missing = [];
+  const out = { mode: v.mode, noMgmt: v.noMgmt, taxOk: v.taxOk, areaTax: v.locTax && v.loc && v.locTax.key === locLabel(v.loc) ? v.locTax.rate : null }, missing = [];
   if (!v.loc) missing.push("איפה הנכס");
   [...NAP_COMMON, ...NAP_F[v.mode]].forEach(([k, label, , def]) => {
     const x = parseFloat(v.vals[k]), d = NAP_COMMON.some(c => c[0] === k) ? S.set[k] ?? def : def;
@@ -2332,6 +2354,7 @@ function napkin(v) {
     ok(null, "NOI ≈ 50% מהשכירות", fmtD(noi));
     ok(null, `משכנתא ≈ ${napOfPrice(v).toFixed(2)}% מהמחיר`, fmtD(mort));
     ok(door >= v.target, `תזרים לדירה (יעד ${fmtD(v.target)})`, fmtD(door));
+    if (v.areaTax) steps.push({ s: v.areaTax > 2 ? "n" : "i", t: v.areaTax > 2 ? "מס נכס גבוה באזור — כלל ה-50% כנראה אופטימי" : "מס נכס משוער באזור", val: `${v.areaTax}% · ${fmtD(v.price * v.areaTax / 100)}/שנה` });
     pass = r1 >= 1 && door >= v.target;
     const need = (v.target * u + mort) / 0.5;
     steps.push({ s: "i", t: "שכירות שצריך כדי לעבור", val: `${fmtD(need)} (${pct(need / base * 100, 2)})` });
@@ -2404,7 +2427,7 @@ function viewNapkin() {
     <label class="task ${v.taxOk ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napTax" ${v.taxOk ? "checked" : ""}><span class="box">${IC.check}</span><span class="t" style="text-decoration:none">בדקתי את המס האמיתי של הנכס באתר המחוז</span></label>
   </section>
   ${v.mode === "whole" ? `<div class="warnline">לא מאמינים ל-ARV ולהערכת השיפוץ של ה-Wholesaler. בודקים Comps בעצמך, ואחרי המבחן ממשיכים לפי האסטרטגיה: השכרה, פליפ או BRRRR.</div>` : ""}
-  <section class="card form" id="napForm">${locPicker("nap", v.loc, "איפה הנכס?", { required: true, full: true })}${NAP_F[v.mode].map(f => napField(f, v)).join("")}
+  <section class="card form" id="napForm">${locPicker("nap", v.loc, "איפה הנכס?", { required: true, full: true })}<div class="full" id="napTax">${v.locTax && v.loc && v.locTax.key === locLabel(v.loc) ? taxNote(v.locTax) : ""}</div>${NAP_F[v.mode].map(f => napField(f, v)).join("")}
     <span class="tiny muted full"><span style="color:var(--red)">*</span> חובה. שדה ריק בלי כוכבית מקבל את ערך ברירת המחדל שמופיע בו.</span></section>
   <details class="adv"><summary>הנחות: ריבית ${e.rate}% · משכנתא ≈ ${napOfPrice(e).toFixed(2)}% מהמחיר</summary><div class="form" style="padding:0 14px 14px">${NAP_COMMON.map(f => napField(f, v)).join("")}<p class="tiny muted full">לא בטוח: המכפיל מבוסס על ריבית DSCR של 6.5%–7.5%. כשתקבל ריבית מהברוקר, עדכן אותה כאן והמכפיל יתעדכן לבד (6.5% ≈ 0.47%).</p></div></details>
   <div class="row"><button class="btn primary" id="napCheck" style="flex:1">${v.checked[v.mode] ? "בדוק שוב" : "בדוק"}</button><button class="btn soft" id="napClear">נקה</button></div>
@@ -2430,7 +2453,9 @@ function napRefresh() {
 function wireNapkin() {
   const v = napState();
   watchStick(() => napStick(v)); wireNapResult();
-  bindPicker("nap", "איפה הנכס?", { required: true, full: true }, l => { v.loc = l; save(); if (v.checked[v.mode]) napRefresh(); });
+  const loadTax = () => { if (!v.loc || (v.locTax && v.locTax.key === locLabel(v.loc))) return; areaTax(v.loc).then(t => { if (!t || !v.loc) return; v.locTax = t; save(); const n = $("#napTax"); if (n) n.innerHTML = taxNote(t); if (v.checked[v.mode]) napRefresh(); }); };
+  bindPicker("nap", "איפה הנכס?", { required: true, full: true }, l => { v.loc = l; v.locTax = null; const n = $("#napTax"); if (n) n.innerHTML = ""; save(); loadTax(); if (v.checked[v.mode]) napRefresh(); });
+  loadTax();
   $("#app").oninput = e => { const k = e.target.dataset.nk; if (!k) return; v.vals[k] = e.target.value; save(); if (v.checked[v.mode]) napRefresh(); };
   $$("[data-nmode]").forEach(b => b.onclick = () => { v.mode = b.dataset.nmode; save(); go("napkin", { keepScroll: true }); });
   $("#napMgmt").onchange = e => { v.noMgmt = e.target.checked; save(); go("napkin", { keepScroll: true }); };

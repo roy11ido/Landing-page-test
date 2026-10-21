@@ -47,6 +47,8 @@ ZVARS = [
     ("labor", "b23025", "B23025_E003"),   # civilian labor force
     ("unemp", "b23025", "B23025_E005"),   # unemployed
 ]
+# Median real estate taxes paid (owner-occupied); appended after the place name, with median value gives an effective rate.
+TAX = ("b25103", "B25103_E001")
 # County employment by industry (13 sectors) for a diversification index.
 INDUSTRY = [f"C24050_E{n:03d}" for n in range(2, 15)]
 
@@ -144,6 +146,7 @@ def main():
     cols = {}
     for _, t, c in ZVARS:
         cols.setdefault(t, []).append(c)
+    cols.setdefault(TAX[0], []).append(TAX[1])
     data = {t: table(year, t, cs) for t, cs in cols.items()}
     past = table(past_year, "b01003", ["B01003_E001"], (ZCTA,))
     ind = table(year, "c24050", ["C24050_E001"] + INDUSTRY, (COUNTY,))
@@ -161,7 +164,9 @@ def main():
         total = num(row[0])
         hhi = round(sum((num(x) / total) ** 2 for x in row[1:] if num(x) is not None), 4) if total else None
         labor, unemp = val(geo, "b23025", "B23025_E003"), val(geo, "b23025", "B23025_E005")
-        counties[fips] = [None, hhi, round(unemp / labor * 100, 1) if labor and unemp is not None else None]
+        tax, value = val(geo, *TAX), val(geo, "b25077", "B25077_E001")
+        rate = round(tax / value * 100, 2) if tax and value else None
+        counties[fips] = [None, hhi, round(unemp / labor * 100, 1) if labor and unemp is not None else None, rate]
     for z, (fips, name) in county_of.items():
         if fips in counties and counties[fips][0] is None:
             counties[fips][0] = name
@@ -179,10 +184,10 @@ def main():
             continue
         place = clean_place(place_of[z][1]) if z in place_of else ""
         p = past.get(geo)
-        row = [val(geo, t, c) for _, t, c in ZVARS] + [num(p[0]) if p else None, cty[0], place]
+        row = [val(geo, t, c) for _, t, c in ZVARS] + [num(p[0]) if p else None, cty[0], place, val(geo, *TAX)]
         s = out.setdefault(st, {"z": {}, "c": {}, "p": {}})
         s["z"][z] = row
-        s["c"][cty[0]] = counties.get(cty[0], [cty[1], None, None])
+        s["c"][cty[0]] = counties.get(cty[0], [cty[1], None, None, None])
         if place:
             s["p"].setdefault(place.lower(), []).append(z)
         zip3.setdefault(z[:3], {}).setdefault(st, 0)
