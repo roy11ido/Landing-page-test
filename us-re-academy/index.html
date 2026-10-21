@@ -86,6 +86,14 @@ main { padding-block: 4px calc(110px + env(safe-area-inset-bottom, 0px)); displa
 .btn.danger { color: var(--red); border-color: var(--red); }
 .btn:active { transform: scale(.98); }
 a.btn { text-decoration: none; color: inherit; }
+.thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.thumb { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--soft-2); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .icon-btn { position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; font-size: 12px; background: var(--surface); }
+.thumb .tlabel { position: absolute; bottom: 4px; right: 4px; background: var(--red); color: var(--red-ink); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px; }
+.pthumb { width: 100%; max-width: 100%; height: 160px; object-fit: cover; border-radius: 12px; display: block; background: var(--soft-2); }
+.field-in.filled { outline: 2px solid var(--green); }
+label.btn { cursor: pointer; }
 a.btn.dark { color: var(--inv-ink); }
 .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--soft); display: grid; place-items: center; font-weight: 700; flex: none; }
 .card { background: var(--soft); border-radius: var(--r); padding: 18px; min-width: 0; }
@@ -1408,14 +1416,16 @@ function renderPipeline() {
   <section class="stack" style="gap:10px">${list.length ? list.map(propCard).join("") : all.length ? `<p class="muted">אין נכסים בסינון הזה.</p>` : `<div class="card stack" style="justify-items:start"><b style="font-family:var(--font-display)">עוד אין נכסים במעקב</b><span class="small muted">מצאת מודעה ב-Zillow, פוסט בפייסבוק או נכס ממתווך? הוסף אותו עם הלינק, ולחץ ״נתח״ כדי לקבל פסק דין.</span><button class="btn primary" data-go="prop-new">+ הוסף נכס ראשון</button></div>`}</section>`;
 }
 function propCard(p) {
-  const rp = p.rent / p.price * 100, link = safeUrl(p.link), over = p.nextDate && p.nextDate <= todayISO() && p.status !== 5, an = p.an;
+  const rp = +p.rent > 0 ? p.rent / p.price * 100 : NaN, link = safeUrl(p.link), over = p.nextDate && p.nextDate <= todayISO() && p.status !== 5, an = p.an;
+  const ph = p.photos && p.photos.length ? p.photos[0].id : "";
   return `<div class="dcard">
+    ${ph ? `<a href="/_blob/${esc(ph)}" target="_blank" rel="noopener"><img class="pthumb" src="/_blob/${esc(ph)}" alt="תמונת הנכס" loading="lazy"></a>` : ""}
     <div class="top"><span class="addr" dir="auto">${esc(p.addr)}</span>${p.source ? `<span class="pill">${esc(p.source)}</span>` : ""}</div>
-    <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}</div>
+    <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}${+p.arv > 0 ? `<span class="pill">ARV <span class="num">${usd(+p.arv)}</span></span>` : ""}${p.photos && p.photos.length > 1 ? `<span class="pill">${p.photos.length} תמונות</span>` : ""}</div>
     ${an ? `<div class="row"><span class="pill ${an.pass ? "good" : "bad"}">${an.pass ? "קונים ✓" : "לא קונים ✕"}</span><span class="small">CoC <span class="num">${pct(an.coc)}</span> · תזרים <span class="num">${usd(an.cf)}</span> · DSCR בנק <span class="num">${(+an.bank).toFixed(2)}</span></span></div>` : ""}
     ${p.nextAction || p.nextDate ? `<div class="small" style="color:${over ? "var(--red)" : "inherit"};font-weight:${over ? 700 : 400}">הצעד הבא: ${esc(p.nextAction || "—")}${p.nextDate ? ` · <span class="num">${esc(p.nextDate.split("-").reverse().join("/"))}</span>` : ""}</div>` : ""}
     <div class="row"><select class="sel" data-pst="${esc(p.id)}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${p.status === j ? "selected" : ""}>${s}</option>`).join("")}</select>
-      <button class="btn sm dark" data-an="${esc(p.id)}">נתח</button>
+      <button class="btn sm dark" data-an="${esc(p.id)}">נתח</button>${+p.arv > 0 ? `<button class="btn sm soft" data-mao="${esc(p.id)}">MAO</button>` : ""}
       ${link ? `<a class="btn sm soft" href="${esc(link)}" target="_blank" rel="noopener noreferrer">מודעה ↗</a>` : ""}
       <button class="btn sm soft" data-go="prop:${esc(p.id)}">ערוך</button></div>
   </div>`;
@@ -1423,24 +1433,71 @@ function propCard(p) {
 function viewProp() {
   const p = S.ui.editId ? getProp(S.ui.editId) : null, v = p || { status: 0, source: "Zillow", units: 2 };
   const f = (id, label, val, type = "text", extra = "") => `<label${extra}>${label}<input class="field-in" id="${id}" type="${type}" value="${esc(val ?? "")}"${type === "number" ? ' step="any" inputmode="decimal"' : ""}></label>`;
-  return `<section class="stack" style="gap:6px"><h1>${p ? "עריכת נכס" : "נכס חדש"}</h1><span class="muted">חובה: כתובת, מחיר ושכירות. השאר משפר את הניתוח.</span></section>
+  return `<section class="stack" style="gap:6px"><h1>${p ? "עריכת נכס" : "נכס חדש"}</h1><span class="muted">חובה: כתובת ומחיר. השאר משפר את הניתוח.</span></section>
+  <section class="card stack" id="aiBox" hidden style="gap:8px;outline:2px solid var(--red)">
+    <b style="font-family:var(--font-display)">מילוי אוטומטי מצילום מסך</b>
+    <span class="small muted">פוסט מפייסבוק, מודעה מ-Zillow או הודעת וואטסאפ. האפליקציה תקרא את התמונה ותמלא את השדות.</span>
+    <label class="btn primary" for="aiFile" style="justify-self:start">העלה צילום מסך</label><input type="file" id="aiFile" accept="image/*" hidden>
+    <div id="aiMsg" class="small"></div>
+  </section>
   <form id="propForm" class="card form">
     <label class="full">כתובת<input class="field-in" id="f_addr" required value="${esc(v.addr ?? "")}"></label>
     <label class="full">לינק למודעה או לפוסט<input class="field-in" id="f_link" inputmode="url" placeholder="https://www.zillow.com/..." value="${esc(v.link ?? "")}" style="direction:ltr"></label>
     <label>מקור<select class="field-in" id="f_source">${SOURCES.map(s => `<option ${v.source === s ? "selected" : ""}>${s}</option>`).join("")}</select></label>
     ${f("f_zip", "מיקוד", v.zip)}
     <label>מחיר ($)<input class="field-in" id="f_price" type="number" step="any" inputmode="decimal" required value="${esc(v.price ?? "")}"></label>
-    <label>שכירות כוללת לחודש ($)<input class="field-in" id="f_rent" type="number" step="any" inputmode="decimal" required value="${esc(v.rent ?? "")}"></label>
+    <label>שכירות כוללת לחודש ($)<input class="field-in" id="f_rent" type="number" step="any" inputmode="decimal" value="${esc(v.rent ?? "")}"></label>
     ${f("f_units", "יחידות", v.units, "number")}${f("f_beds", "חדרי שינה (סה״כ)", v.beds, "number")}
+    ${f("f_baths", "חדרי רחצה", v.baths, "number")}${f("f_arv", "ARV לפי המפרסם ($)", v.arv, "number")}
     ${f("f_sqft", "שטח (sqft)", v.sqft, "number")}${f("f_year", "שנת בנייה", v.year, "number")}
     ${f("f_tax", "מס נכס שנתי ($)", v.tax, "number")}${f("f_hoa", "ועד חודשי ($)", v.hoa, "number")}
     <label>סטטוס<select class="field-in" id="f_status">${STATUSES.map((s, j) => `<option value="${j}" ${v.status === j ? "selected" : ""}>${s}</option>`).join("")}</select></label>
     ${f("f_date", "תאריך הצעד הבא", v.nextDate, "date")}
     ${f("f_next", "הצעד הבא", v.nextAction, "text", ' class="full"')}
     <label class="full">הערות<textarea class="field-in" id="f_notes" rows="3">${esc(v.notes ?? "")}</textarea></label>
+    <section class="full stack" id="photoBox" hidden style="gap:8px"><b>תמונות הנכס</b><span class="tiny muted">צילומים מהמודעה, מבדק הבית או מסיור של המתווך.</span><div class="thumbs" id="thumbs"></div><label class="btn sm" for="phFile" style="justify-self:start">+ הוסף תמונות</label><input type="file" id="phFile" accept="image/*" multiple hidden><span id="phMsg" class="tiny muted"></span></section>
     <button class="btn primary full" type="submit">${p ? "שמור שינויים" : "הוסף לטבלה"}</button>
     ${p ? `<span id="delProp" class="full"></span>` : ""}
   </form>`;
+}
+const AI_PROMPT = `You read a screenshot of a US real estate listing or deal post (Facebook, Zillow, WhatsApp, email) for an investor.
+Return ONLY a JSON object with these keys. Use null for anything not clearly shown. Never guess or estimate.
+{"addr": street address as written (keep it even without a house number), plus city and state,
+ "zip": 5-digit ZIP or null,
+ "price": asking/starting/contract price in dollars as a number (115K -> 115000),
+ "rent": total CURRENT or stated monthly rent for all units, number or null,
+ "units": number of units (single-family = 1),
+ "beds": total bedrooms, "baths": total bathrooms (1.5 allowed), "sqft": number, "year": year built,
+ "tax": annual property tax in dollars, "hoa": monthly HOA in dollars,
+ "arv": after-repair value; if a range is given use the LOW end,
+ "source": one of ["Zillow","Redfin","Realtor.com","Facebook","Craigslist","מתווך","Wholesaler","אחר"] (a 'contract for sale' or assignment post is "Wholesaler"),
+ "notes": up to 2 short sentences IN HEBREW: deal type, condition and repairs mentioned, and any seller claim that must be verified,
+ "missing": array of short HEBREW names of important facts the image does not show (for example: מספר בית, שכירות, מס נכס, הערכת שיפוץ)}`;
+const AI_MAP = { addr: "f_addr", zip: "f_zip", price: "f_price", rent: "f_rent", units: "f_units", beds: "f_beds", baths: "f_baths", sqft: "f_sqft", year: "f_year", tax: "f_tax", hoa: "f_hoa", arv: "f_arv", notes: "f_notes" };
+const AI_ERR = { not_granted: "לא אושר שימוש ב-Claude. אפשר לאשר בפעם הבאה.", rate_limited: "יותר מדי בקשות. נסה שוב בעוד דקה.", image_rejected: "התמונה לא התקבלה. נסה צילום מסך אחר.", images_unavailable: "קריאת תמונות לא זמינה כאן.", invalid_json: "לא הצלחתי לקרוא את הפרטים. נסה צילום חד יותר.", cancelled: "בוטל." };
+let draftPhotos = [], removedPhotos = [], Caps = { assets: null, sample: null };
+function renderThumbs() {
+  const t = $("#thumbs"); if (!t) return;
+  t.innerHTML = draftPhotos.map((p, i) => `<div class="thumb"><img src="/_blob/${esc(p.id)}" alt="${esc(p.label || "תמונת הנכס")}" loading="lazy">${p.label ? `<span class="tlabel">${esc(p.label)}</span>` : ""}<button type="button" class="icon-btn" data-rmph="${i}" aria-label="הסר תמונה">✕</button></div>`).join("");
+}
+async function uploadPhoto(file, label) {
+  if (!Caps.assets) return false;
+  try { const r = await Caps.assets.upload(file); draftPhotos.push({ id: r.id, label: label || "" }); renderThumbs(); return true; }
+  catch (e) { const m = $("#phMsg"); if (m) m.textContent = e && e.code === "too_large" ? "התמונה גדולה מדי (עד 20MB)." : e && e.code === "quota_or_state" ? "האחסון מלא." : "ההעלאה נכשלה. נסה שוב."; return false; }
+}
+async function readScreenshot(file) {
+  const msg = $("#aiMsg"), lbl = $('label[for="aiFile"]');
+  msg.style.color = ""; msg.textContent = "קורא את התמונה… (עד דקה)"; lbl.style.pointerEvents = "none"; lbl.style.opacity = ".5";
+  try {
+    const r = await Caps.sample.json(AI_PROMPT, { images: [file] });
+    let n = 0;
+    for (const [k, id] of Object.entries(AI_MAP)) { const v = r && r[k]; const el = $("#" + id); if (el && v !== null && v !== undefined && v !== "") { el.value = v; el.classList.add("filled"); n++; } }
+    if (r && SOURCES.includes(r.source)) { $("#f_source").value = r.source; $("#f_source").classList.add("filled"); }
+    const miss = Array.isArray(r && r.missing) ? r.missing.filter(x => typeof x === "string").slice(0, 6) : [];
+    msg.innerHTML = `<b style="color:var(--green)">מולאו ${n} שדות (מסומנים בירוק).</b> בדוק אותם לפני השמירה.${miss.length ? `<br><span style="color:var(--red)">חסר בתמונה: ${miss.map(esc).join(", ")}</span>` : ""}`;
+    if (Caps.assets) await uploadPhoto(file, "מודעה");
+  } catch (e) { msg.style.color = "var(--red)"; msg.textContent = AI_ERR[e && e.code] || "משהו השתבש בקריאת התמונה. נסה שוב."; }
+  finally { lbl.style.pointerEvents = ""; lbl.style.opacity = ""; $("#aiFile").value = ""; }
 }
 function analyzeProp(id) {
   const p = getProp(id); if (!p) return;
@@ -1565,10 +1622,23 @@ function wire(r) {
     form.onsubmit = async e => {
       e.preventDefault();
       const g = id => $("#" + id).value.trim(), n = id => { const x = parseFloat(g(id)); return isFinite(x) ? x : null; };
-      const p = { ...(ex || { id: newId(), created: Date.now() }), addr: g("f_addr"), link: g("f_link"), source: g("f_source"), zip: g("f_zip"), price: n("f_price"), rent: n("f_rent"), units: n("f_units") || 1, beds: n("f_beds"), sqft: n("f_sqft"), year: n("f_year"), tax: n("f_tax"), hoa: n("f_hoa"), status: +g("f_status"), nextDate: g("f_date"), nextAction: g("f_next"), notes: g("f_notes") };
+      const p = { ...(ex || { id: newId(), created: Date.now() }), addr: g("f_addr"), link: g("f_link"), source: g("f_source"), zip: g("f_zip"), price: n("f_price"), rent: n("f_rent"), units: n("f_units") || 1, beds: n("f_beds"), baths: n("f_baths"), arv: n("f_arv"), photos: draftPhotos.slice(), sqft: n("f_sqft"), year: n("f_year"), tax: n("f_tax"), hoa: n("f_hoa"), status: +g("f_status"), nextDate: g("f_date"), nextAction: g("f_next"), notes: g("f_notes") };
       if (p.link && !safeUrl(p.link)) { toast("הלינק לא תקין. הדבק כתובת שמתחילה ב-https://"); return; }
-      await saveProp(p); toast(ex ? "נשמר" : "הנכס נוסף לטבלה"); go("deals:pipeline");
+      await saveProp(p);
+      if (Caps.assets) for (const id of removedPhotos) Caps.assets.delete(id).catch(() => {});
+      toast(ex ? "נשמר" : "הנכס נוסף לטבלה"); go("deals:pipeline");
     };
+    draftPhotos = ex && ex.photos ? ex.photos.map(x => ({ ...x })) : []; removedPhotos = []; renderThumbs();
+    $("#thumbs").onclick = e => { const b = e.target.closest("[data-rmph]"); if (!b) return; const [rm] = draftPhotos.splice(+b.dataset.rmph, 1); if (rm) removedPhotos.push(rm.id); renderThumbs(); };
+    $("#phFile").onchange = async e => { const files = [...e.target.files]; const m = $("#phMsg"); m.textContent = `מעלה ${files.length} תמונות…`; let ok = 0; for (const f of files) if (await uploadPhoto(f)) ok++; if (ok === files.length) m.textContent = `הועלו ${ok} תמונות. לחץ שמור.`; e.target.value = ""; };
+    $("#aiFile").onchange = e => { const f = e.target.files[0]; if (f && Caps.sample) readScreenshot(f); };
+    (async () => {
+      const c = window.claude; if (!c || !c.use) return;
+      const [sample, assets] = await Promise.all([c.use("sample"), c.use("assets")]);
+      if (S.ui.route !== "prop" || !$("#propForm")) return;
+      Caps.assets = assets; if (assets) $("#photoBox").hidden = false;
+      if (sample) { const lim = await sample.limits().catch(() => null); if (lim && lim.images) { Caps.sample = sample; $("#aiBox").hidden = false; $("#aiFile").accept = lim.images.mediaTypes ? lim.images.mediaTypes.join(",") : "image/*"; } }
+    })();
     if (ex) confirmBtn("delProp", "מחק נכס", async () => { await deleteProp(ex.id); toast("הנכס נמחק"); go("deals:pipeline"); });
   }
   if (r === "c-rehab") {
@@ -1588,6 +1658,7 @@ function wire(r) {
         const t = e.target.closest("button"); if (!t) return;
         if (t.dataset.pf) { S.ui.pf = t.dataset.pf; save(); renderPipeline(); }
         else if (t.dataset.an) analyzeProp(t.dataset.an);
+        else if (t.dataset.mao) { const p = getProp(t.dataset.mao); const c = CALCS.find(x => x.id === "r70"); const v = calcVals("r70", c.inputs); v.arv = +p.arv; save(); go("c-r70"); }
       };
     } else if (sub === "dd") {
       renderDD();
