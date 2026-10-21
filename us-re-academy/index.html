@@ -1254,6 +1254,12 @@ async function searchPlaces(q) {
   }
   const out = [];
   for (const p of PL.rows) { if (p.k1.startsWith(n) || p.k2.startsWith(n)) { out.push({ kind: "city", city: p.city, st: p.st, county: p.county }); if (out.length >= 7) break; } }
+  /* a state name or code ("new jersey", "new jer", "nj") lists that state's largest cities */
+  const states = Object.entries(ST_NAMES).filter(([code, name]) => n === code.toLowerCase() || (n.length >= 4 && name.toLowerCase().startsWith(n)));
+  if (states.length && states.length <= 2) {
+    for (const [code] of states) for (const p of PL.rows) { if (out.length >= 9) break; if (p.st === code && !out.some(o => o.city === p.city && o.st === p.st)) out.push({ kind: "city", city: p.city, st: p.st, county: p.county }); }
+    return out;
+  }
   /* counties: "summit", "summit county", "summit oh", "summit county ohio" */
   const cn = n.replace(/\s*\bcounty\b/, "").trim();
   for (const c of PL.counties) {
