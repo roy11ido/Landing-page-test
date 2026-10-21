@@ -2495,6 +2495,12 @@ function viewSettings() {
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">פתיחת קישורים</b>
     <div class="chips" role="group" aria-label="דפדפן"><button data-br="default" aria-pressed="${(S.ui.browser || "default") === "default"}">הדפדפן הרגיל של הטלפון</button><button data-br="chrome" aria-pressed="${S.ui.browser === "chrome"}">Chrome</button></div>
     <span class="tiny muted">הדרך הבטוחה לפתוח תמיד ב-Chrome באייפון: הגדרות ← Chrome ← Default Browser App. האפשרות ״Chrome״ כאן עלולה לא לעבוד מתוך אפליקציית Claude.</span></section>
+  <section class="card stack" style="gap:10px" id="openTest"><b style="font-family:var(--font-display)">בדיקת פתיחת קישורים</b>
+    <span class="tiny muted">אתרי מחוזות מסוימים מחזירים 403 כשהם נפתחים מתוך האפליקציה. נסה את 3 הדרכים ותגיד לי איזו פותחת את האתר.</span>
+    <a class="btn" href="https://www.hamiltoncounty.in.gov/" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">דרך 1 — קישור רגיל (כמו היום)</a>
+    <a class="btn" href="https://www.hamiltoncounty.in.gov/" target="_blank">דרך 2 — קישור עם פרטי הפניה</a>
+    <button type="button" class="btn" id="openWin">דרך 3 — חלון חדש</button>
+    <span class="tiny" id="openWinMsg"></span></section>
   <section class="card stack" style="gap:8px"><label class="small" for="startDate" style="font-weight:600">תאריך התחלת המסלול (24 שבועות)</label><input type="date" id="startDate" class="field-in" value="${esc(S.start)}"></section>
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">גיבוי ושחזור</b><span class="tiny muted">העתקת כל ההתקדמות לקוד, ושחזור במכשיר אחר.</span><button class="btn" data-go="backup" style="justify-self:start">פתח גיבוי</button></section>`;
 }
@@ -2502,6 +2508,7 @@ function wireSettings() {
   bindPicker("set", "אזור ברירת מחדל (לא חובה)", { links: false }, l => { S.set.loc = l; save(); toast(l ? "אזור ברירת המחדל נשמר" : "אזור ברירת המחדל הוסר"); });
   $$("[data-set]").forEach(i => i.onchange = () => { const x = parseFloat(i.value); if (isFinite(x)) { S.set[i.dataset.set] = x; save(); toast("נשמר"); } });
   $$("[data-br]").forEach(b => b.onclick = () => { S.ui.browser = b.dataset.br; save(); go("settings", { keepScroll: true }); toast(b.dataset.br === "chrome" ? "קישורים ייפתחו ב-Chrome" : "קישורים ייפתחו בדפדפן הרגיל"); });
+  $("#openWin").onclick = () => { let w = null; try { w = window.open("https://www.hamiltoncounty.in.gov/", "_blank"); if (w) w.opener = null; } catch (e) {} const m = $("#openWinMsg"); m.textContent = w === null ? "החלון לא נפתח מכאן (חסום באפליקציה) — אם בכל זאת נפתח אתר, ספר לי." : "נפתח חלון חדש."; };
   $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); toast("נשמר"); } };
 }
 /* ===================== BOOT ===================== */
