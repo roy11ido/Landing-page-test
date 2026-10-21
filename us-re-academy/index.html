@@ -84,7 +84,20 @@ main { padding-block: 4px calc(110px + env(safe-area-inset-bottom, 0px)); displa
 .btn.sm { padding: 6px 14px; min-height: 36px; font-size: 14px; }
 .btn.block { width: 100%; }
 .btn.danger { color: var(--red); border-color: var(--red); }
-.btn:active { transform: scale(.98); }
+/* press feedback: every tappable element shrinks, darkens and ripples */
+:is(.btn, .tile, .li, .ctile, .feature, .seg button, .chips button, .opt, .nav button, .dots5 button, .icon-btn, .back, .fc, .task, details > summary, .sel) { transition: transform .12s ease, filter .12s ease, background-color .2s, color .2s; }
+:is(.btn, .tile, .li, .ctile, .feature, .seg button, .chips button, .opt:not(:disabled), .dots5 button, .icon-btn, .back, .fc, .task, details > summary, .sel):active { transform: scale(.96); filter: brightness(.9); }
+.nav button:active .ic { transform: scale(.88); }
+.nav button .ic { transition: background .2s, transform .12s ease; }
+.ripple { position: absolute; border-radius: 50%; pointer-events: none; background: currentColor; opacity: .28; transform: scale(0); animation: ripple .5s ease-out forwards; }
+@keyframes ripple { to { transform: scale(2.4); opacity: 0; } }
+#app.enter > * { animation: enter .24s ease-out both; }
+#app.enter > *:nth-child(2) { animation-delay: .03s; }
+#app.enter > *:nth-child(3) { animation-delay: .06s; }
+#app.enter > *:nth-child(n+4) { animation-delay: .09s; }
+@keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.toast { animation: toastIn .25s ease-out; }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 a.btn { text-decoration: none; color: inherit; }
 .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .thumb { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: var(--soft-2); }
@@ -311,7 +324,7 @@ textarea.field-in { resize: vertical; }
   .item-row { grid-template-columns: minmax(0, 1fr) 60px 80px 36px; }
   .inp-num input { width: 80px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .btn:active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } :active { transform: none !important; } }
 </style>
 
 <header class="topbar"><div class="wrap" id="topbar"></div></header>
@@ -1275,7 +1288,7 @@ function fmt(v, t) {
   return Math.round(v).toLocaleString("en-US");
 }
 const LIGHT_TXT = { good: "מצוין", mid: "גבולי", bad: "חלש" };
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = true; void t.offsetWidth; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); }
 const IC = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
   learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>',
@@ -1352,9 +1365,23 @@ function go(r, opts = {}) {
   else if (r === "sites") app.innerHTML = viewSites();
   else if (r === "backup") app.innerHTML = viewBackup();
   wire(r);
-  if (!opts.keepScroll) window.scrollTo(0, 0);
+  if (!opts.keepScroll) { window.scrollTo(0, 0); app.classList.remove("enter"); void app.offsetWidth; app.classList.add("enter"); }
 }
-document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); } });
+/* press feedback: ripple + short haptic on touch, then navigate after the press is visible */
+const PRESS = ".btn, .tile, .li, .ctile, .feature, .seg button, .chips button, .opt, .nav button, .dots5 button, .icon-btn, .back, .fc";
+const calm = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+document.addEventListener("touchstart", () => {}, { passive: true });
+document.addEventListener("pointerdown", e => {
+  const el = e.target.closest(PRESS); if (!el || el.disabled || calm()) return;
+  if (getComputedStyle(el).position === "static") el.style.position = "relative";
+  el.style.overflow = "hidden";
+  const r = el.getBoundingClientRect(), size = Math.max(r.width, r.height), s = document.createElement("span");
+  s.className = "ripple";
+  s.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size / 2}px;top:${e.clientY - r.top - size / 2}px`;
+  el.appendChild(s); setTimeout(() => s.remove(), 550);
+  if (e.pointerType === "touch" && navigator.vibrate) { try { navigator.vibrate(8); } catch (err) {} }
+});
+document.addEventListener("click", e => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); const to = g.dataset.go; calm() ? go(to) : setTimeout(() => go(to), 110); } });
 
 /* ===================== HOME ===================== */
 function viewHome() {
