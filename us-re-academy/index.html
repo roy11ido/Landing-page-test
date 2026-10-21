@@ -919,7 +919,7 @@ const SITE_GROUPS = [
       how: ["בחר עיר (columbus / cincinnati)", "housing ← real estate for sale ← by owner", "housing ← apts/housing for rent להשוואת שכירות"],
       to: ["טבלת נכסים", "deals:pipeline"] }
   ]},
-  { id: "county", title: "מחוז: מס, בעלות וחובות", items: [
+  { id: "county", title: "מחוז: מס, בעלות וחובות (דוגמה: אוהיו)", items: [
     { n: "Franklin County Auditor", u: "https://auditor.franklincountyohio.gov", s: "קולומבוס: המקור הרשמי לשווי, מס, בעלים והיסטוריית מכירות.",
       can: ["לחפש נכס לפי כתובת, שם בעלים או מספר חלקה", "לראות את כל ההעברות של הנכס ובאיזה מחיר", "לבדוק מי הבעלים (אדם, LLC, עיזבון)"],
       get: ["!מס נכס שנתי בפועל — נכנס לניתוח במקום המודעה", "!היסטוריית מכירות (מחיר ותאריך)", "!שם הבעלים — LLC = משקיע, ״Estate of״ = ירושה", "שווי לפי המחוז", "האם יש הנחת Owner-Occupied (מס יעלה אחרי שתקנה)"],
@@ -1054,7 +1054,9 @@ function siteCard(t) {
 function viewSites() {
   const tab = S.ui.sitesTab || "research";
   const head = `<section class="stack" style="gap:6px"><h1>כלים ואתרים</h1><p class="muted">כל אתר שצריך למחקר נכס ושוק, ואיך מוציאים ממנו את המידע. שמות הכפתורים באתרים עשויים להשתנות.</p></section>
-  <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>`;
+  <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">מיקוד או ״מחוז, מדינה״ (למשל Maricopa, AZ). מקבלים חיפוש מוכן לאתר הרשמי של כל משרד. אתרי אוהיו למטה הם דוגמה.</span>
+    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="cfIn" placeholder="43205 / Maricopa, AZ" style="direction:ltr" autocomplete="off"><button class="btn primary" id="cfGo" style="flex:none">חפש</button></div><div id="cfOut" class="stack" style="gap:8px"></div></section>`;
   if (tab === "research") return head + SITE_GROUPS.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2>${g.items.map(siteCard).join("")}</section>`).join("");
   return head + `
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">למה זה שווה</b><span class="small">מוכר שחייב למכור (ירושה, עיקול, חוב מס, פשיטת רגל, נכס מוזנח) מוכן לעיתים למחיר מתחת לשוק בתמורה למהירות ולוודאות. המידע ציבורי ונמצא באתרי בתי המשפט והמחוזות.</span></section>
@@ -1067,7 +1069,104 @@ function viewSites() {
     <div><span>מוסיפים לטבלת הנכסים עם המקור ותאריך פולואו-אפ</span></div>
     <div><span>שולחים מכתב מנומס לאיש הקשר הנכון</span></div></div>
     <button class="btn sm dark" data-go="prop-new" style="justify-self:start">+ הוסף ליד לטבלה</button></section>
+  <p class="small muted">המקורות למטה הם של קולומבוס וסינסינטי. לכל מחוז אחר: השתמש בחיפוש המשרדים למעלה (Probate, Clerk, Sheriff, Treasurer, Code Enforcement).</p>
   ${MOTIVATED.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2><p class="small muted">${g.why}</p>${g.items.map(siteCard).join("")}</section>`).join("")}`;
+}
+
+/* ===================== MARKET DATA (Census ACS by ZIP, shipped as data/<ST>.json) ===================== */
+const MKT = { idx: undefined, states: {} };
+const ST_NAMES = { AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", DC: "District of Columbia", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey", NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", PR: "Puerto Rico" };
+async function mktIndex() {
+  if (MKT.idx !== undefined) return MKT.idx;
+  try { const r = await fetch("data/index.json"); if (!r.ok) throw 0; MKT.idx = await r.json(); } catch (e) { MKT.idx = null; }
+  return MKT.idx;
+}
+async function mktState(st) {
+  if (!MKT.states[st]) MKT.states[st] = fetch(`data/${st}.json`).then(r => r.ok ? r.json() : null).catch(() => null);
+  return MKT.states[st];
+}
+function decodeZip(zip, row, d, st) {
+  const [pop, income, units, vacant, occ, owner, rent, value, built, labor, unemp, pop5, cfips, place] = row;
+  const c = d.c[cfips] || [];
+  const pct = (a, b) => a != null && b ? a / b * 100 : null;
+  return {
+    zip, st, place, county: c[0] || "", pop, income, rent, value, built,
+    growth: pop != null && pop5 ? (pop / pop5 - 1) * 100 : null,
+    vacancy: pct(vacant, units), ownerOcc: pct(owner, occ), unemp: pct(unemp, labor),
+    r2p: rent && value ? rent / value * 100 : null,
+    incRatio: income && rent ? income / (rent * 12) : null,
+    hhi: c[1] ?? null, countyUnemp: c[2] ?? null, year: d.year, src: d.src
+  };
+}
+async function zipData(zip) {
+  zip = String(zip || "").trim().slice(0, 5);
+  if (!/^\d{5}$/.test(zip)) return null;
+  const idx = await mktIndex(); if (!idx) return null;
+  const st = idx.zip3[zip.slice(0, 3)]; if (!st) return { miss: true };
+  const d = await mktState(st); if (!d || !d.z[zip]) return { miss: true };
+  return decodeZip(zip, d.z[zip], d, st);
+}
+/* "Columbus, OH" -> ZIPs of that place, largest population first */
+async function placeZips(q) {
+  const m = String(q).match(/^\s*(.+?)\s*,\s*([A-Za-z]{2})\s*$/); if (!m) return null;
+  const st = m[2].toUpperCase(), d = await mktState(st); if (!d) return [];
+  const list = d.p[m[1].toLowerCase()] || [];
+  return list.map(z => decodeZip(z, d.z[z], d, st)).sort((a, b) => (b.pop || 0) - (a.pop || 0));
+}
+/* auto 1–5 scores for the metrics Census covers; index = MARKET_METRICS row */
+const step = (x, cuts, desc = true) => x == null ? null : desc ? (x >= cuts[0] ? 5 : x >= cuts[1] ? 4 : x >= cuts[2] ? 3 : x >= cuts[3] ? 2 : 1) : (x <= cuts[0] ? 5 : x <= cuts[1] ? 4 : x <= cuts[2] ? 3 : x <= cuts[3] ? 2 : 1);
+function autoScores(z) {
+  return {
+    0: step(z.growth, [5, 2, 0, -2]),
+    1: step(z.hhi, [0.085, 0.095, 0.105, 0.12], false),
+    2: step(z.incRatio, [3.5, 3, 2.5, 2]),
+    3: step(z.r2p, [1, 0.8, 0.65, 0.5]),
+    4: step(z.ownerOcc, [65, 55, 45, 35]),
+    5: step(z.vacancy, [5, 7, 10, 14], false)
+  };
+}
+const fmtP = (v, d = 1) => v == null || !isFinite(v) ? "—" : v.toFixed(d) + "%";
+const fmtD = v => v == null || !isFinite(v) ? "—" : "$" + Math.round(v).toLocaleString("en-US");
+function metricValue(r, z) {
+  switch (r) {
+    case 0: return `צמיחה ב-5 שנים: ${fmtP(z.growth)} · אוכלוסייה ${z.pop ? z.pop.toLocaleString("en-US") : "—"}`;
+    case 1: return `מדד ריכוזיות ענפים במחוז: ${z.hhi ?? "—"} (נמוך = מגוון) · אבטלה ${fmtP(z.unemp)}`;
+    case 2: return `הכנסה חציונית ${fmtD(z.income)} = פי ${z.incRatio ? z.incRatio.toFixed(1) : "—"} מהשכירות השנתית`;
+    case 3: return `שכירות חציונית ${fmtD(z.rent)} ÷ שווי חציוני ${fmtD(z.value)} = ${fmtP(z.r2p, 2)}`;
+    case 4: return `בעלי בתים: ${fmtP(z.ownerOcc)}`;
+    case 5: return `דירות ריקות: ${fmtP(z.vacancy)}`;
+    default: return "";
+  }
+}
+function zipLabel(z) { return `${z.zip}${z.place ? " · " + z.place : ""}, ${z.st}`; }
+
+/* county office finder: works for any US county via a prepared search */
+const COUNTY_OFFICES = [
+  ["Auditor / Assessor", "שווי, מס, בעלים והיסטוריית מכירות", "auditor OR assessor property search"],
+  ["Recorder / Register of Deeds", "משכנתאות, שעבודים ושטרי מכר", "recorder of deeds search"],
+  ["Treasurer — Delinquent Tax", "רשימת חובות מס נכס", "treasurer delinquent property tax list"],
+  ["Probate Court", "תיקי ירושה ומנהלי עיזבון", "probate court case search"],
+  ["Clerk of Courts", "תיקי עיקול ופינוי", "clerk of courts case search foreclosure"],
+  ["Sheriff Sales", "מכירות פומביות של נכסים מעוקלים", "sheriff sale real estate"],
+  ["Code Enforcement", "נכסים מוזנחים ועבירות בנייה", "code enforcement violations"]
+];
+function countyLinks(county, st) {
+  const where = `${county.replace(/ County$/i, "")} County ${ST_NAMES[st] || st}`;
+  return COUNTY_OFFICES.map(([n, d, q]) => `<a class="li" href="https://www.google.com/search?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">חפש ↗</span></a>`).join("");
+}
+async function runCountyFinder() {
+  const q = $("#cfIn").value.trim(), out = $("#cfOut");
+  let county = "", st = "";
+  if (/^\d{5}$/.test(q)) {
+    const z = await zipData(q);
+    if (z && !z.miss) { county = z.county; st = z.st; }
+    else { out.innerHTML = `<p class="small muted">${z === null ? "נתוני המיקודים עוד לא נטענו. כתוב מחוז ומדינה, למשל: Maricopa, AZ" : "לא מצאתי את המיקוד. כתוב מחוז ומדינה, למשל: Maricopa, AZ"}</p>`; return; }
+  } else {
+    const m = q.match(/^\s*(.+?)\s*,\s*([A-Za-z]{2})\s*$/);
+    if (!m) { out.innerHTML = `<p class="small" style="color:var(--red)">כתוב מיקוד (5 ספרות) או מחוז ומדינה, למשל: Maricopa, AZ</p>`; return; }
+    county = m[1]; st = m[2].toUpperCase();
+  }
+  out.innerHTML = `<p class="small"><b>${esc(county.replace(/ County$/i, ""))} County, ${esc(st)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). החיפוש מוצא את האתר הרשמי.</p><div class="list">${countyLinks(county, st)}</div>`;
 }
 
 /* ===================== CALCULATORS ===================== */
@@ -1254,7 +1353,8 @@ function defaults() {
   return {
     start: todayISO(), tasks: {}, quiz: {}, exam: {}, known: {}, dd: {}, calc: {},
     rehab: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
-    t2: { names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [3, 4, 3, 4, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: true, loc: 0 },
+    buy: [],
+    t2: { geo: [null, null, null], over: [[], [], []], names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4, 4, 3, 3, 3, 4, 4, 3, 3, 4], [3, 4, 3, 4, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]], notes: ["", "", ""], example: true, loc: 0 },
     t5: { role: 0, cands: {} },
     props: [],
     ui: { route: "home", sub: {}, cat: "yield", deals: "pipeline", pf: "all", editId: null, analyzing: null }
@@ -1648,7 +1748,8 @@ async function initStore() {
     refreshProps();
   } catch (e) {}
 }
-function renderPipeline() {
+function renderPipeline() { renderPipelineHTML(); fillAreas(); }
+function renderPipelineHTML() {
   const all = props(), today = todayISO(), counts = [0, 0, 0, 0, 0];
   all.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
   const due = all.filter(p => p.nextDate && p.nextDate <= today && p.status !== 5), f = S.ui.pf || "all";
@@ -1663,13 +1764,21 @@ function renderPipeline() {
   ${all.length ? `<div class="chips" role="group" aria-label="סינון">${chips.map(([k, l]) => `<button data-pf="${k}" aria-pressed="${k === f}">${l}</button>`).join("")}</div>` : ""}
   <section class="stack" style="gap:10px">${list.length ? list.map(propCard).join("") : all.length ? `<p class="muted">אין נכסים בסינון הזה.</p>` : `<div class="card stack" style="justify-items:start"><b style="font-family:var(--font-display)">עוד אין נכסים במעקב</b><span class="small muted">מצאת מודעה ב-Zillow, פוסט בפייסבוק או נכס ממתווך? הוסף אותו עם הלינק, ולחץ ״נתח״ כדי לקבל פסק דין.</span><button class="btn primary" data-go="prop-new">+ הוסף נכס ראשון</button></div>`}</section>`;
 }
+function fillAreas() {
+  $$(".area[data-zip]").forEach(el => zipData(el.dataset.zip).then(z => {
+    if (!z || z.miss || !el.isConnected) return;
+    const per = +el.dataset.rent / Math.max(1, +el.dataset.units), hi = z.rent && per > z.rent * 1.5;
+    el.innerHTML = `אזור ${esc(z.zip)}: הכנסה ${fmtD(z.income)} · Vacancy ${fmtP(z.vacancy)} · שכירות חציונית ${fmtD(z.rent)}${hi ? ` <span style="color:var(--yellow);font-weight:700">· השכירות ליחידה גבוהה ב-${Math.round((per / z.rent - 1) * 100)}% מהחציון באזור — לאמת</span>` : ""}`;
+  }));
+}
 function propCard(p) {
   const rp = +p.rent > 0 ? p.rent / p.price * 100 : NaN, link = safeUrl(p.link), over = p.nextDate && p.nextDate <= todayISO() && p.status !== 5, an = p.an;
   const ph = p.photos && p.photos.length ? p.photos[0].id : "";
   return `<div class="dcard">
     ${ph ? `<a href="/_blob/${esc(ph)}" target="_blank" rel="noopener"><img class="pthumb" src="/_blob/${esc(ph)}" alt="תמונת הנכס" loading="lazy"></a>` : ""}
     <div class="top"><span class="addr" dir="auto">${esc(p.addr)}</span>${p.source ? `<span class="pill">${esc(p.source)}</span>` : ""}</div>
-    <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}${+p.arv > 0 ? `<span class="pill">ARV <span class="num">${usd(+p.arv)}</span></span>` : ""}${p.photos && p.photos.length > 1 ? `<span class="pill">${p.photos.length} תמונות</span>` : ""}</div>
+    <div class="row"><span class="pill num">${usd(p.price)}</span>${p.units ? `<span class="pill">${esc(p.units)} יח׳</span>` : ""}${isFinite(rp) ? `<span class="pill ${rp >= 1 ? "good" : rp >= 0.8 ? "mid" : "bad"}">R/P <span class="num">${pct(rp, 2)}</span></span>` : ""}${p.zip ? `<span class="pill num">${esc(p.zip)}</span>` : ""}${S.buy.length && p.zip && !S.buy.includes(String(p.zip)) ? `<span class="pill mid">מחוץ ל-Buy Box</span>` : ""}${+p.arv > 0 ? `<span class="pill">ARV <span class="num">${usd(+p.arv)}</span></span>` : ""}${p.photos && p.photos.length > 1 ? `<span class="pill">${p.photos.length} תמונות</span>` : ""}</div>
+    ${p.zip ? `<div class="tiny muted area" data-zip="${esc(p.zip)}" data-rent="${esc(p.rent || "")}" data-units="${esc(p.units || 1)}"></div>` : ""}
     ${an ? `<div class="row"><span class="pill ${an.pass ? "good" : "bad"}">${an.pass ? "קונים ✓" : "לא קונים ✕"}</span><span class="small">CoC <span class="num">${pct(an.coc)}</span> · תזרים <span class="num">${usd(an.cf)}</span> · DSCR בנק <span class="num">${(+an.bank).toFixed(2)}</span></span></div>` : ""}
     ${p.nextAction || p.nextDate ? `<div class="small" style="color:${over ? "var(--red)" : "inherit"};font-weight:${over ? 700 : 400}">הצעד הבא: ${esc(p.nextAction || "—")}${p.nextDate ? ` · <span class="num">${esc(p.nextDate.split("-").reverse().join("/"))}</span>` : ""}</div>` : ""}
     <div class="row"><select class="sel" data-pst="${esc(p.id)}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${p.status === j ? "selected" : ""}>${s}</option>`).join("")}</select>
@@ -1775,23 +1884,60 @@ function renderTeam() {
 }
 const MARKET_SRC = [["Census", "https://data.census.gov"], ["FRED", "https://fred.stlouisfed.org"], ["Census", "https://data.census.gov"], ["Rentometer", "https://www.rentometer.com"], ["Census", "https://data.census.gov"], ["Census", "https://data.census.gov"], ["Redfin", "https://www.redfin.com"], ["Niche", "https://www.niche.com"], ["GreatSchools", "https://www.greatschools.org"], ["City-Data", "https://www.city-data.com"]];
 function viewMarket() {
-  return `<section class="stack" style="gap:6px"><span class="tiny muted">מודול 3 · כלי 2</span><h1>בחירת שוק ומיקוד</h1><p class="muted">דרג כל מיקום 1–5 לפי נתונים. הציון הגבוה מנצח, ושם מחפשים עסקאות.</p></section><div id="mwrap" class="stack" style="gap:12px"></div>`;
+  return `<section class="stack" style="gap:6px"><span class="tiny muted">מודול 3 · כלי 2</span><h1>בחירת שוק ומיקוד</h1><p class="muted">כל מיקוד בארה״ב. הקלד מיקוד או עיר, והנתונים והציון מתמלאים אוטומטית.</p></section><div id="mwrap" class="stack" style="gap:12px"></div>`;
 }
+let geoPick = [];
 function renderMarket() {
-  const v = S.t2, c = v.loc;
+  const v = S.t2, c = v.loc, g = v.geo[c], z = g && g.z;
   const tot = i => { let s = 0, mx = 0; MARKET_METRICS.forEach((_, r) => { s += v.scores[i][r] * v.weights[r]; mx += 5 * v.weights[r]; }); return Math.round(s / mx * 100); };
   const totals = [0, 1, 2].map(tot), best = Math.max(...totals), winners = [0, 1, 2].filter(i => totals[i] === best);
-  const allSame = v.scores.every(row => row.every(x => x === 3));
+  const allSame = v.scores.every(row => row.every(x => x === 3)), auto = z ? autoScores(z) : {};
+  const inBuy = z && S.buy.includes(z.zip);
   $("#mwrap").innerHTML = `
-  <div class="steps"><div><span>בחר מיקום למטה (לחיצה על הכרטיס)</span></div><div><span>לכל מדד: פתח את המקור, בדוק את הנתון ותן ציון 1–5</span></div><div><span>חזור על זה לשני המיקומים האחרים, והמנצח יופיע כאן</span></div></div>
+  <section class="card stack" style="gap:8px"><div class="row" style="justify-content:space-between"><b style="font-family:var(--font-display)">ה-Buy Box שלך</b><span class="tiny muted">המיקודים שבהם מחפשים עסקאות</span></div>
+    <div class="row">${S.buy.length ? S.buy.map(b => `<span class="pill dark num">${esc(b)}<button class="icon-btn" data-unbuy="${esc(b)}" aria-label="הסר ${esc(b)}" style="width:22px;height:22px;font-size:11px;margin-inline-start:4px">✕</button></span>`).join("") : `<span class="small muted">עוד ריק. טען מיקוד, דרג אותו ולחץ ״הוסף ל-Buy Box״.</span>`}</div></section>
   ${v.example ? `<div class="warnline row" style="justify-content:space-between"><span>הציונים הם דוגמה, לא נתונים אמיתיים.</span><button class="btn sm soft" id="mClear">התחל מאפס</button></div>` : ""}
-  <div class="verdict ${allSame ? "" : winners.length === 1 ? "good" : ""}" style="${allSame || winners.length > 1 ? "background:var(--soft);color:var(--ink)" : ""}">
-    <span class="small" style="opacity:.85">${allSame ? "עוד לא דירגת" : winners.length === 1 ? "המנצח — כאן מחפשים עסקאות" : "תיקו"}</span>
-    <div class="vt" style="font-size:1.8rem">${allSame ? "דרג לפי נתונים" : winners.length === 1 ? `${esc(v.names[winners[0]])} · ${best}` : winners.map(i => esc(v.names[i])).join(" / ")}</div></div>
-  <section class="calc-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" aria-pressed="${i === c}" style="justify-items:center;text-align:center;${i === c ? "outline:3px solid var(--brand);background:var(--brand-soft)" : ""}">${ring(totals[i], 60, 7, winners.includes(i) && !allSame ? "var(--green)" : "var(--soft-2)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b>${esc(v.names[i])}</b>${i === c ? `<span style="color:var(--brand-strong);font-weight:700">מדרג עכשיו</span>` : `<span>הקש לדירוג</span>`}</button>`).join("")}</section>
-  <label class="small muted">שם המיקום שמדרגים<input class="field-in" id="locName" value="${esc(v.names[c])}" style="background:var(--soft)"></label>
-  ${MARKET_METRICS.map((m, r) => `<div class="metric"><div class="mt"><b class="en">${m[0]}</b><a class="pill dark" href="${MARKET_SRC[r][1]}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">${MARKET_SRC[r][0]} ↗</a></div><span class="tiny muted">טוב = ${m[1]}</span><div class="mt"><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-ms="${r}-${x}" class="${v.scores[c][r] === x ? "on" : ""}" aria-label="ציון ${x}">${x}</button>`).join("")}</span><select class="wsel" data-w="${r}" aria-label="חשיבות">${[[1, "חשיבות רגילה"], [2, "חשוב"], [3, "קריטי"]].map(([x, l]) => `<option value="${x}" ${v.weights[r] == x ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>`).join("")}
-  <label class="small muted">מקורות ונימוק ל${esc(v.names[c])}<textarea class="field-in" id="locNote" rows="3" style="background:var(--soft)">${esc(v.notes[c])}</textarea></label>`;
+  <div class="verdict ${allSame ? "" : winners.length === 1 ? "good" : ""}">
+    <span class="small muted">${allSame ? "עוד לא דירגת" : winners.length === 1 ? "המנצח — כאן מחפשים עסקאות" : "תיקו"}</span>
+    <div class="vt" style="font-size:1.6rem">${allSame ? "טען מיקוד כדי להתחיל" : winners.length === 1 ? `${esc(v.names[winners[0]])} · ${best}` : winners.map(i => esc(v.names[i])).join(" / ")}</div></div>
+  <section class="calc-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" aria-pressed="${i === c}" style="justify-items:center;text-align:center;${i === c ? "outline:3px solid var(--brand);background:var(--brand-soft)" : ""}">${ring(totals[i], 60, 7, winners.includes(i) && !allSame ? "var(--green)" : "var(--soft-2)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b style="overflow-wrap:anywhere">${esc(v.names[i].split(" · ")[0])}</b>${v.names[i].includes(" · ") ? `<span class="tiny" style="overflow-wrap:anywhere">${esc(v.names[i].split(" · ").slice(1).join(" · "))}</span>` : ""}${i === c ? `<span style="color:var(--brand-strong);font-weight:700">מדרג עכשיו</span>` : `<span>הקש לדירוג</span>`}</button>`).join("")}</section>
+  <section class="card stack" style="gap:8px">
+    <label class="small muted" for="geoIn">מיקוד או עיר (למשל 43205 או Columbus, OH)</label>
+    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="geoIn" value="${esc(g ? g.q : "")}" placeholder="43205 / Columbus, OH" style="direction:ltr" autocomplete="off"><button class="btn primary" id="geoGo" style="flex:none">טען נתונים</button></div>
+    <div id="geoOut" class="stack" style="gap:8px"></div>
+    ${z ? `<div class="row" style="justify-content:space-between"><span class="pill good">מולא אוטומטית · Census ${esc(z.year)}</span><button class="btn sm ${inBuy ? "soft" : ""}" data-buy="${esc(z.zip)}">${inBuy ? "ב-Buy Box ✓" : "+ הוסף ל-Buy Box"}</button></div>
+      <span class="tiny muted">${esc(z.county)}${z.place ? " · " + esc(z.place) : ""} · בנייה חציונית ${z.built || "—"} · אבטלה במחוז ${fmtP(z.countyUnemp)}</span>` : ""}
+  </section>
+  <label class="small muted">שם המיקום שמדרגים<input class="field-in" id="locName" value="${esc(v.names[c])}"></label>
+  ${MARKET_METRICS.map((m, r) => { const has = z && auto[r] != null, over = v.over[c][r];
+    return `<div class="metric"><div class="mt"><b class="en">${m[0]}</b>${has ? `<span class="pill ${over ? "" : "good"}">${over ? "ידני" : "אוטומטי"}</span>` : `<a class="pill dark" href="${MARKET_SRC[r][1]}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">${MARKET_SRC[r][0]} ↗</a>`}</div>
+    ${has ? `<span class="small">${esc(metricValue(r, z))}</span>` : ""}<span class="tiny muted">טוב = ${m[1]}${z && !has ? " · אין נתון אוטומטי, דרג לפי המקור" : ""}</span>
+    <div class="mt"><span class="dots5">${[1, 2, 3, 4, 5].map(x => `<button data-ms="${r}-${x}" class="${v.scores[c][r] === x ? "on" : ""}" aria-label="ציון ${x}">${x}</button>`).join("")}</span><select class="wsel" data-w="${r}" aria-label="חשיבות">${[[1, "חשיבות רגילה"], [2, "חשוב"], [3, "קריטי"]].map(([x, l]) => `<option value="${x}" ${v.weights[r] == x ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>`; }).join("")}
+  <label class="small muted">מקורות ונימוק ל${esc(v.names[c])}<textarea class="field-in" id="locNote" rows="3">${esc(v.notes[c])}</textarea></label>`;
+}
+function applyGeo(c, z, q) {
+  const v = S.t2, auto = autoScores(z);
+  v.geo[c] = { q, z }; v.names[c] = zipLabel(z); v.example = false;
+  Object.entries(auto).forEach(([r, s]) => { if (s != null && !v.over[c][r]) v.scores[c][r] = s; });
+  save(); renderMarket(); toast(`נטענו נתונים ל-${z.zip}`);
+}
+async function loadGeo() {
+  const q = $("#geoIn").value.trim(), out = $("#geoOut"), c = S.t2.loc;
+  if (!q) return;
+  out.innerHTML = `<span class="small muted">טוען…</span>`;
+  const none = `<span class="small" style="color:var(--yellow)">נתוני השוק עוד לא נטענו לאפליקציה. בינתיים דרג ידנית לפי המקורות בכל מדד.</span>`;
+  if (/^\d{5}$/.test(q)) {
+    const z = await zipData(q);
+    if (z === null) { out.innerHTML = none; return; }
+    if (z.miss) { out.innerHTML = `<span class="small" style="color:var(--red)">לא מצאתי נתונים למיקוד ${esc(q)}. בדוק את המספר.</span>`; return; }
+    applyGeo(c, z, q); return;
+  }
+  if (!(await mktIndex())) { out.innerHTML = none; return; }
+  const list = await placeZips(q);
+  if (list === null) { out.innerHTML = `<span class="small" style="color:var(--red)">כתוב מיקוד (5 ספרות) או עיר ומדינה, למשל: Columbus, OH</span>`; return; }
+  if (!list.length) { out.innerHTML = `<span class="small" style="color:var(--red)">לא מצאתי את העיר. בדוק איות וקיצור מדינה (OH, TX, FL…).</span>`; return; }
+  geoPick = list;
+  out.innerHTML = `<span class="small">בחר מיקוד ב-${esc(q)} (הגדולים קודם):</span><div class="chips" style="flex-wrap:wrap">${list.slice(0, 30).map((z, i) => `<button data-pick="${i}"><span class="num">${z.zip}</span><span class="tiny muted"> · ${z.pop ? Math.round(z.pop / 1000) + "K" : "—"}</span></button>`).join("")}</div>`;
 }
 
 /* ===================== BACKUP ===================== */
@@ -1930,20 +2076,25 @@ function wire(r) {
   }
   if (r === "market") {
     const w = $("#mwrap");
-    {
-      renderMarket();
-      w.onclick = e => {
-        const t = e.target.closest("button"); if (!t) return;
-        if (t.dataset.loc) S.t2.loc = +t.dataset.loc;
-        else if (t.dataset.ms) { const [r2, x] = t.dataset.ms.split("-").map(Number); S.t2.scores[S.t2.loc][r2] = x; }
-        else if (t.id === "mClear") { S.t2.scores = [0, 1, 2].map(() => MARKET_METRICS.map(() => 3)); S.t2.example = false; }
-        else return;
-        save(); renderMarket();
-      };
-      w.onchange = e => { const t = e.target; if (t.dataset.w) { S.t2.weights[+t.dataset.w] = +t.value; save(); renderMarket(); } else if (t.id === "locName") { S.t2.names[S.t2.loc] = t.value; save(); renderMarket(); } };
-      w.oninput = e => { if (e.target.id === "locNote") { S.t2.notes[S.t2.loc] = e.target.value; save(); } };
-    }
+    renderMarket();
+    w.onclick = e => {
+      const t = e.target.closest("button"); if (!t) return;
+      const v = S.t2;
+      if (t.id === "geoGo") { loadGeo(); return; }
+      if (t.dataset.pick) { const z = geoPick[+t.dataset.pick]; if (z) applyGeo(v.loc, z, $("#geoIn").value.trim()); return; }
+      if (t.dataset.loc) v.loc = +t.dataset.loc;
+      else if (t.dataset.ms) { const [r2, x] = t.dataset.ms.split("-").map(Number); v.scores[v.loc][r2] = x; v.over[v.loc][r2] = true; }
+      else if (t.dataset.buy) { const z = t.dataset.buy; S.buy = S.buy.includes(z) ? S.buy.filter(x => x !== z) : [...S.buy, z]; }
+      else if (t.dataset.unbuy) S.buy = S.buy.filter(x => x !== t.dataset.unbuy);
+      else if (t.id === "mClear") { v.scores = [0, 1, 2].map(() => MARKET_METRICS.map(() => 3)); v.over = [[], [], []]; v.geo = [null, null, null]; v.names = ["מיקום 1", "מיקום 2", "מיקום 3"]; v.example = false; }
+      else return;
+      save(); renderMarket();
+    };
+    w.onkeydown = e => { if (e.target.id === "geoIn" && e.key === "Enter") { e.preventDefault(); loadGeo(); } };
+    w.onchange = e => { const t = e.target; if (t.dataset.w) { S.t2.weights[+t.dataset.w] = +t.value; save(); renderMarket(); } else if (t.id === "locName") { S.t2.names[S.t2.loc] = t.value; save(); renderMarket(); } };
+    w.oninput = e => { if (e.target.id === "locNote") { S.t2.notes[S.t2.loc] = e.target.value; save(); } };
   }
+  if (r === "sites" && $("#cfGo")) { $("#cfGo").onclick = runCountyFinder; $("#cfIn").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); runCountyFinder(); } }; }
   if (r === "backup") {
     $("#bkCopy").onclick = () => { const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי, העתק ידנית"); }; try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); } };
     $("#bkLoad").onclick = () => { const m = $("#bkMsg"); try { const o = JSON.parse($("#bkIn").value); if (!o || typeof o !== "object" || !o.tasks) throw 0; S = deepMerge(defaults(), o); save(); m.textContent = "שוחזר"; m.style.color = "var(--green)"; } catch (e) { m.textContent = "הקוד לא תקין. הדבק את כל הטקסט מהייצוא."; m.style.color = "var(--red)"; } };
