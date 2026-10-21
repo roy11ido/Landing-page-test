@@ -1,0 +1,1399 @@
+<title>מסלול נדל״ן ארה״ב</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky ledger-style tab bar, single reading column (max 1080px), cards only for interactive objects */
+:root {
+  --bg: #F2F4F6;
+  --surface: #FFFFFF;
+  --surface-2: #E9EDF1;
+  --ink: #15212C;
+  --muted: #5A6774;
+  --line: #D6DDE4;
+  --accent: #1D4C86;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E1E9F4;
+  --good: #1D7449;
+  --good-soft: #E0F1E8;
+  --warn: #9C6208;
+  --warn-soft: #FBEFD9;
+  --bad: #B0281F;
+  --bad-soft: #FBE3E1;
+  --font-display: "Frank Ruhl Libre", "David", "Times New Roman", serif;
+  --font-body: "IBM Plex Sans Hebrew", "Segoe UI", "Arial Hebrew", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E141A; --surface: #161F28; --surface-2: #1E2933; --ink: #E5ECF2; --muted: #9AA7B4; --line: #2B3844;
+    --accent: #86ADE3; --accent-ink: #0E141A; --accent-soft: #1B2B40;
+    --good: #5FC491; --good-soft: #15302A; --warn: #E2AA4D; --warn-soft: #33281A; --bad: #F0817A; --bad-soft: #3A1E1F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E141A; --surface: #161F28; --surface-2: #1E2933; --ink: #E5ECF2; --muted: #9AA7B4; --line: #2B3844;
+  --accent: #86ADE3; --accent-ink: #0E141A; --accent-soft: #1B2B40;
+  --good: #5FC491; --good-soft: #15302A; --warn: #E2AA4D; --warn-soft: #33281A; --bad: #F0817A; --bad-soft: #3A1E1F;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { direction: rtl; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+h3 { font-size: 1.1rem; font-weight: 700; font-family: var(--font-body); }
+p { margin: 0; }
+a { color: var(--accent); }
+.num, .ltr { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+.en { direction: ltr; unicode-bidi: isolate; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-inner { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px 4px; }
+.brand-name { font-family: var(--font-display); font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; }
+.seal { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--accent); }
+.mini-progress { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.mini-bar { width: 90px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.mini-bar i { display: block; height: 100%; background: var(--accent); }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { border: 0; background: none; padding: 10px 12px; cursor: pointer; color: var(--muted); font-weight: 500; white-space: nowrap; border-bottom: 2px solid transparent; }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+main { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 64px; display: grid; gap: 28px; }
+.stack { display: grid; gap: 14px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.eyebrow { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; min-width: 0; }
+.note { border-inline-start: 3px solid var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 14px; }
+.note.info { border-color: var(--accent); background: var(--accent-soft); }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--bad); }
+.btn.sm { padding: 4px 10px; font-size: 13px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.acc { background: var(--accent-soft); color: var(--accent); }
+.bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.bar.good i { background: var(--good); }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: start; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: var(--surface-2); font-weight: 600; font-size: 13px; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.term { font-weight: 600; white-space: nowrap; direction: ltr; unicode-bidi: isolate; text-align: right; }
+td.n, th.n { text-align: left; font-family: var(--font-mono); font-variant-numeric: tabular-nums; direction: ltr; white-space: nowrap; }
+
+/* home */
+.hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: stretch; }
+.hero-main { display: grid; gap: 12px; align-content: start; }
+.week-big { font-family: var(--font-mono); font-size: 3.4rem; font-weight: 600; line-height: 1; color: var(--accent); }
+.phases { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.phase { border-top: 4px solid var(--line); padding-top: 8px; font-size: 13px; min-width: 0; }
+.phase b { display: block; font-size: 13px; }
+.phase .muted { font-size: 12px; }
+.phase.done { border-color: var(--good); }
+.phase.now { border-color: var(--accent); }
+.method { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: m; }
+.method div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; font-size: 14px; min-width: 0; }
+.method div::before { counter-increment: m; content: counter(m); font-family: var(--font-mono); color: var(--accent); font-weight: 600; display: block; }
+.mods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mod-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 8px; cursor: pointer; text-align: start; min-width: 0; }
+.mod-card:hover { border-color: var(--accent); }
+.mod-card .mn { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.mod-card h3 { font-family: var(--font-display); font-size: 1.1rem; }
+.mod-card.current { box-shadow: 0 0 0 2px var(--accent); }
+
+/* module */
+.mod-head { display: grid; gap: 10px; }
+.subtabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.subtab { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 500; }
+.subtab[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.steps { margin: 0; padding-inline-start: 22px; display: grid; gap: 6px; }
+.steps li::marker { font-family: var(--font-mono); color: var(--accent); font-weight: 600; }
+ul.plain { margin: 0; padding-inline-start: 20px; display: grid; gap: 4px; }
+.formula { font-family: var(--font-mono); direction: ltr; text-align: left; background: var(--surface-2); padding: 10px 14px; border-radius: 8px; font-size: 14px; overflow-x: auto; }
+.tasks { display: grid; gap: 8px; }
+.task { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
+.task input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--good); flex: none; }
+.task.done span.t { color: var(--muted); text-decoration: line-through; }
+.task .t { flex: 1; min-width: 0; }
+.exam { border: 1px dashed var(--accent); border-radius: var(--r); padding: 14px; background: var(--accent-soft); display: grid; gap: 8px; }
+
+/* flashcards */
+.fc-wrap { display: grid; gap: 14px; justify-items: center; }
+.fc { width: min(560px, 100%); min-height: 220px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; display: grid; place-items: center; padding: 24px; text-align: center; cursor: pointer; }
+.fc .ft { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; direction: ltr; }
+.fc .fb { font-size: 1.05rem; max-width: 46ch; }
+.fc .fx { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+/* quiz */
+.q { display: grid; gap: 8px; padding-block: 14px; border-bottom: 1px solid var(--line); }
+.q:last-of-type { border-bottom: 0; }
+.q-title { font-weight: 600; }
+.q-title .qn { font-family: var(--font-mono); color: var(--muted); margin-inline-end: 6px; }
+.opts { display: grid; gap: 6px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; background: var(--surface); }
+.opt input { margin-top: 4px; flex: none; }
+.opt.correct { border-color: var(--good); background: var(--good-soft); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.q-ex { font-size: 13px; color: var(--muted); }
+.score { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.score .big { font-family: var(--font-mono); font-size: 2rem; font-weight: 600; }
+
+/* tools */
+.tool-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.field { display: grid; gap: 3px; min-width: 0; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select, textarea, .cell-in { border: 1px solid var(--line); background: var(--surface); border-radius: 7px; padding: 7px 10px; width: 100%; min-width: 0; }
+.field input[type="number"], .cell-in[type="number"] { font-family: var(--font-mono); direction: ltr; text-align: left; }
+.fieldset-title { grid-column: 1 / -1; font-weight: 600; font-size: 13px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--line); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; min-width: 0; }
+.kpi .k { font-size: 12px; color: var(--muted); }
+.kpi .v { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 600; direction: ltr; text-align: right; font-variant-numeric: tabular-nums; }
+.kpi.good { border-color: var(--good); }
+.kpi.bad { border-color: var(--bad); }
+.checks { display: grid; gap: 6px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--muted); }
+.dot.good { background: var(--good); }
+.dot.bad { background: var(--bad); }
+.verdict { padding: 12px 14px; border-radius: var(--r); font-weight: 600; }
+.verdict.good { background: var(--good-soft); color: var(--good); }
+.verdict.bad { background: var(--bad-soft); color: var(--bad); }
+.cell-in { padding: 5px 8px; font-size: 14px; }
+.cell-in.sc { width: 64px; }
+.tool-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.funnel { display: grid; gap: 8px; }
+.funnel-row { display: grid; grid-template-columns: 150px 1fr 70px; gap: 10px; align-items: center; font-size: 14px; }
+.funnel-row .bar { height: 14px; }
+.example-tag { font-size: 11px; color: var(--warn); font-weight: 600; }
+.search { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 14px; width: 100%; font-size: 15px; }
+.inline-confirm { display: inline-flex; gap: 6px; align-items: center; }
+.toast { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 8px; font-size: 14px; z-index: 20; }
+
+@media (max-width: 860px) {
+  .hero, .tool-grid { grid-template-columns: 1fr; }
+  .mods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .method { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .phases { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+}
+@media (max-width: 520px) {
+  .mods, .fields { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mini-bar { width: 50px; }
+  .funnel-row { grid-template-columns: 110px 1fr 56px; }
+  .week-big { font-size: 2.6rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="brand-name"><span class="seal">US</span>מסלול נדל״ן ארה״ב</div>
+      <div class="mini-progress"><span id="miniTxt">0%</span><span class="mini-bar"><i id="miniBar" style="width:0"></i></span></div>
+    </div>
+    <nav class="tabs" id="tabs" aria-label="ניווט ראשי"></nav>
+  </div>
+</header>
+<main id="app"></main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===================== CONTENT ===================== */
+const PHASES = [
+  { name: "יסודות", weeks: [1, 3], mods: "1–2", goal: "לדבר בשפה של השוק ולהבין איך זר מקבל מימון" },
+  { name: "ניתוח שוק", weeks: [4, 5], mods: "3", goal: "לבחור עיר ו-3 מיקודים לפי נתונים" },
+  { name: "ניתוח עסקה", weeks: [6, 10], mods: "4", goal: "לנתח עסקה מלאה לבד (מבחן הסמכה)" },
+  { name: "ביצוע וצוות", weeks: [11, 14], mods: "5–6", goal: "לעבור עסקה מהצעה ועד סגירה ולבחור בעלי מקצוע" },
+  { name: "שותפים, מס, תפעול", weeks: [15, 18], mods: "7–8", goal: "לבנות שותפות נכונה ולהבין מה קורה אחרי הקנייה" },
+  { name: "צנרת חיה", weeks: [19, 24], mods: "9", goal: "למצוא עסקה טובה מתוך עשרות עסקאות" }
+];
+
+const MODULES = [
+{
+  id: "m1", n: 1, title: "המערכת האמריקאית ומושגי יסוד", weeks: [1, 2],
+  goal: "להבין איך השוק האמריקאי בנוי ובמה הוא שונה מישראל, כדי שכל מודול אחר ייבנה על בסיס נכון.",
+  sections: [
+    { type: "terms", title: "סוגי נכסים", rows: [
+      ["Single-Family (SFR)", "בית פרטי לבד על מגרש. דייר אחד, פשוט לנהל, אבל אם הדייר עוזב ההכנסה יורדת ל-0."],
+      ["Duplex / Triplex / Quadplex", "בניין עם 2/3/4 דירות. נחשב נדל״ן למגורים, ולכן מקבל מימון נוח יחסית."],
+      ["Multifamily", "כל בניין עם יותר מדירה אחת. מ-5 יחידות ומעלה נחשב נדל״ן מסחרי, עם כללי מימון ושמאות אחרים."],
+      ["Condo", "דירה בבניין משותף, כמו דירה בישראל. משלמים HOA."],
+      ["HOA", "ועד בית עם סמכויות: דמי חודש, כללים, ולפעמים איסור על השכרה."],
+      ["Class A / B / C / D", "דירוג שכונה או נכס. A = חדש ויוקרתי, B = מעמד ביניים יציב, C = ישן ושכונה חלשה יותר, D = פשיעה גבוהה ודיירים בעייתיים. משקיעים מתחילים מכוונים ל-B ול-B-."]
+    ]},
+    { type: "terms", title: "שחקנים ומערכות", rows: [
+      ["MLS", "מאגר הנכסים המשותף של המתווכים. רוב הנכסים למכירה מופיעים שם, ומשם הם מגיעים ל-Zillow."],
+      ["On-Market / Off-Market", "נכס שמפורסם ב-MLS, לעומת נכס שנמכר בשקט דרך קשרים. עסקאות off-market לרוב זולות יותר."],
+      ["Listing Agent / Buyer's Agent", "המתווך של המוכר והמתווך של הקונה. בדרך כלל המוכר משלם את העמלה של שניהם."],
+      ["Wholesaler", "אדם שמשיג נכס בחוזה במחיר נמוך ומוכר את החוזה לקונה אחר תמורת עמלה. מקור טוב לעסקאות, אבל דורש בדיקה כפולה."],
+      ["Turnkey Provider", "חברה שמוכרת נכס משופץ עם דייר ועם ניהול. נוח, אבל לרוב יקר, ויש הרבה משווקים כאלה שפונים לישראלים."],
+      ["Property Manager", "חברת ניהול שמוצאת דיירים, גובה שכירות ומטפלת בתיקונים. לרוב גובה 8%–10% מהשכירות."]
+    ]},
+    { type: "terms", title: "מסים ועלויות קבועות", rows: [
+      ["Property Tax", "מס שנתי שבעל הנכס משלם, כאחוז משווי הנכס. באוהיו בערך 1.5%–2.5% (לא בטוח, מאמתים לפי מחוז). ההוצאה הכי גדולה אחרי המשכנתא."],
+      ["Reassessment", "שיערוך של המחוז לשווי הנכס, לרוב אחרי מכירה. יכול להעלות את המס. לכן מחשבים מס לפי מחיר הקנייה שלך."],
+      ["Landlord Insurance", "ביטוח למשכיר: מבנה, אחריות כלפי צד ג׳ ואובדן שכירות."],
+      ["Utilities", "מים, חשמל, גז, ביוב, אשפה. חשוב לדעת מי משלם: הדייר או אתה."]
+    ]},
+    { type: "terms", title: "חוקי שכירות", rows: [
+      ["Lease", "חוזה שכירות, לרוב ל-12 חודשים."],
+      ["Security Deposit", "פיקדון של הדייר, לרוב שכירות של חודש."],
+      ["Eviction", "פינוי דייר שלא משלם. באוהיו נחשב מהיר יחסית, כמה שבועות. זה אחד הדברים שבודקים בבחירת מדינה."],
+      ["Landlord-Friendly State", "מדינה שהחוקים בה מאזנים לטובת המשכיר. אוהיו נחשבת כזו."],
+      ["Section 8", "תכנית ממשלתית שמשלמת חלק מהשכירות של דיירים מעוטי הכנסה. תשלום יציב, אבל עם בדיקות ובירוקרטיה."],
+      ["Lead Paint Disclosure", "חובת גילוי על צבע עופרת בבתים שנבנו לפני 1978."]
+    ]}
+  ],
+  tasks: [
+    "משימת אבחון: הסבר במילים שלך, בלי לחפש, 15 מושגים: NOI, Cap Rate, Cash-on-Cash, DSCR, LTV, Vacancy, CapEx, Comps, ARV, Escrow, Title Insurance, Closing Costs, Contingency, Appraisal, Property Tax",
+    "מצא ב-Zillow בניין של 2–4 יחידות בקולומבוס ב-200–350 אלף דולר. נחש: שכירות לכל יחידה, הוצאות חודשיות מפורטות ותזרים נטו. שלח לי",
+    "האזן ל-3 פרקים של BiggerPockets Real Estate Podcast וכתוב 3 דברים שלמדת מכל פרק",
+    "פתח 10 מודעות של נכסי 2–4 יחידות בקולומבוס ובסינסינטי ב-Zillow ו-Redfin. רשום לכל אחת: מחיר, יחידות, שנת בנייה, מס שנתי (מופיע במודעה)"
+  ],
+  exam: "אני שואל 20 שאלות על המושגים. עוברים עם 17 תשובות נכונות.",
+  passPct: 85,
+  quiz: [
+    { q: "מה זה NOI?", o: ["הרווח אחרי תשלום המשכנתא", "הכנסה אפקטיבית פחות הוצאות תפעול, לפני משכנתא", "השכירות הברוטו השנתית", "התזרים שנכנס לכיס כל חודש"], a: 1, x: "NOI = EGI − OpEx. הרווח של הנכס עצמו, לפני משכנתא." },
+    { q: "איך מחשבים Cap Rate?", o: ["תזרים שנתי חלקי ההון שהושקע", "NOI שנתי חלקי מחיר הנכס", "NOI חלקי תשלומי החוב", "שכירות חודשית חלקי מחיר"], a: 1, x: "Cap Rate משווה בין נכסים בלי קשר למימון: NOI שנתי / מחיר." },
+    { q: "Cash-on-Cash מודד:", o: ["כמה ריבית ההון שלך מקבל: תזרים שנתי חלקי כל המזומן שהשקעת", "את שווי הנכס אחרי שיפוץ", "את יחס כיסוי החוב", "את אחוז ההלוואה מתוך שווי הנכס"], a: 0, x: "CoC = תזרים שנתי / סך המזומן שהושקע." },
+    { q: "DSCR של 1.25 אומר ש:", o: ["ההלוואה היא 125% משווי הנכס", "ה-NOI גדול ב-25% מתשלומי המשכנתא", "התשואה על ההון היא 12.5%", "הנכס מושכר ב-125% ממחיר השוק"], a: 1, x: "DSCR = NOI / Debt Service. 1.25 הוא הסף שרוב הבנקים רוצים." },
+    { q: "LTV של 75% על נכס של 200,000$. מה גובה ההלוואה?", o: ["50,000$", "125,000$", "150,000$", "175,000$"], a: 2, x: "75% × 200,000 = 150,000. המקדמה היא ה-25% הנותרים." },
+    { q: "למה מחשבים Vacancy גם כשהבניין מלא?", o: ["כי הבנק מחייב", "כי לאורך זמן תמיד יש תקופות ריקות בין דיירים, לרוב 5%–8%", "כדי להוריד את המס", "לא מחשבים אם הבניין מלא"], a: 1, x: "Vacancy הוא אחוז הזמן שדירות ריקות. מחשבים 5%–8% גם בבניין מלא." },
+    { q: "CapEx הוא:", o: ["ההוצאה החודשית על חשמל", "הפרשה לתיקונים גדולים: גג, דוד, מזגן, חלונות", "עמלת חברת הניהול", "מס רכישה"], a: 1, x: "לא הוצאה חודשית, אבל אם לא מפרישים היא נופלת בבת אחת." },
+    { q: "Comps הם:", o: ["עמלות של המתווך", "נכסים דומים שנמכרו או הושכרו לאחרונה באזור", "דוחות של חברת הניהול", "תנאי ההלוואה"], a: 1, x: "בעזרת Comps בודקים מחיר ושכירות." },
+    { q: "ARV פירושו:", o: ["השווי אחרי שיפוץ", "שכירות שנתית ממוצעת", "דירוג שכונה", "מחיר הקנייה"], a: 0, x: "After Repair Value." },
+    { q: "Escrow הוא:", o: ["חברת הניהול", "גורם ניטרלי שמחזיק את הכסף עד הסגירה", "סוג הלוואה לזרים", "מס על מכירה"], a: 1, x: "דומה לחשבון נאמנות אצל עו״ד בישראל." },
+    { q: "Title Insurance מגן עליך מפני:", o: ["נזקי מים", "דייר שלא משלם", "בעיה בבעלות שתתגלה אחרי הקנייה", "עליית ריבית"], a: 2, x: "ביטוח בעלות. משלמים פעם אחת בסגירה." },
+    { q: "Closing Costs נעים לרוב בטווח של:", o: ["0.5%–1% מהמחיר", "2%–5% מהמחיר", "8%–10% מהמחיר", "15% מהמחיר"], a: 1, x: "עו״ד או חברת title, עמלות בנק, שמאי, ביטוח title." },
+    { q: "Contingency בחוזה הוא:", o: ["סעיף יציאה, למשל אם בדק הבית נכשל או המימון לא אושר", "קנס על פירעון מוקדם", "פיקדון רצינות", "סוג של ביטוח"], a: 0, x: "Inspection, Appraisal ו-Financing הם הנפוצים." },
+    { q: "Appraisal הוא:", o: ["בדק בית", "השמאות של הבנק שמעריך את הנכס", "רשימת הדיירים", "דוח 12 חודשים אחרונים"], a: 1, x: "אם השמאות נמוכה מהמחיר, הבנק יממן פחות." },
+    { q: "Property Tax באוהיו נע בערך בין:", o: ["0.2%–0.5% לשנה", "1.5%–2.5% לשנה", "5%–7% לשנה", "10% לשנה"], a: 1, x: "לא בטוח, מאמתים לפי מחוז. ההוצאה הכי גדולה אחרי המשכנתא." },
+    { q: "למה מחשבים מס נכס לפי מחיר הקנייה שלך ולא לפי המס שמופיע במודעה?", o: ["כי המודעה תמיד שגויה", "כי אחרי מכירה המחוז עושה Reassessment והמס יכול לעלות", "כי זרים משלמים מס כפול", "אין הבדל"], a: 1, x: "המס של המוכר הקודם יכול להיות מבוסס על שווי ישן." },
+    { q: "Quadplex נחשב:", o: ["נדל״ן מסחרי", "נדל״ן למגורים, ולכן מקבל מימון נוח יחסית", "קרקע", "Condo"], a: 1, x: "עד 4 יחידות = מגורים. מ-5 ומעלה = מסחרי." },
+    { q: "נכס Class C הוא:", o: ["חדש ויוקרתי", "מעמד ביניים יציב", "ישן ובשכונה חלשה יותר", "אזור פשיעה גבוהה"], a: 2, x: "משקיעים מתחילים מכוונים ל-B ול-B-." },
+    { q: "Wholesaler הוא:", o: ["בנק שמממן זרים", "מי שמשיג נכס בחוזה במחיר נמוך ומוכר את החוזה תמורת עמלה", "חברת ניהול", "שמאי"], a: 1, x: "מקור טוב לעסקאות, אבל דורש בדיקה כפולה." },
+    { q: "Property Manager גובה לרוב:", o: ["1%–2% מהשכירות", "8%–10% מהשכירות", "25% מהשכירות", "סכום קבוע של 1,000$"], a: 1, x: "פלוס לרוב Leasing Fee על מציאת דייר." }
+  ]
+},
+{
+  id: "m2", n: 2, title: "מימון למשקיע זר", weeks: [3, 3],
+  goal: "לדעת בדיוק כמה הון אתה צריך, באילו תנאים תקבל הלוואה, ומה זה עושה לתזרים.",
+  sections: [
+    { type: "terms3", title: "מושגי מימון", head: ["מושג", "הסבר", "דוגמה"], rows: [
+      ["Down Payment", "המקדמה, החלק שאתה משלם מהכיס. לזרים לרוב 25%–35%.", "נכס ב-250,000$ עם 25% = 62,500$"],
+      ["LTV (Loan-to-Value)", "אחוז ההלוואה מתוך שווי הנכס. ההפך של המקדמה.", "75% LTV = הבנק מממן 187,500$"],
+      ["DSCR Loan", "הלוואה שהבנק נותן לפי הכנסות הנכס ולא לפי המשכורת שלך. זה המסלול המרכזי לזרים.", "—"],
+      ["DSCR (יחס כיסוי חוב)", "הכנסה תפעולית נטו חלקי תשלום המשכנתא. הבנקים רוצים לפחות 1.0–1.25.", "NOI של 1,500$ בחודש ומשכנתא של 1,200$ = 1.25"],
+      ["Interest Rate", "הריבית השנתית. לזרים לרוב גבוהה ב-1%–2% מאשר לאזרחים (לא בטוח, נאמת מול ברוקרים).", "—"],
+      ["Points", "עמלה מראש לבנק. נקודה אחת = 1% מסכום ההלוואה.", "2 נקודות על 187,500$ = 3,750$"],
+      ["Prepayment Penalty", "קנס על פירעון מוקדם, נפוץ בהלוואות DSCR, לרוב ל-3–5 שנים. חשוב אם תרצה למכור או למחזר מוקדם.", "—"],
+      ["Amortization", "פריסת ההלוואה, לרוב 30 שנה. בכל תשלום חלק הולך לריבית וחלק לקרן.", "—"],
+      ["Reserves", "כסף שהבנק דורש שיישאר בחשבון אחרי הסגירה, לרוב 6–12 תשלומי משכנתא.", "6 × 1,300$ = 7,800$"],
+      ["Closing Costs", "עלויות הסגירה: עו״ד או חברת title, עמלות הבנק, שמאי, ביטוח title. לרוב 2%–5% מהמחיר.", "—"],
+      ["Cash to Close", "כל הכסף שצריך ביום הסגירה: מקדמה, עלויות סגירה, נקודות.", "—"],
+      ["Hard Money Loan", "הלוואה קצרה ויקרה (ריבית של 10%–14%) לקנייה ושיפוץ. משמשת לפליפ ול-BRRRR.", "—"],
+      ["Refinance / Cash-Out Refi", "מחזור: לוקחים משכנתא חדשה לפי שווי חדש ומוציאים מזומן.", "—"],
+      ["Seasoning", "התקופה שהבנק דורש לחכות מהקנייה עד שיסכים למחזר לפי שווי חדש, לרוב 6–12 חודשים.", "—"],
+      ["LLC", "חברה אמריקאית שמחזיקה בנכס. מגינה על הנכסים האישיים שלך מתביעות.", "—"],
+      ["EIN / ITIN", "EIN הוא מספר מזהה מס של החברה. ITIN הוא מספר מזהה מס אישי לזר.", "—"],
+      ["סיכון מט״ח", "ההון שלך בשקלים והנכס בדולרים. שינוי בשער משנה את התשואה שלך בשקלים.", "—"]
+    ]}
+  ],
+  tasks: [
+    "מצא 3 מלווים או ברוקרים שעושים DSCR loans לזרים (Foreign National DSCR). רשום לכל אחד: מקדמה מינימלית, ריבית משוערת, נקודות, קנס פירעון מוקדם, רזרבות, מחיר נכס מינימלי",
+    "בנה איתי את ״מחשבון המימון״ (כלי 1): מכניסים מחיר, מקדמה וריבית, ומקבלים תשלום חודשי, Cash to Close ותקציב קנייה מקסימלי",
+    "חשב מה המחיר המקסימלי שאתה יכול לקנות לפי ההון שיש לך בפועל"
+  ],
+  toolLinks: ["t1"],
+  exam: "אני נותן לך נכס ותנאי הלוואה. אתה מחשב Cash to Close, תשלום חודשי ו-DSCR, בטווח של ±5% מהחישוב שלי.",
+  passPct: 80,
+  quiz: [
+    { q: "נכס ב-300,000$ עם מקדמה של 25%. כמה המקדמה?", o: ["60,000$", "75,000$", "90,000$", "225,000$"], a: 1, x: "25% × 300,000 = 75,000." },
+    { q: "הלוואת DSCR ניתנת לפי:", o: ["המשכורת שלך בישראל", "הכנסות הנכס", "דירוג האשראי הישראלי", "שווי הדירה שלך בישראל"], a: 1, x: "לכן זה המסלול המרכזי לזרים." },
+    { q: "2 נקודות על הלוואה של 200,000$ הן:", o: ["2,000$", "4,000$", "20,000$", "400$"], a: 1, x: "נקודה = 1% מסכום ההלוואה." },
+    { q: "Prepayment Penalty בהלוואות DSCR נמשך לרוב:", o: ["חודש", "3–5 שנים", "30 שנה", "אין כזה דבר"], a: 1, x: "קריטי אם תכנית היציאה היא מכירה או מחזור מוקדם." },
+    { q: "Seasoning הוא:", o: ["הזמן שהבנק דורש לחכות לפני מחזור לפי שווי חדש, לרוב 6–12 חודשים", "תקופת בדק הבית", "עונת השכירות", "זמן הפינוי של דייר"], a: 0, x: "משפיע ישירות על BRRRR." },
+    { q: "רזרבות שהבנק דורש הן לרוב:", o: ["חודש משכנתא אחד", "6–12 תשלומי משכנתא", "10% מהמחיר", "אין דרישה"], a: 1, x: "6 × 1,300 = 7,800$ בדוגמה." },
+    { q: "Hard Money Loan מתאימה ל:", o: ["החזקה ל-30 שנה", "קנייה ושיפוץ קצרי טווח (פליפ / BRRRR)", "קניית Condo", "מימון מס נכס"], a: 1, x: "ריבית של 10%–14%, קצרה ויקרה." },
+    { q: "Cash to Close כולל:", o: ["רק את המקדמה", "מקדמה, עלויות סגירה ונקודות", "רק עלויות סגירה", "את המשכנתא כולה"], a: 1, x: "רזרבות הן כסף שנשאר בחשבון בנוסף." },
+    { q: "ITIN הוא:", o: ["מספר מזהה מס של LLC", "מספר מזהה מס אישי לזר", "סוג הלוואה", "רישיון מתווך"], a: 1, x: "EIN = של החברה. ITIN = אישי." },
+    { q: "למה סיכון מט״ח רלוונטי לך?", o: ["כי הבנק האמריקאי גובה בשקלים", "כי ההון בשקלים והנכס בדולרים, ושינוי בשער משנה את התשואה בשקלים", "כי אסור להעביר דולרים", "הוא לא רלוונטי"], a: 1, x: "" }
+  ]
+},
+{
+  id: "m3", n: 3, title: "ניתוח שוק ושכונות", weeks: [4, 5],
+  goal: "להכריע בין קולומבוס לסינסינטי לפי נתונים, ולבחור 3 מיקודים שבהם תחפש עסקאות. בוחרים שוק ושכונה לפני שמסתכלים על נכס, כי נכס טוב בשכונה גרועה הוא עסקה גרועה.",
+  sections: [
+    { type: "steps", title: "שלוש רמות ניתוח", items: [
+      "<b>רמת העיר (MSA):</b> האם אנשים ועבודות מגיעים לעיר?",
+      "<b>רמת המיקוד (Zip Code):</b> האם זו שכונה ששוכרים טובים רוצים לגור בה?",
+      "<b>רמת הרחוב:</b> האם הבלוק הספציפי בסדר? לפעמים שני רחובות באותו מיקוד שונים לגמרי."
+    ]},
+    { type: "terms3", title: "מושגים", head: ["מושג", "הסבר", "מה מחפשים"], rows: [
+      ["MSA", "אזור מטרופוליני: העיר והפרברים סביבה. ככה מודדים נתוני שוק.", "—"],
+      ["Population Growth", "שינוי באוכלוסייה לאורך זמן.", "צמיחה יציבה בכל אחת מ-5 השנים האחרונות"],
+      ["Job Diversification", "כמה ענפים שונים מעסיקים בעיר. עיר שתלויה במעסיק אחד מסוכנת.", "הרבה ענפים, אף מעסיק לא שולט"],
+      ["Median Household Income", "הכנסה חציונית למשק בית.", "לפחות פי 3 מהשכירות השנתית שתגבה"],
+      ["Rent-to-Price Ratio", "שכירות חודשית חלקי מחיר הנכס. מראה אם המספרים יכולים לעבוד.", "מעל 0.8% טוב, 1% מצוין (״כלל ה-1%״ הוא רק סינון ראשוני)"],
+      ["Owner-Occupancy Rate", "אחוז הבתים שהבעלים גרים בהם.", "גבוה יותר = שכונה יציבה יותר"],
+      ["Vacancy Rate (אזורי)", "אחוז הדירות הריקות באזור.", "מתחת ל-7%"],
+      ["Days on Market (DOM)", "כמה זמן נכס עומד למכירה או להשכרה.", "נמוך = ביקוש גבוה"],
+      ["Crime Map", "מפת פשיעה לפי רחוב.", "בלי ריכוז של פשיעה אלימה"],
+      ["Flood Zone", "אזור בסיכון הצפה לפי מפות FEMA. מחייב ביטוח יקר.", "להימנע מ-Zone A/AE"],
+      ["School Rating", "דירוג בתי ספר. משפחות שוכרות לפי זה.", "5 ומעלה מתוך 10 ב-GreatSchools"],
+      ["Path of Progress", "אזור שהפיתוח העירוני מתקדם לכיוונו: השקעות, עסקים חדשים, תשתיות.", "פרויקטים חדשים בסביבה"]
+    ]},
+    { type: "list", title: "כלים", items: [
+      "<span class='en'>Census.gov, FRED</span>: אוכלוסייה, הכנסות, תעסוקה",
+      "<span class='en'>Niche.com, City-Data.com, GreatSchools.org</span>: נתוני שכונה ובתי ספר",
+      "<span class='en'>Zillow, Redfin, Rentometer</span>: מחירים ושכירות",
+      "אתר מס הנכס של המחוז (<span class='en'>Franklin County Auditor</span> לקולומבוס, <span class='en'>Hamilton County Auditor</span> לסינסינטי): מס בפועל והיסטוריית מכירות",
+      "<span class='en'>Google Street View</span>: ״נסיעה״ ברחוב מישראל"
+    ]}
+  ],
+  tasks: [
+    "מלא את ״כרטיס ניקוד שוק״ (כלי 2) לקולומבוס ולסינסינטי: 10 מדדים, ציון לכל אחד",
+    "בחר 6 מיקודים מועמדים (3 בכל עיר). לכל אחד: הכנסה חציונית, שכירות ממוצעת ל-2 חדרי שינה, מחיר ממוצע ל-2–4 יחידות, פשיעה, בתי ספר",
+    "״סיור״ ב-Street View ב-3 רחובות בכל מיקוד. רשום מה ראית: בתים מוזנחים, מכוניות, עסקים",
+    "צמצם ל-3 מיקודים סופיים וכתוב פסקה של נימוק לכל אחד"
+  ],
+  toolLinks: ["t2"],
+  exam: "אתה מציג לי את הבחירה שלך ואני מנסה להפיל אותה. עוברים אם כל טענה נשענת על נתון עם מקור.",
+  passPct: 80,
+  quiz: [
+    { q: "השאלה ברמת העיר (MSA) היא:", o: ["האם הבלוק בסדר?", "האם אנשים ועבודות מגיעים לעיר?", "האם יש בית ספר טוב?", "מה המס בנכס?"], a: 1, x: "" },
+    { q: "בית ב-150,000$ שמושכר ב-1,200$ בחודש. מה ה-Rent-to-Price?", o: ["0.5%", "0.8%", "1.2%", "8%"], a: 1, x: "1,200 / 150,000 = 0.8%. טוב, אבל זה רק סינון ראשוני." },
+    { q: "הכנסה חציונית במיקוד צריכה להיות לפחות:", o: ["שווה לשכירות השנתית", "פי 3 מהשכירות השנתית שתגבה", "פי 10 מהשכירות החודשית", "אין קשר"], a: 1, x: "" },
+    { q: "Vacancy אזורי רצוי:", o: ["מתחת ל-7%", "בין 10% ל-15%", "מעל 20%", "לא משנה"], a: 0, x: "" },
+    { q: "מאיזה אזור הצפה להימנע?", o: ["Zone X", "Zone A/AE", "Zone C", "אין צורך לבדוק"], a: 1, x: "מחייב ביטוח הצפה יקר." },
+    { q: "עיר שתלויה במעסיק אחד גדול היא:", o: ["יציבה במיוחד", "מסוכנת, כי אם הוא עוזב השוק קורס", "אידיאלית למשקיעים", "לא רלוונטי"], a: 1, x: "מחפשים Job Diversification." },
+    { q: "DOM נמוך מעיד על:", o: ["ביקוש גבוה", "ביקוש נמוך", "מחירים יורדים", "פשיעה"], a: 0, x: "" },
+    { q: "איפה בודקים מס נכס בפועל והיסטוריית מכירות בקולומבוס?", o: ["Zillow בלבד", "Franklin County Auditor", "GreatSchools", "FEMA"], a: 1, x: "בסינסינטי: Hamilton County Auditor." },
+    { q: "למה בוחרים שכונה לפני נכס?", o: ["כי זה יותר מהיר", "כי נכס טוב בשכונה גרועה הוא עסקה גרועה", "כי הבנק דורש", "אין סיבה"], a: 1, x: "" }
+  ]
+},
+{
+  id: "m4", n: 4, title: "ניתוח עסקה מלא", weeks: [6, 10],
+  goal: "לקחת כל מודעה ולהגיע בתוך 45 דקות לתשובה מבוססת: האם הנכס מרוויח, כמה, ומה יכול להשתבש.",
+  sections: [
+    { type: "steps", title: "שרשרת הניתוח (תמיד באותו סדר)", items: [
+      "הכנסה ברוטו (Gross Rent): השכירות המלאה של כל היחידות",
+      "פחות דירות ריקות (Vacancy), מקבלים הכנסה אפקטיבית (EGI)",
+      "פחות הוצאות תפעול (OpEx), מקבלים רווח תפעולי נקי (NOI)",
+      "פחות משכנתא (Debt Service), מקבלים תזרים לכיס (Cash Flow)",
+      "תזרים חלקי ההון שהשקעת, מקבלים תשואה על ההון (Cash-on-Cash)"
+    ]},
+    { type: "terms", title: "מושגים ונוסחאות", rows: [
+      ["Gross Rent", "השכירות אם כל הדירות מושכרות כל השנה."],
+      ["Market Rent", "השכירות שאפשר לגבות היום בשוק. לא תמיד שווה לשכירות הנוכחית בנכס."],
+      ["Vacancy", "אחוז הזמן שדירות ריקות. מחשבים 5%–8% גם אם הבניין מלא."],
+      ["EGI", "ההכנסה בפועל אחרי ניכוי דירות ריקות."],
+      ["OpEx", "כל הוצאות ההחזקה בלי המשכנתא: מס, ביטוח, ניהול, תחזוקה, CapEx, utilities."],
+      ["CapEx", "הפרשה לתיקונים גדולים: גג, דוד, מזגן, חלונות. לא הוצאה חודשית, אבל אם לא מפרישים היא נופלת בבת אחת."],
+      ["NOI", "הרווח של הנכס עצמו, לפני משכנתא. המדד הכי חשוב."],
+      ["Cap Rate", "NOI שנתי חלקי מחיר. תשואת הנכס כאילו קנית במזומן. משווה בין נכסים בלי קשר למימון."],
+      ["Debt Service", "תשלומי המשכנתא (קרן + ריבית)."],
+      ["Cash Flow", "מה שנכנס לכיס שלך בכל חודש."],
+      ["Cash-on-Cash (CoC)", "תזרים שנתי חלקי כל המזומן שהשקעת. כמה ריבית ההון שלך מקבל."],
+      ["Equity Paydown", "החלק בתשלום המשכנתא שמקטין את הקרן. הדיירים ״חוסכים״ בשבילך."],
+      ["Appreciation", "עליית ערך. בונוס, לא בסיס לעסקה."],
+      ["IRR", "תשואה שנתית ממוצעת על כל חיי העסקה, כולל תזרים, החזר קרן ומכירה. נלמד בסוף המודול."],
+      ["Comps", "עסקאות השוואה: נכסים דומים שנמכרו או הושכרו לאחרונה באזור. ככה בודקים מחיר ושכירות."],
+      ["ARV", "השווי אחרי שיפוץ."],
+      ["Rehab Budget", "תקציב השיפוץ, תמיד עם 10%–15% בלת״מ."],
+      ["Rule of 50%", "כלל אצבע: הוצאות התפעול הן בערך 40%–50% מההכנסה ברוטו. אם יצא לך 25%, כנראה שכחת משהו."],
+      ["Rule of 70%", "לפליפ: מחיר קנייה מקסימלי = ARV × 70% פחות עלות השיפוץ."],
+      ["Stress Test", "בדיקה מה קורה לתזרים כשדברים משתבשים."]
+    ]},
+    { type: "formulas", title: "נוסחאות", items: ["NOI = EGI − OpEx", "Cap Rate = NOI(annual) / Price", "CoC = Cash Flow(annual) / Total Cash Invested", "DSCR = NOI / Debt Service"] },
+    { type: "example", title: "דוגמה מלאה (מספרים להמחשה, לא נתוני שוק)" },
+    { type: "list", title: "הקריטריונים שלך לעסקה (Buy Box) — טיוטה שנקבע יחד", items: [
+      "CoC של 10% לפחות בתרחיש הבסיס",
+      "תזרים חיובי בתרחיש ה-stress",
+      "DSCR של 1.25 לפחות",
+      "רק במיקודים שבחרת במודול 3"
+    ]}
+  ],
+  tasks: [
+    "בנה איתי את ״מחשבון העסקה״ (כלי 3) כולל לשונית stress test",
+    "נתח 10 נכסים אמיתיים מ-Zillow: שכירות מאומתת ב-Rentometer, מס מאתר המחוז, הצעת ביטוח משוערת",
+    "לכל נכס: 3 comps של מכירה ו-3 comps של שכירות",
+    "שבוע 9: נתח 2 נכסים שצריכים שיפוץ, עם ״מעריך השיפוץ״ (כלי 4)",
+    "שבוע 10: נתח עסקת BRRRR אחת עם LTV של 70% ו-seasoning של 12 חודשים"
+  ],
+  toolLinks: ["t3", "t4"],
+  exam: "מבחן הסמכה: אני שולח לך מודעה אמיתית. בתוך 45 דקות אתה מחזיר ניתוח מלא. עוברים אם ה-NOI והתזרים שלך בטווח של ±10% מהניתוח שלי, ואם זיהית את 2 הסיכונים המרכזיים.",
+  passPct: 80,
+  quiz: [
+    { q: "מה הסדר הנכון של שרשרת הניתוח?", o: ["NOI → EGI → Gross → CF", "Gross → EGI → NOI → Cash Flow → CoC", "Gross → NOI → EGI → CoC", "CoC → NOI → EGI → Gross"], a: 1, x: "" },
+    { q: "NOI שנתי של 24,000$ ומחיר של 300,000$. מה ה-Cap Rate?", o: ["6%", "8%", "12.5%", "80%"], a: 1, x: "24,000 / 300,000 = 8%." },
+    { q: "תזרים שנתי של 6,000$ על השקעה של 60,000$. מה ה-CoC?", o: ["1%", "6%", "10%", "60%"], a: 2, x: "6,000 / 60,000 = 10%." },
+    { q: "NOI חודשי של 1,500$ ומשכנתא של 1,200$. מה ה-DSCR?", o: ["0.8", "1.0", "1.25", "1.5"], a: 2, x: "1,500 / 1,200 = 1.25." },
+    { q: "יצא לך שההוצאות הן 25% מהברוטו. מה המסקנה?", o: ["עסקה מצוינת", "כנראה שכחת הוצאה. הכלל הוא 40%–50%", "צריך להעלות שכירות", "צריך מימון אחר"], a: 1, x: "Rule of 50%." },
+    { q: "ARV של 200,000$ ושיפוץ של 30,000$. מחיר מקסימלי לפי Rule of 70%?", o: ["110,000$", "140,000$", "170,000$", "100,000$"], a: 0, x: "200,000 × 0.7 − 30,000 = 110,000." },
+    { q: "עסקה שהופכת לשלילית בתרחיש ה-stress:", o: ["קונים אם ה-Cap Rate גבוה", "לא קונים", "קונים עם מקדמה גדולה יותר בלי לבדוק", "קונים ומקווים לעליית ערך"], a: 1, x: "" },
+    { q: "Appreciation בניתוח עסקה היא:", o: ["הבסיס להחלטה", "בונוס, לא בסיס", "חובה לחשב 5% בשנה", "חלק מה-NOI"], a: 1, x: "" },
+    { q: "תקציב שיפוץ תמיד כולל:", o: ["בלת״מ של 10%–15%", "רווח של 50%", "את מס הנכס", "את ה-Points"], a: 0, x: "" },
+    { q: "Market Rent לעומת השכירות הנוכחית בנכס:", o: ["תמיד זהות", "לא תמיד שוות, ובודקים אותה עם Rentometer ו-comps", "Market Rent תמיד נמוכה", "לא רלוונטי"], a: 1, x: "" }
+  ]
+},
+{
+  id: "m5", n: 5, title: "בדיקת נאותות ותהליך הקנייה", weeks: [11, 12],
+  goal: "לדעת מה קורה מרגע הגשת הצעה ועד קבלת מפתח, ומה בודקים בכל שלב. ההבדל המרכזי מישראל: בארה״ב חותמים על הסכם ורק אז בודקים, בתוך חלון זמן קצר.",
+  sections: [
+    { type: "steps", title: "מהלך העסקה", items: [
+      "<b class='en'>Offer</b>: הצעת מחיר בכתב דרך המתווך שלך, עם תנאים",
+      "<b class='en'>Purchase Agreement</b>: המוכר חותם, ונכנסים ל״חוזה״ (Under Contract)",
+      "<b class='en'>Earnest Money</b>: כהוכחת רצינות מפקידים 1%–3% ב-escrow",
+      "<b class='en'>Due Diligence Period</b>: 7–14 ימים לבדק בית ולבדיקת מסמכים",
+      "<b class='en'>Appraisal</b>: השמאי של הבנק מעריך את הנכס",
+      "<b class='en'>Title Search</b>: בדיקה שאין שעבודים או בעיות בבעלות",
+      "<b class='en'>Clear to Close</b>: הבנק מאשר סופית",
+      "<b class='en'>Closing</b>: חתימה (אפשר מרחוק), העברת כסף, קבלת הבעלות"
+    ]},
+    { type: "terms", title: "מושגים", rows: [
+      ["Earnest Money (EMD)", "פיקדון רצינות. אם יוצאים מהעסקה בלי סיבה שמופיעה בחוזה, מפסידים אותו."],
+      ["Escrow", "גורם ניטרלי שמחזיק את הכסף עד הסגירה. דומה לחשבון נאמנות אצל עו״ד."],
+      ["Title Company", "החברה שבודקת את הבעלות ומנהלת את הסגירה. באוהיו היא מחליפה חלק ממה שעו״ד עושה בישראל."],
+      ["Title Insurance", "ביטוח שמגן עליך אם תתגלה בעיה בבעלות אחרי הקנייה."],
+      ["Lien", "שעבוד על הנכס: משכנתא, חוב מס, חוב לקבלן."],
+      ["Contingency", "סעיף יציאה. Inspection = אם בדק הבית נכשל, Appraisal = אם השמאות נמוכה, Financing = אם המימון לא אושר."],
+      ["Home Inspection", "בדק בית מלא. בנכס ישן מוסיפים בדיקות ייעודיות."],
+      ["Sewer Scope", "צילום מצלמה של צנרת הביוב עד הרחוב. תיקון יכול לעלות 10,000–20,000 דולר."],
+      ["Rent Roll", "רשימת הדיירים: שכירות, תאריך סיום חוזה, פיקדון, פיגורים."],
+      ["Estoppel Certificate", "אישור חתום מכל דייר על תנאי השכירות שלו. מוודא שהמוכר לא ״ייפה״ את ה-rent roll."],
+      ["T-12", "דוח הכנסות והוצאות של 12 החודשים האחרונים."],
+      ["Repair Request / Credit", "אחרי בדק בית, מבקשים מהמוכר לתקן או להוריד מחיר."],
+      ["Closing Disclosure", "מסמך סופי עם כל העלויות. בודקים כל שורה לפני החתימה."],
+      ["Wire Fraud", "הונאה נפוצה: מייל מזויף ״מחברת ה-title״ עם פרטי חשבון אחרים. תמיד מאמתים בטלפון למספר מוכר."]
+    ]},
+    { type: "list", title: "מה לבדוק בבדק בית (לפי סדר עלות)", items: [
+      "גג: גיל וחומר", "יסודות: סדקים ורטיבות במרתף", "ביוב: sewer scope", "חשמל: לוח ישן, חיווט אלומיניום או knob-and-tube",
+      "HVAC ודוד מים: גיל ומצב", "צנרת: חומר (צינורות פוליבוטילן ידועים כבעייתיים)", "עופרת ואסבסט בבתים ישנים"
+    ]}
+  ],
+  tasks: [
+    "בנה איתי את ״צ׳קליסט בדיקת נאותות״ (כלי 6) מהצעה ועד סגירה",
+    "קרא דוגמה של הסכם רכישה של אוהיו (אמצא לך מקור) וסמן את כל הסעיפים שמגינים עליך",
+    "קרא דוח בדק בית אמיתי לדוגמה ותרגם כל ממצא לעלות משוערת",
+    "כתוב ״הצעה על נייר״ לאחד הנכסים שניתחת: מחיר, contingencies, לוחות זמנים, נימוק"
+  ],
+  toolLinks: ["t6"],
+  exam: "אני נותן לך T-12, rent roll ודוח בדק בית עם 3 בעיות מוסתרות. אתה צריך למצוא אותן ולהחליט: להמשיך, לבקש הנחה, או לצאת.",
+  passPct: 80,
+  quiz: [
+    { q: "מה ההבדל המרכזי מישראל בתהליך הקנייה?", o: ["בארה״ב לא בודקים בכלל", "בארה״ב חותמים על הסכם ורק אז בודקים, בתוך חלון זמן קצר", "בארה״ב חייבים להגיע פיזית לסגירה", "אין הבדל"], a: 1, x: "" },
+    { q: "Earnest Money הוא לרוב:", o: ["1%–3% ב-escrow", "25% מקדמה", "עמלת מתווך", "מס רכישה"], a: 0, x: "" },
+    { q: "Due Diligence Period נמשך לרוב:", o: ["יום אחד", "7–14 ימים", "6 חודשים", "שנה"], a: 1, x: "" },
+    { q: "Estoppel Certificate נועד ל:", o: ["לאשר את המימון", "לוודא מול כל דייר שהמוכר לא ״ייפה״ את ה-rent roll", "לבטח את הבעלות", "לפנות דייר"], a: 1, x: "" },
+    { q: "קיבלת מייל ״מחברת ה-title״ עם פרטי חשבון חדשים. מה עושים?", o: ["מעבירים מיד כדי לא לפספס את הסגירה", "מתקשרים למספר מוכר ומאמתים לפני כל העברה", "עונים למייל ושואלים אם זה נכון", "מעבירים חצי"], a: 1, x: "Wire Fraud היא הונאה נפוצה." },
+    { q: "תיקון צנרת ביוב שמתגלה ב-Sewer Scope יכול לעלות:", o: ["100–500$", "10,000–20,000$", "100,000$", "אין עלות"], a: 1, x: "" },
+    { q: "T-12 הוא:", o: ["דוח הכנסות והוצאות של 12 החודשים האחרונים", "חוזה ל-12 חודשים", "12 נקודות על ההלוואה", "תקופת seasoning"], a: 0, x: "" },
+    { q: "Lien הוא:", o: ["פיקדון של דייר", "שעבוד על הנכס: משכנתא, חוב מס, חוב לקבלן", "סוג ביטוח", "סעיף יציאה"], a: 1, x: "Title Search אמור לגלות אותו." }
+  ]
+},
+{
+  id: "m6", n: 6, title: "הצוות: מי צריך ואיך מודדים כל אחד", weeks: [13, 14],
+  goal: "לבנות צוות שעובד בשבילך מרחוק, ולבחור כל איש מקצוע לפי מספרים ולא לפי תחושה. משקיע מרחוק טוב בדיוק כמו הצוות שלו בשטח.",
+  sections: [
+    { type: "roles", title: "בעלי המקצוע" },
+    { type: "terms", title: "מושגים", rows: [
+      ["Investor-Friendly Agent", "מתווך שמבין במספרים של משקיעים, לא רק בבתים למגורים."],
+      ["Management Agreement", "החוזה עם חברת הניהול. בודקים: עמלות, תנאי יציאה, סכום מקסימלי לתיקון בלי אישור שלך."],
+      ["Leasing Fee", "עמלה על מציאת דייר, לרוב 50%–100% משכירות חודש."],
+      ["Delinquency Rate", "אחוז הדיירים שמפגרים בתשלום."],
+      ["Turnover", "החלפת דייר: ניקיון, צבע, תיקונים וחודש ריק."],
+      ["Licensed & Insured", "לקבלן יש רישיון וביטוח. בלי זה אתה חשוף לתביעה."],
+      ["Draw Schedule", "תשלום לקבלן בשלבים לפי התקדמות מתועדת, לא מראש."]
+    ]}
+  ],
+  tasks: [
+    "בנה איתי ״כרטיס ראיון וניקוד״ לכל תפקיד (כלי 5)",
+    "ראיין 3 מתווכים, 3 חברות ניהול ו-2 ברוקרים. מלא כרטיס ניקוד לכל אחד",
+    "בקש מכל חברת ניהול דוח חודשי לדוגמה והשווה",
+    "בחר זוכה אחד בכל תפקיד וכתוב שורת נימוק"
+  ],
+  toolLinks: ["t5"],
+  exam: "אני משחק חברת ניהול שמסתירה בעיות. אתה צריך לזהות 3 דגלים אדומים בראיון.",
+  passPct: 80,
+  quiz: [
+    { q: "דגל אדום אצל מתווך למשקיעים:", o: ["שולח comps", "מדבר רק על עליית ערך ולא יודע מספרים", "שואל על ה-Buy Box שלך", "הוא בעצמו משקיע"], a: 1, x: "" },
+    { q: "דגל אדום אצל חברת ניהול:", o: ["יש דוחות חודשיים", "אין דוחות חודשיים, עמלות נסתרות על תיקונים", "שואלת על סכום מקסימלי לתיקון", "מספרת את אחוז הפיגורים"], a: 1, x: "" },
+    { q: "השאלה החשובה לסוכן ביטוח:", o: ["כמה שנים אתה בעסק?", "מה מכוסה ב-loss of rent?", "איפה המשרד?", "אתה דובר עברית?"], a: 1, x: "" },
+    { q: "קבלן שדורש 50% מקדמה הוא:", o: ["נורמלי לגמרי", "דגל אדום. משלמים לפי Draw Schedule", "סימן לאיכות", "חובה לפי חוק"], a: 1, x: "" },
+    { q: "Leasing Fee הוא לרוב:", o: ["5% מהשכירות", "50%–100% משכירות חודש", "שכירות של שנה", "אין כזה"], a: 1, x: "" },
+    { q: "מה מודדים אצל רו״ח דו-לאומי?", o: ["כמה עוקבים יש לו", "ניסיון עם ישראלים ו-1040-NR", "כמה הוא זול", "אם יש לו משרד בניו יורק"], a: 1, x: "דגל אדום: מכיר רק צד אחד." },
+    { q: "מה בודקים ב-Management Agreement?", o: ["רק את העמלה החודשית", "עמלות, תנאי יציאה וסכום מקסימלי לתיקון בלי אישור", "את הלוגו", "כלום, זה סטנדרטי"], a: 1, x: "" }
+  ]
+},
+{
+  id: "m7", n: 7, title: "שותפים, משקיעים ומבני עסקה", weeks: [15, 16],
+  goal: "לדעת מתי שותף שווה את זה, איך מחלקים רווחים בצורה הוגנת, ואיך מזהים שותף או משווק שעלול לפגוע בך. שותף לא נכון מסוכן יותר מעסקה לא נכונה.",
+  sections: [
+    { type: "terms3", title: "סוגי שותפויות", head: ["מבנה", "איך זה עובד", "מתי מתאים לך"], rows: [
+      ["JV (Joint Venture)", "שותפות על עסקה אחת: צד אחד מביא כסף, השני מביא עבודה וידע בשטח.", "עסקה ראשונה עם שותף מקומי מנוסה"],
+      ["שותפות הון", "כמה משקיעים שמים כסף יחד בנכס אחד, דרך LLC.", "כשההון שלך לא מספיק לבד"],
+      ["Syndication", "משקיע מקצועי (GP) מגייס כסף מהרבה משקיעים (LP) לבניין גדול.", "השקעה פסיבית, אחרי שאתה יודע לבדוק אותה"],
+      ["Private Lending", "אתה מלווה כסף למשקיע אחר בריבית, עם שעבוד על הנכס.", "תשואה קבועה בלי ניהול"]
+    ]},
+    { type: "terms", title: "מושגים", rows: [
+      ["GP (General Partner)", "השותף המנהל: מוצא, מנהל, אחראי. מקבל עמלות וחלק מהרווח."],
+      ["LP (Limited Partner)", "שותף פסיבי: שם כסף, לא מנהל, אחריות מוגבלת להשקעה שלו."],
+      ["Operating Agreement", "הסכם השותפות ב-LLC: מי מחליט, איך מחלקים, מה קורה אם מישהו רוצה לצאת. הכי חשוב לבדוק עם עו״ד."],
+      ["Capital Contribution", "כמה כסף כל שותף מכניס."],
+      ["Capital Call", "דרישה לכסף נוסף כשנגמר התקציב. צריך לדעת מה קורה אם שותף לא משלם."],
+      ["Preferred Return (Pref)", "תשואה מינימלית שה-LP מקבל לפני שה-GP מקבל רווח, לרוב 6%–8%."],
+      ["Waterfall", "סדר חלוקת הכסף: קודם החזר הון, אחר כך pref, ואז חלוקה לפי אחוזים."],
+      ["Equity Split", "חלוקת הבעלות, למשל 70/30 בין מי שמביא כסף למי שמביא עבודה."],
+      ["Acquisition / Asset Management Fee", "עמלות שה-GP גובה על הקנייה ועל הניהול השוטף."],
+      ["Track Record", "היסטוריית העסקאות של השותף: כמה, איך הסתיימו, כולל כישלונות."],
+      ["Buy-Sell Clause", "סעיף שקובע איך שותף אחד קונה את השני כשיש מחלוקת."]
+    ]},
+    { type: "list", title: "איך בודקים שותף", items: [
+      "דורשים רשימה של כל העסקאות הקודמות, כולל מספרים וכתובות, ומאמתים באתר המחוז שהוא באמת הבעלים",
+      "מדברים עם 2–3 שותפים קודמים שהוא לא בחר בשבילך",
+      "בודקים תביעות משפטיות נגדו באתר בית המשפט של המחוז",
+      "מתחילים בעסקה קטנה אחת לפני שמתחייבים לעוד"
+    ]},
+    { type: "list", title: "דגלים אדומים של משווקים לישראלים", warn: true, items: [
+      "״תשואה מובטחת ל-X שנים״ או ״דייר מובטח״",
+      "אותה חברה מוכרת, משפצת ומנהלת, בלי בודק בית חיצוני",
+      "לחץ זמן: ״יש עוד 3 משקיעים על הנכס״",
+      "מחיר מעל ה-comps ״כי זה turnkey״",
+      "לא נותנים לך לדבר ישירות עם חברת הניהול או לבחור בודק משלך"
+    ]}
+  ],
+  tasks: [
+    "בנה איתי ״צ׳קליסט בדיקת שותף״ (כלי 6, לשונית שנייה)",
+    "קרא Operating Agreement לדוגמה וסמן: חלוקת רווחים, החלטות, capital call, יציאה",
+    "נתח הצעת סינדיקציה אמיתית אחת: עמלות, pref, waterfall, הנחות. כתוב אם היית משקיע ולמה",
+    "על אחד הנכסים שניתחת: בנה תרחיש JV. מי מביא מה, איך מחלקים, ומה קורה בכל תרחיש יציאה"
+  ],
+  toolLinks: ["t6"],
+  exam: "אני מציג לך הצעת שותפות עם 3 סעיפים בעייתיים. אתה מוצא אותם ומציע ניסוח חלופי.",
+  passPct: 80,
+  quiz: [
+    { q: "LP הוא:", o: ["השותף המנהל", "שותף פסיבי עם אחריות מוגבלת להשקעה שלו", "המלווה", "חברת הניהול"], a: 1, x: "" },
+    { q: "Preferred Return נע לרוב בין:", o: ["1%–2%", "6%–8%", "20%–30%", "אין טווח"], a: 1, x: "" },
+    { q: "הסדר ב-Waterfall:", o: ["חלוקה לפי אחוזים → pref → החזר הון", "החזר הון → pref → חלוקה לפי אחוזים", "pref → עמלות GP → החזר הון", "הכל במקביל"], a: 1, x: "" },
+    { q: "Capital Call הוא:", o: ["שיחת טלפון עם המשקיעים", "דרישה לכסף נוסף כשנגמר התקציב", "מכירת הנכס", "פירעון הלוואה"], a: 1, x: "צריך לדעת מה קורה אם שותף לא משלם." },
+    { q: "משווק אומר: ״תשואה מובטחת ל-5 שנים״. זה:", o: ["סימן לביטחון", "דגל אדום", "סטנדרט בשוק", "דרישה של הבנק"], a: 1, x: "" },
+    { q: "איך מאמתים track record של שותף?", o: ["סומכים על המצגת שלו", "בודקים באתר המחוז שהוא באמת הבעלים של הנכסים שהוא מציג", "שואלים ב-Facebook", "לא צריך"], a: 1, x: "" },
+    { q: "JV מתאים במיוחד ל:", o: ["עסקה ראשונה עם שותף מקומי מנוסה", "השקעה פסיבית לגמרי", "הלוואה בריבית קבועה", "בניין של 200 יחידות"], a: 0, x: "" }
+  ]
+},
+{
+  id: "m8", n: 8, title: "מיסוי, תפעול ויציאה", weeks: [17, 18],
+  goal: "להבין כמה מס תשלם בפועל בשתי המדינות, איך מפקחים על הנכס מרחוק, ואיך יוצאים מהעסקה. לא נועד להחליף רו״ח, אלא לאפשר לך לשאול אותו את השאלות הנכונות.",
+  sections: [
+    { type: "terms", title: "מיסוי", rows: [
+      ["1040-NR", "דוח המס השנתי בארה״ב לזר שאינו תושב. חובה להגיש גם אם אין רווח."],
+      ["Depreciation (פחת)", "ניכוי שנתי של שווי המבנה (בלי הקרקע) על פני 27.5 שנים. מקטין את הרווח החייב במס, לפעמים עד אפס."],
+      ["Effectively Connected Income", "בחירה לדווח על השכירות כהכנסה עסקית, כדי לנכות הוצאות במקום לשלם 30% על ההכנסה ברוטו."],
+      ["Depreciation Recapture", "במכירה, מס על הפחת שניכית לאורך השנים."],
+      ["Capital Gains", "מס על הרווח במכירה."],
+      ["FIRPTA", "חובת ניכוי במקור של עד 15% ממחיר המכירה כשזר מוכר נכס בארה״ב. חשוב לתכנון תזרים."],
+      ["State Tax", "מס הכנסה של מדינת אוהיו על הכנסות מהנכס."],
+      ["Foreign Tax Credit", "זיכוי בישראל על מס ששולם בארה״ב, לפי אמנת המס. מונע כפל מס."],
+      ["דיווח בישראל", "ההכנסה מהנכס מדווחת גם לרשות המסים בישראל. המסלולים והשיעורים כאן דורשים רו״ח שמכיר את שני הצדדים."]
+    ]},
+    { type: "kpis", title: "תפעול: מה עוקבים בכל חודש", rows: [
+      ["שכירות שנגבתה מתוך שכירות שמגיעה", "97% ומעלה"],
+      ["תפוסה", "93% ומעלה"],
+      ["ימים להשכרת דירה ריקה", "פחות מ-30"],
+      ["הוצאות תחזוקה מתוך ההכנסה", "בתוך התקציב שהנחת בניתוח"],
+      ["הפרש בין התזרים בפועל לניתוח שלך", "פחות מ-10%"]
+    ]},
+    { type: "terms", title: "יציאה", rows: [
+      ["Hold", "ממשיכים להחזיק ולקבל תזרים."],
+      ["Sell", "מוכרים ומממשים רווח."],
+      ["Refinance", "ממחזרים ומוציאים הון בלי למכור ובלי אירוע מס."],
+      ["1031 Exchange", "מכירה וקנייה של נכס חלופי בתוך זמן מוגדר, עם דחיית מס הרווח. כללים מסובכים לזרים, בודקים עם רו״ח."]
+    ]}
+  ],
+  tasks: [
+    "חשב את הפחת השנתי לנכס מהדוגמה במודול 4 (בהנחה ש-20% מהשווי הוא קרקע)",
+    "הכן 10 שאלות לרו״ח דו-לאומי וקבע פגישת היכרות אחת",
+    "בנה איתי ״דוח חודשי לבעלים״ (כלי 7, לשונית שנייה) שמשווה בפועל מול הניתוח"
+  ],
+  exam: "אני נותן לך דוח חודשי של חברת ניהול עם בעיה מוסתרת. אתה מוצא אותה וכותב לחברת הניהול מייל עם דרישה ספציפית.",
+  passPct: 80,
+  quiz: [
+    { q: "נכס ב-260,000$, 20% קרקע. מה הפחת השנתי?", o: ["9,455$", "7,564$", "5,200$", "260,000$"], a: 1, x: "260,000 × 80% = 208,000 / 27.5 = 7,564$ בשנה." },
+    { q: "1040-NR מגישים:", o: ["רק אם יש רווח", "כל שנה, גם אם אין רווח", "רק במכירה", "אף פעם, מגישים רק בישראל"], a: 1, x: "" },
+    { q: "למה בוחרים Effectively Connected Income?", o: ["כדי לשלם 30% על הברוטו", "כדי לנכות הוצאות במקום לשלם 30% על ההכנסה ברוטו", "כדי לקבל הלוואה", "כדי להימנע מ-FIRPTA"], a: 1, x: "" },
+    { q: "FIRPTA הוא:", o: ["ניכוי במקור של עד 15% ממחיר המכירה כשזר מוכר", "מס נכס שנתי", "ביטוח בעלות", "סוג של LLC"], a: 0, x: "" },
+    { q: "Foreign Tax Credit:", o: ["מבטל את המס בארה״ב", "זיכוי בישראל על מס ששולם בארה״ב, לפי אמנת המס", "הלוואה לזרים", "פטור ממס נכס"], a: 1, x: "" },
+    { q: "יעד גבייה חודשי סביר:", o: ["80%", "90%", "97% ומעלה", "50%"], a: 2, x: "" },
+    { q: "Refinance כאסטרטגיית יציאה מאפשר:", o: ["להוציא הון בלי למכור ובלי אירוע מס", "לדחות מס על מכירה", "לבטל את המשכנתא", "לקבל פטור מ-FIRPTA"], a: 0, x: "" }
+  ]
+},
+{
+  id: "m9", n: 9, title: "צנרת עסקאות חיה ואיך מוצאים עסקה טובה", weeks: [19, 24],
+  goal: "להגיע לעסקה אחת ששווה הצעה אמיתית. עסקה טובה היא כמעט תמיד תוצאה של כמות: מסננים עשרות כדי למצוא אחת.",
+  sections: [
+    { type: "steps", title: "המשפך (Deal Funnel)", items: [
+      "<b>50</b> נכסים עוברים סינון מהיר של 5 דקות: מיקוד נכון, מחיר בטווח, rent-to-price מעל 0.8%",
+      "<b>20</b> נכסים עוברים ניתוח מלא במחשבון",
+      "<b>5</b> נכסים עוברים את ה-Buy Box ואת ה-stress test",
+      "<b>3</b> נכסים מקבלים ״הצעה על נייר״ שאתה מגן עליה מולי",
+      "<b>1</b> נכס עובר לבדיקה עם הצוות בשטח ולהצעה אמיתית"
+    ]},
+    { type: "terms3", title: "איפה מוצאים עסקאות", head: ["מקור", "יתרון", "חיסרון"], rows: [
+      ["MLS (Zillow, Redfin)", "הכי הרבה נכסים, נתונים זמינים", "הכי הרבה תחרות"],
+      ["מתווך למשקיעים", "מקבל נכסים לפני שהם עולים, מכיר את השטח", "תלוי באיכות שלו"],
+      ["Wholesalers", "מחירים נמוכים, off-market", "הרבה עסקאות ״מנופחות״, חובה לאמת הכל"],
+      ["חברות ניהול", "מכירות בעלים עייפים שרוצים למכור", "צריך קשר טוב"],
+      ["Price Drops / Stale Listings", "נכס שעומד מעל 60 יום, המוכר גמיש יותר", "לפעמים יש סיבה שהוא לא נמכר"],
+      ["קבוצות משקיעים מקומיות", "עסקאות ושותפים", "הרבה רעש"]
+    ]},
+    { type: "terms", title: "מושגים", rows: [
+      ["Deal Flow", "זרם העסקאות שמגיע אליך באופן קבוע."],
+      ["Motivated Seller", "מוכר שצריך למכור: ירושה, גירושין, מעבר, בעל בית עייף. שם יש הנחות."],
+      ["Price Reduction", "הורדת מחיר במודעה. סימן לגמישות."],
+      ["Value-Add", "נכס שאפשר להעלות את ערכו: שכירות מתחת לשוק, שיפוץ קל, הוספת חדר כביסה או חנייה."],
+      ["Underwriting", "ניתוח העסקה לפי ההנחות שלך, לא לפי המודעה."],
+      ["Pro Forma", "התחזית של המוכר או המתווך. כמעט תמיד אופטימית, לא מסתמכים עליה."],
+      ["LOI (Letter of Intent)", "מכתב כוונות לא מחייב עם התנאים המרכזיים, נפוץ בבניינים גדולים."],
+      ["Walk-Away Price", "המחיר המקסימלי שקבעת מראש. מעליו אתה יוצא, בלי רגש."]
+    ]}
+  ],
+  tasks: [
+    "פתח את ״טראקר צנרת העסקאות״ (כלי 7) ועדכן אותו בכל שבוע",
+    "10 נכסים בשבוע עוברים סינון, 3 בשבוע עוברים ניתוח מלא",
+    "בקש מהמתווך שבחרת לשלוח לך נכסים לפי ה-Buy Box שלך",
+    "הצטרף ל-2 קבוצות משקיעים מקומיות ותעקוב אחרי העסקאות שמתפרסמות",
+    "שבוע 22–24: ״הצעה על נייר״ ל-3 נכסים, ואחד עובר לבדיקה עם הצוות"
+  ],
+  toolLinks: ["t7"],
+  exam: "מבחן סיום: אתה מציג לי עסקה אחת מתחילתה ועד סופה: שוק, מיקוד, ניתוח, stress test, צוות, מבנה מימון ומחיר הצעה. אני מנסה להפיל אותה. אם היא עומדת, אתה מוכן להגיש הצעה אמיתית.",
+  passPct: 80,
+  quiz: [
+    { q: "כמה נכסים נכנסים לראש המשפך כדי להגיע להצעה אחת?", o: ["5", "10", "50", "500"], a: 2, x: "50 → 20 → 5 → 3 → 1." },
+    { q: "Pro Forma של המוכר:", o: ["בסיס אמין לניתוח", "כמעט תמיד אופטימית, לא מסתמכים עליה", "מסמך משפטי מחייב", "דוח של הבנק"], a: 1, x: "Underwriting = לפי ההנחות שלך." },
+    { q: "Walk-Away Price הוא:", o: ["המחיר שהמוכר מבקש", "המחיר המקסימלי שקבעת מראש, ומעליו אתה יוצא", "המחיר אחרי שיפוץ", "מחיר השמאות"], a: 1, x: "" },
+    { q: "Stale Listing הוא נכס ש:", o: ["נמכר אתמול", "עומד מעל 60 יום, והמוכר גמיש יותר", "ב-Flood Zone", "בלי דיירים"], a: 1, x: "לפעמים יש סיבה שהוא לא נמכר." },
+    { q: "Motivated Seller הוא:", o: ["מוכר שצריך למכור: ירושה, גירושין, מעבר, בעל בית עייף", "מתווך נלהב", "Wholesaler", "בנק"], a: 0, x: "" },
+    { q: "מה הסינון המהיר של 5 דקות בודק?", o: ["רק מחיר", "מיקוד נכון, מחיר בטווח, rent-to-price מעל 0.8%", "רק תמונות", "דוח בדק בית"], a: 1, x: "" }
+  ]
+}
+];
+
+const ROLES = [
+  { role: "מתווך למשקיעים", does: "מוצא נכסים, מנהל comps, משא ומתן", measure: "כמה עסקאות למשקיעים סגר ב-12 החודשים האחרונים, האם הוא עצמו משקיע", ask: "״מה ה-cap rate הריאלי לבניין 4 יחידות באזור B?״", flag: "מדבר רק על עליית ערך, לא יודע מספרים" },
+  { role: "חברת ניהול", does: "מוצאת דיירים, גובה, מתקנת", measure: "תפוסה, אחוז פיגורים, ימים ממוצעים להשכרה, עלות החלפת דייר", ask: "״באילו רחובות אתם מסרבים לנהל?״", flag: "אין דוחות חודשיים, עמלות נסתרות על תיקונים" },
+  { role: "ברוקר משכנתאות", does: "משיג הלוואה", measure: "ניסיון עם זרים, הצעה בכתב (Term Sheet)", ask: "״כמה הלוואות DSCR לזרים סגרת השנה?״", flag: "תנאים משתנים ברגע האחרון" },
+  { role: "חברת title / עו״ד מקרקעין", does: "בודקים בעלות, מנהלים סגירה", measure: "מהירות, זמינות לזרים, סגירה מרחוק", ask: "״איך אתם מאמתים העברות כספים?״", flag: "פרטי חשבון במייל בלבד" },
+  { role: "בודק בית", does: "מוצא בעיות לפני שקונים", measure: "דוח עם תמונות, זמינות תוך 3 ימים, רישיון", ask: "״תשלח דוח לדוגמה״", flag: "דוח של 5 עמודים בלי תמונות" },
+  { role: "סוכן ביטוח", does: "ביטוח משכיר", measure: "השוואה בין 3 חברות", ask: "״מה מכוסה ב-loss of rent?״", flag: "מוכר רק חברה אחת" },
+  { role: "רו״ח דו-לאומי", does: "מיסוי בארה״ב ובישראל", measure: "ניסיון עם ישראלים, 1040-NR", ask: "״איך אתה מתאם בין הדוח האמריקאי לישראלי?״", flag: "מכיר רק צד אחד" },
+  { role: "קבלן", does: "שיפוצים ותיקונים", measure: "3 הצעות מחיר מפורטות, רישיון וביטוח, תמונות מפרויקטים", ask: "״איך אתה מתעדכן איתי מרחוק?״", flag: "דורש 50% מקדמה" }
+];
+
+const TOOLS = [
+  { id: "t1", n: 1, name: "מחשבון מימון", desc: "מחיר, מקדמה וריבית → תשלום חודשי, Cash to Close ותקציב קנייה מקסימלי", week: 3 },
+  { id: "t2", n: 2, name: "כרטיס ניקוד שוק ומיקוד", desc: "10 מדדים עם ציון משוקלל, להשוואת ערים ומיקודים", week: 4 },
+  { id: "t3", n: 3, name: "מחשבון עסקה + stress test", desc: "ניתוח מלא מהכנסה ועד CoC, עם תרחיש קיצון ובדיקת Buy Box", week: 6 },
+  { id: "t4", n: 4, name: "מעריך שיפוץ", desc: "עלויות לפי פריט, בלת״מ, ומחיר מקסימלי לפי כלל ה-70%", week: 9 },
+  { id: "t5", n: 5, name: "כרטיסי ראיון לצוות", desc: "שאלות, דגלים אדומים וציון לכל בעל מקצוע", week: 13 },
+  { id: "t6", n: 6, name: "צ׳קליסט נאותות ושותפים", desc: "כל שלב מהצעה ועד סגירה, ובדיקת שותף", week: 11 },
+  { id: "t7", n: 7, name: "טראקר צנרת עסקאות", desc: "כל נכס שנבדק: סטטוס, מספרים, החלטה ונימוק", week: 19 }
+];
+
+const MARKET_METRICS = [
+  ["Population Growth", "צמיחה יציבה ב-5 השנים האחרונות"],
+  ["Job Diversification", "הרבה ענפים, אף מעסיק לא שולט"],
+  ["Median Household Income", "פי 3 לפחות מהשכירות השנתית"],
+  ["Rent-to-Price", "מעל 0.8%"],
+  ["Owner-Occupancy", "גבוה = יציב"],
+  ["Vacancy (אזורי)", "מתחת ל-7%"],
+  ["Days on Market", "נמוך = ביקוש"],
+  ["Crime", "בלי ריכוז פשיעה אלימה"],
+  ["School Rating", "5+/10 ב-GreatSchools"],
+  ["Path of Progress", "פרויקטים חדשים בסביבה"]
+];
+
+const DD_LISTS = {
+  process: { title: "מהלך העסקה", items: ["Offer הוגש בכתב דרך המתווך, עם contingencies", "Purchase Agreement נחתם (Under Contract)", "Earnest Money הופקד ב-escrow (1%–3%)", "בדק בית בוצע בתוך חלון ה-DD (7–14 ימים)", "Appraisal התקבל", "Title Search נקי משעבודים", "Clear to Close מהבנק", "Closing: חתימה והעברת בעלות"] },
+  docs: { title: "מסמכים לבקש ולבדוק", items: ["Rent Roll", "T-12 (12 חודשים אחרונים)", "Estoppel Certificate מכל דייר", "חוזי שכירות (Leases)", "דוח בדק בית מלא עם תמונות", "Sewer Scope", "Title Commitment", "הצעת ביטוח משכיר (3 חברות)", "Closing Disclosure — עברתי על כל שורה"] },
+  inspect: { title: "בדק בית (לפי סדר עלות)", items: ["גג: גיל וחומר", "יסודות: סדקים ורטיבות במרתף", "ביוב: sewer scope", "חשמל: לוח ישן, אלומיניום, knob-and-tube", "HVAC ודוד מים: גיל ומצב", "צנרת: חומר (פוליבוטילן = בעיה)", "עופרת ואסבסט (בתים לפני 1978)"] },
+  wire: { title: "הגנה מהונאת העברה", items: ["פרטי חשבון אומתו בטלפון למספר מוכר (לא מהמייל)", "העברת בדיקה קטנה אושרה לפני הסכום המלא", "אישור קבלה מחברת ה-title אחרי ההעברה"] },
+  partner: { title: "בדיקת שותף", items: ["קיבלתי רשימת כל העסקאות הקודמות עם מספרים וכתובות", "אימתתי באתר המחוז שהוא הבעלים", "דיברתי עם 2–3 שותפים קודמים שלא הוא בחר", "בדקתי תביעות באתר בית המשפט של המחוז", "Operating Agreement נבדק עם עו״ד", "מתחילים בעסקה קטנה אחת"] }
+};
+
+const STATUSES = ["סינון", "ניתוח מלא", "עבר Buy Box", "הצעה על נייר", "בדיקה בשטח", "נפסל"];
+const FUNNEL_TARGET = [50, 20, 5, 3, 1];
+
+/* ===================== STATE ===================== */
+const KEY = "usre-academy-v1";
+const todayISO = () => new Date().toISOString().slice(0, 10);
+function defaults() {
+  return {
+    start: todayISO(), tasks: {}, quiz: {}, exam: {}, known: {}, dd: {},
+    t1: { price: 250000, down: 25, rate: 7.5, years: 30, points: 1, closing: 3, resMonths: 6, taxIns: 550, noi: 1500, cash: 80000 },
+    t2: { names: ["קולומבוס", "סינסינטי", "מיקוד 3"], weights: [3, 3, 2, 3, 1, 2, 1, 3, 2, 2], scores: [[4,4,3,3,3,4,4,3,3,4],[3,4,3,4,3,3,3,3,3,3],[3,3,3,3,3,3,3,3,3,3]], notes: ["", "", ""], example: true },
+    t3: { price: 260000, units: 4, rent: 1100, vac: 6, taxPct: 2, ins: 150, mgmt: 9, maint: 8, capex: 8, util: 200, leasing: 50, down: 25, rate: 7.5, years: 30, points: 1, closing: 3, repairs: 5000, sVac: 12, sRate: 8.5 },
+    t4: { arv: 230000, cont: 12, items: [["גג", 1, 9000], ["מטבח", 1, 12000], ["חדר רחצה", 2, 6000], ["ריצוף (sq ft)", 1200, 4], ["צבע (sq ft)", 1500, 2.5], ["HVAC", 1, 7000], ["דוד מים", 1, 1500], ["חלונות", 10, 450]], example: true },
+    t5: { role: 0, cands: {} },
+    t7: { deals: [
+      { addr: "123 Example Ave", zip: "43205", price: 240000, units: 3, rent: 2850, status: 1, coc: 9.1, note: "דוגמה: מס גבוה מהמודעה", ex: true },
+      { addr: "456 Sample St", zip: "45238", price: 295000, units: 4, rent: 3600, status: 2, coc: 11.4, note: "דוגמה: עבר stress test", ex: true },
+      { addr: "789 Demo Rd", zip: "43207", price: 180000, units: 2, rent: 1500, status: 5, coc: 4.2, note: "דוגמה: Flood Zone AE", ex: true }
+    ] },
+    ui: { tab: "home", sub: {} }
+  };
+}
+let S;
+try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { S = defaults(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} updateMini(); }
+
+/* ===================== HELPERS ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const usd = v => isFinite(v) ? (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US") : "—";
+const pct = (v, d = 1) => isFinite(v) ? v.toFixed(d) + "%" : "—";
+const fx = (v, d = 2) => isFinite(v) ? v.toFixed(d) : "—";
+const pmt = (loan, ratePct, years) => { const r = ratePct / 100 / 12, n = years * 12; if (!loan) return 0; return r === 0 ? loan / n : loan * r / (1 - Math.pow(1 + r, -n)); };
+const num = id => { const v = parseFloat($("#" + id)?.value); return isFinite(v) ? v : 0; };
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); }
+
+function currentWeek() {
+  const d0 = new Date(S.start + "T00:00:00"), now = new Date();
+  const w = Math.floor((now - d0) / (7 * 864e5)) + 1;
+  return Math.max(1, Math.min(24, w));
+}
+function moduleForWeek(w) { return MODULES.find(m => w >= m.weeks[0] && w <= m.weeks[1]) || MODULES[MODULES.length - 1]; }
+function modStats(m) {
+  const done = m.tasks.filter((_, i) => S.tasks[m.id + "-" + i]).length;
+  const q = S.quiz[m.id];
+  const quizPassed = q && (q.best / q.total * 100) >= m.passPct;
+  const examOk = !!S.exam[m.id];
+  return { done, total: m.tasks.length, q, quizPassed, examOk, complete: quizPassed && examOk };
+}
+function overall() {
+  let pts = 0, max = 0;
+  MODULES.forEach(m => { const s = modStats(m); pts += s.done + (s.quizPassed ? 2 : 0) + (s.examOk ? 2 : 0); max += s.total + 4; });
+  return Math.round(pts / max * 100);
+}
+function updateMini() { const p = overall(); $("#miniTxt").textContent = p + "% הושלם"; $("#miniBar").style.width = p + "%"; }
+
+/* ===================== ROUTER ===================== */
+const NAV = [["home", "מסלול"], ...MODULES.map(m => [m.id, "מודול " + m.n]), ["tools", "כלים"], ["glossary", "מילון"], ["backup", "גיבוי"]];
+function renderTabs(active) {
+  const top = active.startsWith("t") && active !== "tools" ? "tools" : active;
+  $("#tabs").innerHTML = NAV.map(([id, l]) => `<button class="tab" data-go="${id}" ${id === top ? 'aria-current="page"' : ""}>${l}</button>`).join("");
+}
+function go(id, push = true) {
+  const valid = ["home", "tools", "glossary", "backup", ...MODULES.map(m => m.id), ...TOOLS.map(t => t.id)];
+  if (!valid.includes(id)) id = "home";
+  S.ui.tab = id; save();
+  if (push) { try { history.replaceState(null, "", "#" + id); } catch (e) {} }
+  renderTabs(id);
+  const app = $("#app");
+  if (id === "home") app.innerHTML = viewHome();
+  else if (id === "tools") app.innerHTML = viewTools();
+  else if (id === "glossary") app.innerHTML = viewGlossary();
+  else if (id === "backup") app.innerHTML = viewBackup();
+  else if (id.startsWith("m")) app.innerHTML = viewModule(MODULES.find(m => m.id === id));
+  else app.innerHTML = viewTool(id);
+  afterRender(id);
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]");
+  if (g) { e.preventDefault(); go(g.dataset.go); }
+});
+
+/* ===================== HOME ===================== */
+function viewHome() {
+  const w = currentWeek(), cm = moduleForWeek(w), p = overall();
+  const phases = PHASES.map(ph => {
+    const cls = w > ph.weeks[1] ? "done" : (w >= ph.weeks[0] ? "now" : "");
+    return `<div class="phase ${cls}"><b>${ph.name}</b><span class="muted">שבועות <span class="num">${ph.weeks[0]}–${ph.weeks[1]}</span></span></div>`;
+  }).join("");
+  const mods = MODULES.map(m => {
+    const s = modStats(m);
+    const st = s.complete ? `<span class="pill good">הושלם</span>` : (s.quizPassed ? `<span class="pill acc">בוחן עבר, ממתין למבחן מעבר</span>` : (m.id === cm.id ? `<span class="pill warn">השבוע</span>` : `<span class="pill">שבועות ${m.weeks[0] === m.weeks[1] ? m.weeks[0] : m.weeks[0] + "–" + m.weeks[1]}</span>`));
+    return `<button class="mod-card ${m.id === cm.id ? "current" : ""}" data-go="${m.id}">
+      <span class="mn">מודול ${m.n} · שבועות ${m.weeks[0]}${m.weeks[1] !== m.weeks[0] ? "–" + m.weeks[1] : ""}</span>
+      <h3>${m.title}</h3>
+      <div class="bar ${s.complete ? "good" : ""}"><i style="width:${Math.round(s.done / s.total * 100)}%"></i></div>
+      <div class="row small muted"><span>משימות <span class="num">${s.done}/${s.total}</span></span>${s.q ? `<span>בוחן <span class="num">${s.q.best}/${s.q.total}</span></span>` : ""}</div>
+      <div>${st}</div>
+    </button>`;
+  }).join("");
+  return `
+  <section class="hero">
+    <div class="hero-main">
+      <span class="eyebrow">תכנית לימודים · 24 שבועות · 9 מודולים · 7 כלים</span>
+      <h1>מאפס לעסקה ראשונה בארה״ב</h1>
+      <p class="muted">בסוף שבוע 10 בערך תדע לנתח עסקה מלאה לבד, ובסוף שבוע 24 תהיה מוכן להגיש הצעה אמיתית: עם צוות בשטח, שוק שאתה מכיר לעומק ומימון שנבדק מראש.</p>
+      <div class="note"><b>כלל ברזל:</b> כל מספר שאתה משתמש בו צריך מקור (אתר, מתווך, חברת ניהול). ניחוש מותר רק במשימת האבחון.</div>
+    </div>
+    <div class="card stack">
+      <span class="eyebrow">השבוע שלך</span>
+      <div class="row" style="align-items:baseline"><span class="week-big">${w}</span><span class="muted">/ 24</span></div>
+      <p>מודול ${cm.n}: <b>${cm.title}</b></p>
+      <div class="bar"><i style="width:${p}%"></i></div>
+      <span class="small muted">התקדמות כוללת <span class="num">${p}%</span></span>
+      <div class="field"><label for="startDate">תאריך התחלה</label><input type="date" id="startDate" value="${esc(S.start)}"></div>
+      <button class="btn primary" data-go="${cm.id}">המשך למודול ${cm.n}</button>
+    </div>
+  </section>
+  <section class="stack">
+    <h2>השלבים</h2>
+    <div class="phases">${phases}</div>
+    <p class="small muted">הנחה: 6–8 שעות בשבוע. אם בפועל יש לך 3–4 שעות בשבוע, כל הזמנים מוכפלים.</p>
+  </section>
+  <section class="stack">
+    <h2>שיטת העבודה בכל שבוע</h2>
+    <div class="method">
+      <div><b>לימוד</b><br>קורא את המושגים של המודול.</div>
+      <div><b>משימה</b><br>מבצע את המשימות המסומנות ושולח תוצאה.</div>
+      <div><b>בדיקה</b><br>בודקים את המספרים וההנחות, לא רק את התוצאה.</div>
+      <div><b>מבחן מעבר</b><br>לא עוברים למודול הבא בלי לעבור אותו.</div>
+    </div>
+  </section>
+  <section class="stack">
+    <h2>המודולים</h2>
+    <div class="mods">${mods}</div>
+  </section>`;
+}
+
+/* ===================== MODULE ===================== */
+function termsTable(head, rows) {
+  return `<div class="tbl-wrap"><table><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr><td class="term">${esc(r[0])}</td>${r.slice(1).map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function exampleTable() {
+  const d = calcDeal(defaults().t3);
+  const rows = [
+    ["הכנסה ברוטו", d.gross, "4 × 1,100"], ["Vacancy", -d.vacancy, "6%"], ["EGI", d.egi, ""], ["מס נכס", -d.tax, "2% לשנה מ-260,000"],
+    ["ביטוח", -d.ins, "הצעת מחיר"], ["ניהול", -d.mgmt, "9% מ-EGI"], ["תחזוקה", -d.maint, "8% מהברוטו"], ["CapEx", -d.capex, "8% מהברוטו"],
+    ["מים, ביוב, אשפה (על הבעלים)", -d.util, "לפי חשבונות"], ["השמת דיירים", -d.leasing, "ממוצע"], ["NOI", d.noi, `הוצאות ${Math.round(d.opex / d.gross * 100)}%, עובר את בדיקת ה-50%`],
+    ["משכנתא", -d.debt, "הלוואה של 195,000"], ["תזרים", d.cf, `${usd(d.cf * 12)} לשנה`]
+  ];
+  return `<div class="tbl-wrap"><table><thead><tr><th>שורה</th><th class="n">חודשי</th><th>איך חישבנו</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r[0]}</td><td class="n">${usd(r[1])}</td><td class="muted">${r[2]}</td></tr>`).join("")}</tbody></table></div>
+  <p class="small">הון מושקע: 65,000 מקדמה + 7,800 סגירה + 1,950 נקודות + 5,000 תיקונים ראשוניים = <span class="num">${usd(d.cash)}</span></p>
+  <p><b>תוצאות:</b> Cap Rate <span class="num">${pct(d.cap)}</span> · CoC <span class="num">${pct(d.coc)}</span> · DSCR <span class="num">${fx(d.dscr)}</span></p>
+  <div class="note"><b>Stress test:</b> ריבית 8.5% (משכנתא <span class="num">${usd(d.s.debt)}</span>) ו-12% דירות ריקות (NOI <span class="num">${usd(d.s.noi)}</span>) נותנים תזרים של <span class="num">${usd(d.s.cf)}</span> בחודש. העסקה נשארת חיובית, ולכן עוברת. עסקה שהופכת לשלילית בתרחיש הזה, לא קונים.</div>
+  <button class="btn sm" data-go="t3">פתח במחשבון העסקה</button>`;
+}
+function rolesTable() {
+  return `<div class="tbl-wrap"><table><thead><tr><th>בעל מקצוע</th><th>מה הוא עושה</th><th>מה מודדים</th><th>שאלה שחייבים לשאול</th><th>דגל אדום</th></tr></thead><tbody>${ROLES.map(r => `<tr><td><b>${r.role}</b></td><td>${r.does}</td><td>${r.measure}</td><td>${r.ask}</td><td style="color:var(--bad)">${r.flag}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function renderSection(sec) {
+  let body = "";
+  if (sec.type === "terms") body = termsTable(["מושג", "הסבר"], sec.rows);
+  else if (sec.type === "terms3") body = termsTable(sec.head, sec.rows);
+  else if (sec.type === "steps") body = `<ol class="steps">${sec.items.map(i => `<li>${i}</li>`).join("")}</ol>`;
+  else if (sec.type === "list") body = `<ul class="plain" ${sec.warn ? 'style="color:var(--bad)"' : ""}>${sec.items.map(i => `<li>${i}</li>`).join("")}</ul>`;
+  else if (sec.type === "formulas") body = sec.items.map(f => `<div class="formula">${esc(f)}</div>`).join("");
+  else if (sec.type === "example") body = `<p class="muted small">בניין 4 יחידות במחיר 260,000 דולר, כל יחידה מושכרת ב-1,100 דולר, מימון 75% בריבית 7.5% ל-30 שנה.</p>` + exampleTable();
+  else if (sec.type === "roles") body = rolesTable();
+  else if (sec.type === "kpis") body = `<div class="tbl-wrap"><table><thead><tr><th>מדד</th><th>יעד</th></tr></thead><tbody>${sec.rows.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</tbody></table></div>`;
+  return `<section class="stack"><h3>${sec.title}</h3>${body}</section>`;
+}
+function moduleTerms(m) {
+  const out = [];
+  m.sections.forEach(s => { if (s.type === "terms" || s.type === "terms3") s.rows.forEach(r => out.push({ t: r[0], d: r[1], x: s.type === "terms3" && r[2] && r[2] !== "—" ? r[2] : "" })); });
+  return out;
+}
+function viewModule(m) {
+  const sub = S.ui.sub[m.id] || "learn";
+  const s = modStats(m);
+  const prev = MODULES[m.n - 2];
+  const locked = prev && !modStats(prev).complete;
+  const subs = [["learn", "חומר"], ["cards", "כרטיסיות"], ["tasks", `משימות (${s.done}/${s.total})`], ["quiz", "בוחן ומבחן מעבר"]];
+  let body = "";
+  if (sub === "learn") body = m.sections.map(renderSection).join("");
+  else if (sub === "cards") body = viewCards(m);
+  else if (sub === "tasks") body = viewTasks(m);
+  else body = viewQuiz(m);
+  const next = MODULES[m.n];
+  return `
+  <section class="mod-head">
+    <span class="eyebrow">מודול ${m.n} · שבועות ${m.weeks[0]}${m.weeks[1] !== m.weeks[0] ? "–" + m.weeks[1] : ""}</span>
+    <h1>${m.title}</h1>
+    <p><b>המטרה:</b> ${m.goal}</p>
+    ${locked ? `<div class="note">מודול ${prev.n} עוד לא הושלם. אפשר לקרוא, אבל לפי השיטה לא עוברים למודול הבא בלי לעבור את מבחן המעבר שלו.</div>` : ""}
+    <div class="row">${s.complete ? '<span class="pill good">הושלם</span>' : ""}${s.quizPassed ? '<span class="pill good">בוחן עבר</span>' : ""}${s.examOk ? '<span class="pill good">מבחן מעבר אושר</span>' : ""}</div>
+    <div class="subtabs" role="group" aria-label="חלקי המודול">${subs.map(([k, l]) => `<button class="subtab" data-sub="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
+  </section>
+  ${body}
+  <div class="row" style="justify-content:space-between">
+    ${prev ? `<button class="btn ghost" data-go="${prev.id}">→ מודול ${prev.n}</button>` : "<span></span>"}
+    ${next ? `<button class="btn" data-go="${next.id}">מודול ${next.n} ←</button>` : `<button class="btn" data-go="home">חזרה למסלול</button>`}
+  </div>`;
+}
+function viewTasks(m) {
+  const tl = (m.toolLinks || []).map(id => { const t = TOOLS.find(x => x.id === id); return `<button class="btn sm" data-go="${id}">כלי ${t.n}: ${t.name}</button>`; }).join("");
+  return `<section class="stack">
+    <div class="tasks">${m.tasks.map((t, i) => { const k = m.id + "-" + i, d = !!S.tasks[k]; return `<label class="task ${d ? "done" : ""}"><input type="checkbox" data-task="${k}" ${d ? "checked" : ""}><span class="t">${esc(t)}</span></label>`; }).join("")}</div>
+    ${tl ? `<div class="row"><span class="small muted">כלים למודול:</span>${tl}</div>` : ""}
+  </section>`;
+}
+function viewCards(m) {
+  const terms = moduleTerms(m);
+  const known = new Set(S.known[m.id] || []);
+  const pool = terms.filter(t => !known.has(t.t));
+  const st = viewCards.st[m.id] || (viewCards.st[m.id] = { i: 0, flip: false });
+  if (!pool.length) return `<section class="fc-wrap"><div class="fc"><div><div class="ft">✓</div><p class="fb">סימנת את כל <span class="num">${terms.length}</span> המושגים כידועים.</p></div></div><button class="btn" data-fc="reset">התחל מחדש</button></section>`;
+  const c = pool[st.i % pool.length];
+  return `<section class="fc-wrap">
+    <span class="small muted">נשארו <span class="num">${pool.length}</span> מתוך <span class="num">${terms.length}</span> · לחץ על הכרטיס כדי להפוך</span>
+    <div class="fc" data-fc="flip" tabindex="0" role="button" aria-label="הפוך כרטיס">${st.flip ? `<div><p class="fb">${esc(c.d)}</p>${c.x ? `<p class="fx">דוגמה: ${esc(c.x)}</p>` : ""}</div>` : `<div class="ft">${esc(c.t)}</div>`}</div>
+    <div class="row"><button class="btn" data-fc="no">עוד לא</button><button class="btn primary" data-fc="yes">ידעתי</button></div>
+    ${known.size ? `<button class="btn ghost sm" data-fc="reset">אפס כרטיסיות (${known.size} ידועים)</button>` : ""}
+  </section>`;
+}
+viewCards.st = {};
+function viewQuiz(m) {
+  const st = viewQuiz.st[m.id] || (viewQuiz.st[m.id] = { ans: {}, done: false });
+  const s = modStats(m);
+  const need = Math.ceil(m.quiz.length * m.passPct / 100);
+  let score = 0;
+  if (st.done) m.quiz.forEach((q, i) => { if (st.ans[i] === q.a) score++; });
+  const qs = m.quiz.map((q, i) => `<div class="q">
+    <div class="q-title"><span class="qn">${i + 1}.</span>${esc(q.q)}</div>
+    <div class="opts">${q.o.map((o, j) => {
+      let cls = "";
+      if (st.done) { if (j === q.a) cls = "correct"; else if (st.ans[i] === j) cls = "wrong"; }
+      return `<label class="opt ${cls}"><input type="radio" name="q${i}" data-q="${i}" value="${j}" ${st.ans[i] === j ? "checked" : ""} ${st.done ? "disabled" : ""}><span>${esc(o)}</span></label>`;
+    }).join("")}</div>
+    ${st.done && q.x ? `<p class="q-ex">${esc(q.x)}</p>` : ""}
+  </div>`).join("");
+  return `<section class="stack">
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>בוחן ידע</h3><span class="small muted">עוברים עם <span class="num">${need}/${m.quiz.length}</span>${s.q ? ` · הכי טוב: <span class="num">${s.q.best}/${s.q.total}</span>` : ""}</span></div>
+      ${st.done ? `<div class="score"><span class="big">${score}/${m.quiz.length}</span><span class="pill ${score >= need ? "good" : "bad"}">${score >= need ? "עברת" : "לא עברת. חזור על החומר ונסה שוב"}</span><button class="btn" data-quiz="retry">נסה שוב</button></div>` : ""}
+      ${qs}
+      ${!st.done ? `<div class="row"><button class="btn primary" data-quiz="submit">בדוק תשובות</button><span class="small muted" id="qLeft"></span></div>` : ""}
+    </div>
+    <div class="exam">
+      <h3>מבחן מעבר (עם המנחה)</h3>
+      <p>${esc(m.exam)}</p>
+      <label class="check"><input type="checkbox" data-exam="${m.id}" ${S.exam[m.id] ? "checked" : ""}> המבחן אושר, אפשר לעבור למודול הבא</label>
+    </div>
+  </section>`;
+}
+viewQuiz.st = {};
+
+/* ===================== TOOLS ===================== */
+function viewTools() {
+  return `<section class="stack">
+    <h1>הכלים</h1>
+    <p class="muted">כל כלי נבנה בשבוע שבו הוא נדרש. אחרי שהחישוב עובד, מכניסים לינק או צילום של מודעה, ממלאים את הניתוח הראשוני ובודקים את ההנחות.</p>
+    <div class="tool-list">${TOOLS.map(t => `<button class="mod-card" data-go="${t.id}"><span class="mn">כלי ${t.n} · שבוע ${t.week}</span><h3>${t.name}</h3><span class="small muted">${t.desc}</span></button>`).join("")}</div>
+  </section>`;
+}
+function toolHead(id) {
+  const t = TOOLS.find(x => x.id === id);
+  return `<section class="mod-head"><button class="btn ghost sm" data-go="tools" style="justify-self:start">→ כל הכלים</button><span class="eyebrow">כלי ${t.n} · נבנה בשבוע ${t.week}</span><h1>${t.name}</h1><p class="muted">${t.desc}</p></section>`;
+}
+function field(id, label, val, step = "any") { return `<div class="field"><label for="${id}">${label}</label><input type="number" id="${id}" value="${esc(val)}" step="${step}" inputmode="decimal"></div>`; }
+function viewTool(id) {
+  if (id === "t1") { const v = S.t1; return toolHead(id) + `<section class="tool-grid">
+    <div class="card"><div class="fields" id="t1f">
+      ${field("t1price", "מחיר נכס ($)", v.price)}${field("t1down", "מקדמה (%)", v.down)}
+      ${field("t1rate", "ריבית שנתית (%)", v.rate)}${field("t1years", "תקופה (שנים)", v.years)}
+      ${field("t1points", "נקודות (%)", v.points)}${field("t1closing", "עלויות סגירה (%)", v.closing)}
+      ${field("t1resMonths", "רזרבות (חודשים)", v.resMonths)}${field("t1taxIns", "מס + ביטוח חודשי ($)", v.taxIns)}
+      ${field("t1noi", "NOI חודשי צפוי ($)", v.noi)}${field("t1cash", "ההון שיש לך ($)", v.cash)}
+    </div><p class="small muted" style="margin-top:10px">הנחה: ריבית לזרים גבוהה ב-1%–2% מאזרחים. לאמת מול 3 ברוקרים (משימה במודול 2).</p></div>
+    <div class="stack" id="t1out"></div></section>`; }
+  if (id === "t2") return toolHead(id) + `<section class="stack" id="t2wrap"></section>`;
+  if (id === "t3") { const v = S.t3; return toolHead(id) + `<section class="tool-grid">
+    <div class="card"><div class="fields">
+      <div class="fieldset-title">נכס והכנסות</div>
+      ${field("t3price", "מחיר ($)", v.price)}${field("t3units", "יחידות", v.units, 1)}
+      ${field("t3rent", "שכירות ליחידה ($/חודש)", v.rent)}${field("t3vac", "Vacancy (%)", v.vac)}
+      <div class="fieldset-title">הוצאות תפעול</div>
+      ${field("t3taxPct", "מס נכס (% לשנה מהמחיר)", v.taxPct)}${field("t3ins", "ביטוח ($/חודש)", v.ins)}
+      ${field("t3mgmt", "ניהול (% מ-EGI)", v.mgmt)}${field("t3maint", "תחזוקה (% מהברוטו)", v.maint)}
+      ${field("t3capex", "CapEx (% מהברוטו)", v.capex)}${field("t3util", "Utilities על הבעלים ($)", v.util)}
+      ${field("t3leasing", "השמת דיירים ($/חודש)", v.leasing)}
+      <div class="fieldset-title">מימון והון</div>
+      ${field("t3down", "מקדמה (%)", v.down)}${field("t3rate", "ריבית (%)", v.rate)}
+      ${field("t3years", "תקופה (שנים)", v.years)}${field("t3points", "נקודות (%)", v.points)}
+      ${field("t3closing", "עלויות סגירה (%)", v.closing)}${field("t3repairs", "תיקונים ראשוניים ($)", v.repairs)}
+      <div class="fieldset-title">Stress test</div>
+      ${field("t3sVac", "Vacancy בתרחיש קיצון (%)", v.sVac)}${field("t3sRate", "ריבית בתרחיש קיצון (%)", v.sRate)}
+    </div><div class="row" style="margin-top:12px"><button class="btn sm" id="t3reset">טען את דוגמת מודול 4</button></div></div>
+    <div class="stack" id="t3out"></div></section>`; }
+  if (id === "t4") return toolHead(id) + `<section class="stack" id="t4wrap"></section>`;
+  if (id === "t5") return toolHead(id) + `<section class="stack" id="t5wrap"></section>`;
+  if (id === "t6") return toolHead(id) + `<section class="stack" id="t6wrap"></section>`;
+  if (id === "t7") return toolHead(id) + `<section class="stack" id="t7wrap"></section>`;
+  return "";
+}
+
+/* --- T1 --- */
+function renderT1() {
+  const v = S.t1;
+  ["price", "down", "rate", "years", "points", "closing", "resMonths", "taxIns", "noi", "cash"].forEach(k => v[k] = num("t1" + k));
+  const d = v.down / 100, loan = v.price * (1 - d), pi = pmt(loan, v.rate, v.years);
+  const downAmt = v.price * d, pts = loan * v.points / 100, clo = v.price * v.closing / 100;
+  const ctc = downAmt + pts + clo, piti = pi + v.taxIns, res = v.resMonths * piti, need = ctc + res;
+  const dscr = pi ? v.noi / pi : NaN;
+  const f = pmt(1, v.rate, v.years);
+  const maxP = (v.cash - v.resMonths * v.taxIns) / (d + v.closing / 100 + (v.points / 100) * (1 - d) + v.resMonths * (1 - d) * f);
+  const ok = v.cash >= need;
+  $("#t1out").innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="k">הלוואה</div><div class="v">${usd(loan)}</div></div>
+      <div class="kpi"><div class="k">תשלום חודשי (קרן + ריבית)</div><div class="v">${usd(pi)}</div></div>
+      <div class="kpi ${dscr >= 1.25 ? "good" : "bad"}"><div class="k">DSCR</div><div class="v">${fx(dscr)}</div></div>
+    </div>
+    <div class="tbl-wrap"><table><tbody>
+      <tr><td>מקדמה</td><td class="n">${usd(downAmt)}</td></tr>
+      <tr><td>נקודות</td><td class="n">${usd(pts)}</td></tr>
+      <tr><td>עלויות סגירה</td><td class="n">${usd(clo)}</td></tr>
+      <tr><td><b>Cash to Close</b></td><td class="n"><b>${usd(ctc)}</b></td></tr>
+      <tr><td>רזרבות (${v.resMonths} × ${usd(piti)} PITI)</td><td class="n">${usd(res)}</td></tr>
+      <tr><td><b>סך ההון הנדרש</b></td><td class="n"><b>${usd(need)}</b></td></tr>
+    </tbody></table></div>
+    <div class="verdict ${ok ? "good" : "bad"}">${ok ? `ההון שלך מספיק. נשאר <span class="num">${usd(v.cash - need)}</span>.` : `חסרים <span class="num">${usd(need - v.cash)}</span> לעסקה הזו.`}</div>
+    <div class="card"><span class="eyebrow">תקציב קנייה מקסימלי לפי ההון שלך</span><div class="week-big" style="font-size:2rem;direction:ltr;text-align:right">${usd(maxP)}</div><p class="small muted">כולל מקדמה, נקודות, סגירה ורזרבות. הנחה: מס וביטוח קבועים כפי שהוזנו.</p></div>
+    ${dscr < 1.25 ? `<div class="note">DSCR מתחת ל-1.25. רוב הבנקים ידרשו מקדמה גדולה יותר או יסרבו.</div>` : ""}`;
+  save();
+}
+
+/* --- T2 --- */
+function renderT2() {
+  const v = S.t2;
+  const totals = [0, 1, 2].map(c => { let s = 0, mx = 0; MARKET_METRICS.forEach((_, r) => { s += (v.scores[c][r] || 0) * v.weights[r]; mx += 5 * v.weights[r]; }); return Math.round(s / mx * 100); });
+  const best = Math.max(...totals);
+  $("#t2wrap").innerHTML = `
+    ${v.example ? `<div class="note">הציונים כאן הם <b>דוגמה</b> ולא נתונים אמיתיים. החלף כל ציון בנתון שבדקת, עם מקור. <button class="btn sm" id="t2clear">אפס לציון 3</button></div>` : ""}
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>מדד</th><th>מה מחפשים</th><th>משקל</th>${[0, 1, 2].map(c => `<th><input class="cell-in" id="t2n${c}" value="${esc(v.names[c])}" aria-label="שם מיקום ${c + 1}"></th>`).join("")}</tr></thead>
+      <tbody>${MARKET_METRICS.map((m, r) => `<tr><td class="term">${m[0]}</td><td class="small muted">${m[1]}</td>
+        <td><select class="cell-in" data-w="${r}" aria-label="משקל">${[1, 2, 3].map(x => `<option ${v.weights[r] == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>
+        ${[0, 1, 2].map(c => `<td><select class="cell-in sc" data-s="${c}-${r}" aria-label="ציון">${[1, 2, 3, 4, 5].map(x => `<option ${v.scores[c][r] == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>`).join("")}</tr>`).join("")}
+        <tr><td colspan="3"><b>ציון משוקלל (מתוך 100)</b></td>${totals.map(t => `<td class="n"><b style="color:${t === best ? "var(--good)" : "inherit"}">${t}</b></td>`).join("")}</tr>
+      </tbody></table></div>
+    <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${[0, 1, 2].map(c => `<div class="field"><label for="t2note${c}">מקורות ונימוק: ${esc(v.names[c])}</label><textarea id="t2note${c}" rows="3" data-note="${c}">${esc(v.notes[c])}</textarea></div>`).join("")}</div>
+    <p class="small muted">ציון 1 = גרוע, 5 = מצוין. משקל 3 = מדד קריטי. כל ציון צריך נתון עם מקור (Census, FRED, Niche, Rentometer, אתר המחוז).</p>`;
+}
+
+/* --- T3 --- */
+function calcDeal(v) {
+  const one = (vac, rate) => {
+    const gross = v.units * v.rent, vacancy = gross * vac / 100, egi = gross - vacancy;
+    const tax = v.price * v.taxPct / 100 / 12, ins = v.ins, mgmt = egi * v.mgmt / 100, maint = gross * v.maint / 100, capex = gross * v.capex / 100;
+    const util = v.util, leasing = v.leasing, opex = tax + ins + mgmt + maint + capex + util + leasing, noi = egi - opex;
+    const loan = v.price * (1 - v.down / 100), debt = pmt(loan, rate, v.years), cf = noi - debt;
+    return { gross, vacancy, egi, tax, ins, mgmt, maint, capex, util, leasing, opex, noi, loan, debt, cf };
+  };
+  const b = one(v.vac, v.rate), s = one(v.sVac, v.sRate);
+  const cash = v.price * v.down / 100 + v.price * v.closing / 100 + b.loan * v.points / 100 + v.repairs;
+  return Object.assign(b, { s, cash, cap: b.noi * 12 / v.price * 100, coc: b.cf * 12 / cash * 100, dscr: b.noi / b.debt, sCoc: s.cf * 12 / cash * 100, sDscr: s.noi / s.debt, expRatio: b.opex / b.gross * 100 });
+}
+function renderT3() {
+  const v = S.t3;
+  ["price", "units", "rent", "vac", "taxPct", "ins", "mgmt", "maint", "capex", "util", "leasing", "down", "rate", "years", "points", "closing", "repairs", "sVac", "sRate"].forEach(k => v[k] = num("t3" + k));
+  const d = calcDeal(v);
+  const checks = [
+    [d.coc >= 10, `CoC של 10% לפחות בתרחיש הבסיס (${pct(d.coc)})`],
+    [d.s.cf > 0, `תזרים חיובי בתרחיש ה-stress (${usd(d.s.cf)})`],
+    [d.dscr >= 1.25, `DSCR של 1.25 לפחות (${fx(d.dscr)})`],
+    [d.expRatio >= 35 && d.expRatio <= 55, `הוצאות ${pct(d.expRatio, 0)} מהברוטו (כלל ה-50%: צפוי 40%–50%)`]
+  ];
+  const pass = checks.slice(0, 3).every(c => c[0]);
+  const line = (l, a, b) => `<tr><td>${l}</td><td class="n">${usd(a)}</td><td class="n">${usd(b)}</td></tr>`;
+  $("#t3out").innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><div class="k">Cap Rate</div><div class="v">${pct(d.cap)}</div></div>
+      <div class="kpi ${d.coc >= 10 ? "good" : "bad"}"><div class="k">Cash-on-Cash</div><div class="v">${pct(d.coc)}</div></div>
+      <div class="kpi ${d.dscr >= 1.25 ? "good" : "bad"}"><div class="k">DSCR</div><div class="v">${fx(d.dscr)}</div></div>
+      <div class="kpi"><div class="k">NOI חודשי</div><div class="v">${usd(d.noi)}</div></div>
+      <div class="kpi ${d.cf > 0 ? "good" : "bad"}"><div class="k">תזרים חודשי</div><div class="v">${usd(d.cf)}</div></div>
+      <div class="kpi"><div class="k">הון מושקע</div><div class="v">${usd(d.cash)}</div></div>
+    </div>
+    <div class="verdict ${pass ? "good" : "bad"}">${pass ? "עובר את ה-Buy Box. ממשיכים ל-comps ולהצעה על נייר." : "לא עובר את ה-Buy Box. לא קונים במחיר הזה."}</div>
+    <div class="checks">${checks.map(c => `<div class="check"><span class="dot ${c[0] ? "good" : "bad"}"></span>${c[1]}</div>`).join("")}</div>
+    <div class="tbl-wrap"><table><thead><tr><th>שורה (חודשי)</th><th class="n">בסיס</th><th class="n">Stress</th></tr></thead><tbody>
+      ${line("הכנסה ברוטו", d.gross, d.s.gross)}${line("Vacancy", -d.vacancy, -d.s.vacancy)}${line("EGI", d.egi, d.s.egi)}
+      ${line("מס נכס", -d.tax, -d.s.tax)}${line("ביטוח", -d.ins, -d.s.ins)}${line("ניהול", -d.mgmt, -d.s.mgmt)}${line("תחזוקה", -d.maint, -d.s.maint)}
+      ${line("CapEx", -d.capex, -d.s.capex)}${line("Utilities", -d.util, -d.s.util)}${line("השמת דיירים", -d.leasing, -d.s.leasing)}
+      <tr><td><b>NOI</b></td><td class="n"><b>${usd(d.noi)}</b></td><td class="n"><b>${usd(d.s.noi)}</b></td></tr>
+      ${line("משכנתא", -d.debt, -d.s.debt)}
+      <tr><td><b>תזרים</b></td><td class="n"><b>${usd(d.cf)}</b></td><td class="n"><b style="color:${d.s.cf > 0 ? "var(--good)" : "var(--bad)"}">${usd(d.s.cf)}</b></td></tr>
+      <tr><td>CoC / DSCR</td><td class="n">${pct(d.coc)} / ${fx(d.dscr)}</td><td class="n">${pct(d.sCoc)} / ${fx(d.sDscr)}</td></tr>
+    </tbody></table></div>`;
+  save();
+}
+
+/* --- T4 --- */
+function renderT4() {
+  const v = S.t4;
+  const sub = v.items.reduce((a, it) => a + (+it[1] || 0) * (+it[2] || 0), 0), cont = sub * v.cont / 100, total = sub + cont;
+  const maxP = v.arv * 0.7 - total;
+  $("#t4wrap").innerHTML = `
+    ${v.example ? `<div class="note">מחירי דוגמה בלבד. מאמתים מול 3 הצעות מחיר מפורטות של קבלן (מודול 6).</div>` : ""}
+    <section class="tool-grid">
+      <div class="stack">
+        <div class="tbl-wrap"><table><thead><tr><th>פריט</th><th class="n">כמות</th><th class="n">עלות ליחידה ($)</th><th class="n">סה״כ</th><th></th></tr></thead><tbody>
+          ${v.items.map((it, i) => `<tr><td><input class="cell-in" data-it="${i}-0" value="${esc(it[0])}" aria-label="פריט"></td><td><input class="cell-in" type="number" data-it="${i}-1" value="${esc(it[1])}" style="width:80px" aria-label="כמות"></td><td><input class="cell-in" type="number" data-it="${i}-2" value="${esc(it[2])}" style="width:100px" aria-label="עלות"></td><td class="n">${usd(it[1] * it[2])}</td><td><button class="btn ghost sm danger" data-del="${i}" aria-label="מחק שורה">✕</button></td></tr>`).join("")}
+        </tbody></table></div>
+        <div class="row"><button class="btn sm" id="t4add">+ הוסף פריט</button></div>
+      </div>
+      <div class="stack">
+        <div class="fields">${field("t4arv", "ARV — שווי אחרי שיפוץ ($)", v.arv)}${field("t4cont", "בלת״מ (%)", v.cont)}</div>
+        <div class="tbl-wrap"><table><tbody>
+          <tr><td>סה״כ פריטים</td><td class="n">${usd(sub)}</td></tr>
+          <tr><td>בלת״מ ${v.cont}%</td><td class="n">${usd(cont)}</td></tr>
+          <tr><td><b>תקציב שיפוץ</b></td><td class="n"><b>${usd(total)}</b></td></tr>
+          <tr><td>ARV × 70%</td><td class="n">${usd(v.arv * 0.7)}</td></tr>
+        </tbody></table></div>
+        <div class="card"><span class="eyebrow">מחיר קנייה מקסימלי (כלל ה-70%)</span><div class="week-big" style="font-size:2rem;direction:ltr;text-align:right">${usd(maxP)}</div><p class="small muted">ARV × 70% פחות תקציב השיפוץ. ${v.cont < 10 ? '<span style="color:var(--bad)">בלת״מ מתחת ל-10% — מומלץ 10%–15%.</span>' : ""}</p></div>
+      </div>
+    </section>`;
+}
+
+/* --- T5 --- */
+const CRIT = ["מספרים ונתונים", "ניסיון עם משקיעים/זרים", "זמינות ותגובה", "שקיפות ומחיר"];
+function renderT5() {
+  const v = S.t5, r = ROLES[v.role], list = v.cands[v.role] || (v.cands[v.role] = []);
+  const avg = c => c.flag ? 0 : c.s.reduce((a, b) => a + b, 0) / c.s.length;
+  const best = list.length ? Math.max(...list.map(avg)) : -1;
+  $("#t5wrap").innerHTML = `
+    <div class="subtabs">${ROLES.map((x, i) => `<button class="subtab" data-role="${i}" aria-pressed="${i === v.role}">${x.role}</button>`).join("")}</div>
+    <div class="card stack">
+      <h3>${r.role}</h3>
+      <div class="tbl-wrap"><table><tbody>
+        <tr><td><b>מה הוא עושה</b></td><td>${r.does}</td></tr>
+        <tr><td><b>מה מודדים</b></td><td>${r.measure}</td></tr>
+        <tr><td><b>שאלה שחייבים לשאול</b></td><td>${r.ask}</td></tr>
+        <tr><td><b>דגל אדום</b></td><td style="color:var(--bad)">${r.flag}</td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>מועמד</th>${CRIT.map(c => `<th>${c}</th>`).join("")}<th>דגל אדום</th><th class="n">ממוצע</th><th>הערות</th><th></th></tr></thead><tbody>
+      ${list.length ? list.map((c, i) => `<tr><td><input class="cell-in" data-c="${i}-name" value="${esc(c.name)}" aria-label="שם"></td>
+        ${c.s.map((sc, j) => `<td><select class="cell-in sc" data-c="${i}-s${j}" aria-label="${CRIT[j]}">${[1, 2, 3, 4, 5].map(x => `<option ${sc == x ? "selected" : ""}>${x}</option>`).join("")}</select></td>`).join("")}
+        <td><input type="checkbox" data-c="${i}-flag" ${c.flag ? "checked" : ""} aria-label="דגל אדום"></td>
+        <td class="n"><b style="color:${c.flag ? "var(--bad)" : (avg(c) === best ? "var(--good)" : "inherit")}">${c.flag ? "נפסל" : fx(avg(c), 1)}</b></td>
+        <td><input class="cell-in" data-c="${i}-note" value="${esc(c.note)}" aria-label="הערות"></td>
+        <td><button class="btn ghost sm danger" data-cdel="${i}" aria-label="מחק מועמד">✕</button></td></tr>`).join("")
+      : `<tr><td colspan="9" class="muted">עוד אין מועמדים. היעד: 3 מתווכים, 3 חברות ניהול, 2 ברוקרים.</td></tr>`}
+    </tbody></table></div>
+    <div class="row"><button class="btn sm" id="t5add">+ הוסף מועמד</button><span class="small muted">ציון 1–5 לכל קריטריון. דגל אדום פוסל.</span></div>`;
+}
+
+/* --- T6 --- */
+function renderT6() {
+  const all = Object.entries(DD_LISTS);
+  let done = 0, tot = 0;
+  all.forEach(([k, l]) => l.items.forEach((_, i) => { tot++; if (S.dd[k + i]) done++; }));
+  $("#t6wrap").innerHTML = `
+    <div class="row"><div class="bar" style="flex:1;min-width:160px"><i style="width:${done / tot * 100}%"></i></div><span class="num small">${done}/${tot}</span><span id="t6reset"></span></div>
+    ${all.map(([k, l]) => `<section class="stack"><h3>${l.title}</h3><div class="tasks">${l.items.map((it, i) => `<label class="task ${S.dd[k + i] ? "done" : ""}"><input type="checkbox" data-dd="${k + i}" ${S.dd[k + i] ? "checked" : ""}><span class="t">${esc(it)}</span></label>`).join("")}</div></section>`).join("")}`;
+  renderConfirm("t6reset", "אפס צ׳קליסט (לעסקה חדשה)", () => { S.dd = {}; save(); renderT6(); });
+}
+
+/* --- T7 --- */
+function renderT7() {
+  const v = S.t7;
+  const counts = [0, 0, 0, 0, 0];
+  v.deals.forEach(d => { if (d.status <= 4) for (let i = 0; i <= d.status; i++) counts[i]++; });
+  const labels = ["סינון מהיר", "ניתוח מלא", "עבר Buy Box", "הצעה על נייר", "בדיקה בשטח"];
+  $("#t7wrap").innerHTML = `
+    <div class="card stack">
+      <span class="eyebrow">המשפך מול היעד</span>
+      <div class="funnel">${labels.map((l, i) => `<div class="funnel-row"><span>${l}</span><div class="bar ${counts[i] >= FUNNEL_TARGET[i] ? "good" : ""}"><i style="width:${Math.min(100, counts[i] / FUNNEL_TARGET[i] * 100)}%"></i></div><span class="num small">${counts[i]}/${FUNNEL_TARGET[i]}</span></div>`).join("")}</div>
+      <p class="small muted">קצב: 10 נכסים בשבוע לסינון, 3 בשבוע לניתוח מלא.</p>
+    </div>
+    <form class="card" id="t7form">
+      <div class="fields" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+        <div class="field"><label for="d_addr">כתובת / לינק</label><input id="d_addr" required></div>
+        <div class="field"><label for="d_zip">מיקוד</label><input id="d_zip"></div>
+        <div class="field"><label for="d_price">מחיר ($)</label><input id="d_price" type="number" required></div>
+        <div class="field"><label for="d_units">יחידות</label><input id="d_units" type="number" value="2"></div>
+        <div class="field"><label for="d_rent">שכירות חודשית כוללת ($)</label><input id="d_rent" type="number" required></div>
+        <div class="field"><label for="d_coc">CoC מהמחשבון (%)</label><input id="d_coc" type="number" step="any"></div>
+        <div class="field"><label for="d_note">החלטה ונימוק</label><input id="d_note"></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" type="submit">+ הוסף נכס</button><span class="small muted">rent-to-price מחושב אוטומטית. מעל 0.8% עובר סינון ראשוני.</span></div>
+    </form>
+    <div class="tbl-wrap"><table><thead><tr><th>נכס</th><th>מיקוד</th><th class="n">מחיר</th><th class="n">יח׳</th><th class="n">Rent/Price</th><th class="n">CoC</th><th>סטטוס</th><th>נימוק</th><th></th></tr></thead><tbody>
+      ${v.deals.length ? v.deals.map((d, i) => { const rp = d.rent / d.price * 100; return `<tr>
+        <td>${esc(d.addr)}${d.ex ? ' <span class="example-tag">דוגמה</span>' : ""}</td><td class="num">${esc(d.zip)}</td><td class="n">${usd(d.price)}</td><td class="n">${esc(d.units)}</td>
+        <td class="n"><span class="pill ${rp >= 0.8 ? "good" : "bad"}">${pct(rp, 2)}</span></td><td class="n">${d.coc !== "" && d.coc != null && isFinite(d.coc) ? pct(+d.coc) : "—"}</td>
+        <td><select class="cell-in" data-st="${i}" aria-label="סטטוס">${STATUSES.map((s, j) => `<option value="${j}" ${d.status == j ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+        <td class="small">${esc(d.note)}</td><td><button class="btn ghost sm danger" data-ddel="${i}" aria-label="מחק">✕</button></td></tr>`; }).join("")
+      : `<tr><td colspan="9" class="muted">אין נכסים עדיין. הוסף את הנכס הראשון בטופס למעלה.</td></tr>`}
+    </tbody></table></div>
+    ${v.deals.some(d => d.ex) ? `<div class="row"><button class="btn sm" id="t7clearEx">מחק את שורות הדוגמה</button></div>` : ""}`;
+}
+
+/* ===================== GLOSSARY & BACKUP ===================== */
+function viewGlossary() {
+  return `<section class="stack"><h1>מילון מושגים</h1><p class="muted">כל המושגים מכל המודולים במקום אחד.</p>
+  <input class="search" id="gq" placeholder="חפש מושג או הסבר… (למשל DSCR, פחת, escrow)" aria-label="חיפוש">
+  <div id="glist"></div></section>`;
+}
+function renderGlossary(q = "") {
+  q = q.trim().toLowerCase();
+  const rows = [];
+  MODULES.forEach(m => moduleTerms(m).forEach(t => { if (!q || (t.t + " " + t.d).toLowerCase().includes(q)) rows.push([t.t, t.d, m]); }));
+  $("#glist").innerHTML = rows.length ? `<div class="tbl-wrap"><table><thead><tr><th>מושג</th><th>הסבר</th><th>מודול</th></tr></thead><tbody>${rows.map(r => `<tr><td class="term">${esc(r[0])}</td><td>${esc(r[1])}</td><td><button class="btn ghost sm" data-go="${r[2].id}">${r[2].n}</button></td></tr>`).join("")}</tbody></table></div><p class="small muted"><span class="num">${rows.length}</span> מושגים</p>` : `<p class="muted">לא נמצא מושג תואם.</p>`;
+}
+function viewBackup() {
+  return `<section class="stack"><h1>גיבוי ושחזור</h1>
+  <p class="muted">ההתקדמות נשמרת בדפדפן הזה בלבד. כדי לעבור למכשיר אחר או לשמור עותק: העתק את הקוד, ושמור אותו אצלך (למשל בהודעה לעצמך).</p>
+  <div class="card stack"><h3>ייצוא</h3><textarea id="bkOut" rows="5" readonly class="num" style="direction:ltr;font-size:12px">${esc(JSON.stringify(S))}</textarea><div class="row"><button class="btn primary" id="bkCopy">העתק</button></div></div>
+  <div class="card stack"><h3>שחזור</h3><textarea id="bkIn" rows="5" style="direction:ltr;font-size:12px" placeholder="הדבק כאן קוד גיבוי"></textarea><div class="row"><button class="btn" id="bkLoad">שחזר מהקוד</button><span id="bkMsg" class="small"></span></div></div>
+  <div class="card stack"><h3>איפוס מלא</h3><p class="small muted">מוחק את כל ההתקדמות, הציונים והנתונים בכלים.</p><div id="bkReset"></div></div>
+  </section>`;
+}
+function renderConfirm(hostId, label, fn) {
+  const h = $("#" + hostId); if (!h) return;
+  const idle = () => { h.innerHTML = `<button class="btn sm danger">${label}</button>`; h.firstChild.onclick = ask; };
+  const ask = () => { h.innerHTML = `<span class="inline-confirm"><span class="small">בטוח?</span><button class="btn sm danger">כן, מחק</button><button class="btn sm">ביטול</button></span>`; const b = h.querySelectorAll("button"); b[0].onclick = fn; b[1].onclick = idle; };
+  idle();
+}
+
+/* ===================== WIRING ===================== */
+function afterRender(id) {
+  if (id === "home") $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); go("home"); } };
+  if (id.startsWith("m")) {
+    const m = MODULES.find(x => x.id === id);
+    const app = $("#app");
+    app.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => { S.ui.sub[m.id] = b.dataset.sub; save(); go(m.id); });
+    app.querySelectorAll("[data-task]").forEach(c => c.onchange = () => { S.tasks[c.dataset.task] = c.checked; c.closest(".task").classList.toggle("done", c.checked); save(); const st = app.querySelector('[data-sub="tasks"]'); const s = modStats(m); st.textContent = `משימות (${s.done}/${s.total})`; });
+    app.querySelectorAll("[data-fc]").forEach(b => { const act = () => {
+      const st = viewCards.st[m.id], terms = moduleTerms(m), known = new Set(S.known[m.id] || []), pool = terms.filter(t => !known.has(t.t));
+      const a = b.dataset.fc;
+      if (a === "flip") st.flip = !st.flip;
+      else if (a === "yes") { known.add(pool[st.i % pool.length].t); S.known[m.id] = [...known]; st.flip = false; save(); }
+      else if (a === "no") { st.i++; st.flip = false; }
+      else if (a === "reset") { S.known[m.id] = []; st.i = 0; st.flip = false; save(); }
+      go(m.id, false);
+    }; b.onclick = act; if (b.dataset.fc === "flip") b.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } }; });
+    app.querySelectorAll("[data-q]").forEach(r => r.onchange = () => { viewQuiz.st[m.id].ans[+r.dataset.q] = +r.value; });
+    app.querySelectorAll("[data-quiz]").forEach(b => b.onclick = () => {
+      const st = viewQuiz.st[m.id];
+      if (b.dataset.quiz === "submit") {
+        const left = m.quiz.length - Object.keys(st.ans).length;
+        if (left > 0) { $("#qLeft").textContent = `נשארו ${left} שאלות בלי תשובה`; return; }
+        st.done = true;
+        const score = m.quiz.filter((q, i) => st.ans[i] === q.a).length;
+        const prev = S.quiz[m.id];
+        if (!prev || score > prev.best) S.quiz[m.id] = { best: score, total: m.quiz.length };
+        save();
+      } else { viewQuiz.st[m.id] = { ans: {}, done: false }; }
+      go(m.id, false);
+    });
+    app.querySelectorAll("[data-exam]").forEach(c => c.onchange = () => { S.exam[c.dataset.exam] = c.checked; save(); go(m.id, false); });
+  }
+  if (id === "t1") { $("#app").querySelectorAll("#t1f input").forEach(i => i.oninput = renderT1); renderT1(); }
+  if (id === "t2") wireT2();
+  if (id === "t3") {
+    $("#app").querySelectorAll(".tool-grid input").forEach(i => i.oninput = renderT3);
+    $("#t3reset").onclick = () => { S.t3 = defaults().t3; save(); go("t3", false); toast("נטענה דוגמת מודול 4"); };
+    renderT3();
+  }
+  if (id === "t4") wireT4();
+  if (id === "t5") wireT5();
+  if (id === "t6") { renderT6(); $("#t6wrap").addEventListener("change", e => { const k = e.target.dataset.dd; if (k) { S.dd[k] = e.target.checked; save(); renderT6(); } }); }
+  if (id === "t7") wireT7();
+  if (id === "glossary") { renderGlossary(); $("#gq").oninput = e => renderGlossary(e.target.value); }
+  if (id === "backup") {
+    $("#bkCopy").onclick = () => {
+      const t = $("#bkOut"), manual = () => { t.select(); toast("סמנתי את הטקסט, העתק ידנית"); };
+      try { navigator.clipboard.writeText(t.value).then(() => toast("הועתק"), manual); } catch (e) { manual(); }
+    };
+    $("#bkLoad").onclick = () => { try { const o = JSON.parse($("#bkIn").value); if (typeof o !== "object" || !o.tasks) throw 0; S = Object.assign(defaults(), o); save(); $("#bkMsg").textContent = "שוחזר בהצלחה"; $("#bkMsg").style.color = "var(--good)"; } catch (e) { $("#bkMsg").textContent = "הקוד לא תקין. ודא שהדבקת את כל הטקסט מהייצוא."; $("#bkMsg").style.color = "var(--bad)"; } };
+    renderConfirm("bkReset", "מחק את כל ההתקדמות", () => { S = defaults(); save(); go("home"); toast("ההתקדמות אופסה"); });
+  }
+}
+function wireT2() {
+  renderT2();
+  const w = $("#t2wrap");
+  w.onchange = e => {
+    const t = e.target, v = S.t2;
+    if (t.dataset.w) v.weights[+t.dataset.w] = +t.value;
+    else if (t.dataset.s) { const [c, r] = t.dataset.s.split("-").map(Number); v.scores[c][r] = +t.value; }
+    else if (t.id && t.id.startsWith("t2n")) v.names[+t.id.slice(3)] = t.value;
+    else return;
+    save(); renderT2();
+  };
+  w.oninput = e => { if (e.target.dataset.note) { S.t2.notes[+e.target.dataset.note] = e.target.value; save(); } };
+  w.onclick = e => { if (e.target.id === "t2clear") { S.t2.scores = [0, 1, 2].map(() => MARKET_METRICS.map(() => 3)); S.t2.example = false; save(); renderT2(); } };
+}
+function wireT4() {
+  renderT4();
+  const w = $("#t4wrap");
+  w.onchange = e => {
+    const t = e.target, v = S.t4;
+    if (t.dataset.it) { const [i, j] = t.dataset.it.split("-").map(Number); v.items[i][j] = j ? +t.value : t.value; v.example = false; }
+    else if (t.id === "t4arv") v.arv = +t.value || 0;
+    else if (t.id === "t4cont") v.cont = +t.value || 0;
+    else return;
+    save(); renderT4();
+  };
+  w.onclick = e => {
+    if (e.target.id === "t4add") { S.t4.items.push(["פריט חדש", 1, 0]); save(); renderT4(); }
+    const d = e.target.closest("[data-del]"); if (d) { S.t4.items.splice(+d.dataset.del, 1); save(); renderT4(); }
+  };
+}
+function wireT5() {
+  renderT5();
+  const w = $("#t5wrap");
+  w.onclick = e => {
+    const r = e.target.closest("[data-role]"); if (r) { S.t5.role = +r.dataset.role; save(); renderT5(); return; }
+    if (e.target.id === "t5add") { (S.t5.cands[S.t5.role] ||= []).push({ name: "", s: [3, 3, 3, 3], flag: false, note: "" }); save(); renderT5(); return; }
+    const d = e.target.closest("[data-cdel]"); if (d) { S.t5.cands[S.t5.role].splice(+d.dataset.cdel, 1); save(); renderT5(); }
+  };
+  w.onchange = e => {
+    const k = e.target.dataset.c; if (!k) return;
+    const [i, f] = k.split("-"), c = S.t5.cands[S.t5.role][+i];
+    if (f === "name") c.name = e.target.value; else if (f === "note") c.note = e.target.value; else if (f === "flag") c.flag = e.target.checked; else c.s[+f.slice(1)] = +e.target.value;
+    save(); renderT5();
+  };
+}
+function wireT7() {
+  renderT7();
+  const w = $("#t7wrap");
+  w.onsubmit = e => {
+    e.preventDefault();
+    const g = id => $("#" + id).value.trim();
+    S.t7.deals.unshift({ addr: g("d_addr"), zip: g("d_zip"), price: +g("d_price"), units: +g("d_units") || 1, rent: +g("d_rent"), coc: g("d_coc") === "" ? null : +g("d_coc"), note: g("d_note"), status: 0 });
+    save(); renderT7(); toast("הנכס נוסף לצנרת");
+  };
+  w.onchange = e => { const s = e.target.dataset.st; if (s != null) { S.t7.deals[+s].status = +e.target.value; save(); renderT7(); } };
+  w.onclick = e => {
+    const d = e.target.closest("[data-ddel]"); if (d) { S.t7.deals.splice(+d.dataset.ddel, 1); save(); renderT7(); }
+    if (e.target.id === "t7clearEx") { S.t7.deals = S.t7.deals.filter(x => !x.ex); save(); renderT7(); }
+  };
+}
+
+/* ===================== BOOT ===================== */
+updateMini();
+const h = (location.hash || "").slice(1);
+go(h || S.ui.tab || "home", !!h);
+</script>
