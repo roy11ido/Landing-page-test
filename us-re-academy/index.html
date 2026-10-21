@@ -1202,8 +1202,8 @@ const COUNTY_OFFICES = [
 /* official county site opens directly when known; each office opens a normal search page in the browser */
 function countyLinks(where, l) {
   const site = l ? countySite(l) : null;
-  const card = (n, d, u, cta) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">${cta}</span></a>`;
-  return (site ? card("אתר המחוז הרשמי", site.replace(/^https?:\/\//, "").replace(/\/$/, ""), site, "פתח ↗") : "") + COUNTY_OFFICES.map(([n, d, q]) => card(n, d, bing(where + " " + q), "חפש ↗")).join("");
+  const card = (n, d, u, cta) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">${cta}</span></a>`;
+  return (site ? card("אתר המחוז הרשמי", site.replace(/^https?:\/\//, "").replace(/\/$/, ""), site, "פתח ↗") + copyRow(site) : "") + COUNTY_OFFICES.map(([n, d, q]) => card(n, d, bing(where + " " + q), "חפש ↗")).join("");
 }
 async function runCountyFinder() {
   const q = $("#cfIn").value.trim(), out = $("#cfOut");
@@ -1292,7 +1292,7 @@ function locLinks(l) {
     ["Comps — נמכרו לאחרונה", `Redfin · ${place}`, bing(`redfin ${place} recently sold homes`)],
     ["שכירות באזור", "Rentometer", "https://www.rentometer.com"]
   ];
-  return `<div class="lp-links">${links.map(([t, d, u]) => `<a class="lp-link" href="${u}" target="_blank" rel="noopener noreferrer"><span><b>${t}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">↗</span></a>`).join("")}<button type="button" class="lp-link" data-go="sites" data-cfloc="${esc(JSON.stringify(l))}" style="border:0"><span><b>כל משרדי המחוז</b><span class="tiny muted">${esc(l.county)} — ירושות, עיקולים, חובות מס</span></span><span class="pill dark">←</span></button></div>`;
+  return `<div class="lp-links">${links.map(([t, d, u]) => `<a class="lp-link" href="${u}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"><span><b>${t}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">↗</span></a>${t === "אתר המחוז הרשמי" ? copyRow(u) : ""}`).join("")}<button type="button" class="lp-link" data-go="sites" data-cfloc="${esc(JSON.stringify(l))}" style="border:0"><span><b>כל משרדי המחוז</b><span class="tiny muted">${esc(l.county)} — ירושות, עיקולים, חובות מס</span></span><span class="pill dark">←</span></button></div>`;
 }
 function locPicker(key, loc, label, opts = {}) {
   return `<div class="locpick${opts.full ? " full" : ""}" data-lp="${key}">
@@ -1342,6 +1342,17 @@ function bindPicker(key, label, opts, setLoc) {
 }
 /* "all county offices" button inside the area links carries the chosen place to the tools tab */
 document.addEventListener("click", e => { const b = e.target.closest("[data-cfloc]"); if (!b) return; try { S.ui.cfLoc = JSON.parse(b.dataset.cfloc); } catch (err) {} }, true);
+
+/* some county sites block in-app browsers (403); copying the address lets the user paste it into Safari / Chrome */
+function copyRow(u) {
+  return `<div class="row" style="gap:6px;margin-top:-2px"><button type="button" class="btn sm soft" data-copy="${esc(u)}">העתק כתובת</button><span class="tiny muted">נפתח דף ״403 Forbidden״? העתק והדבק בדפדפן.</span></div>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]"); if (!b) return;
+  const u = b.dataset.copy;
+  const manual = () => { const t = document.createElement("textarea"); t.value = u; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select(); let ok = false; try { ok = document.execCommand("copy"); } catch (err) {} t.remove(); toast(ok ? "הכתובת הועתקה — הדבק ב-Safari" : u); };
+  try { navigator.clipboard.writeText(u).then(() => toast("הכתובת הועתקה — הדבק ב-Safari"), manual); } catch (err) { manual(); }
+});
 
 /* ===================== CALCULATORS ===================== */
 const CATS = [["yield", "תשואה"], ["income", "הכנסות"], ["expense", "הוצאות"], ["finance", "מימון"], ["value", "שווי ושיפוץ"], ["tax", "מסים"], ["fx", "מט״ח"]];
