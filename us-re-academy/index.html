@@ -2142,31 +2142,48 @@ function wire(r) {
 
 
 /* ===================== NAPKIN MATH — 2-minute filter that rejects deals ===================== */
+/* Fields start empty; no verdict until the user taps "בדוק"; after that every edit re-checks live. */
 const NAP_MODES = [["rental", "השכרה 1–4"], ["multi", "5+ יחידות"], ["flip", "פליפ"], ["brrrr", "BRRRR"], ["whole", "Wholesaler"]];
-const NAP_COMMON = [I("rate", "ריבית DSCR", 7.5, 5, 10, 0.125, "%"), I("down", "מקדמה", 25, 15, 40, 1, "%"), I("target", "יעד תזרים לדירה לחודש", 100, 50, 300, 10)];
-const NAP_IN = {
-  rental: [I("price", "מחיר רכישה", 150000, 30000, 1000000, 1000), I("rehab", "שיפוץ", 0, 0, 200000, 500), I("rent", "שכירות חודשית (כל היחידות)", 1650, 0, 15000, 25), I("units", "יחידות", 1, 1, 4, 1, "יח׳")],
-  multi: [I("mprice", "מחיר הבניין", 1200000, 200000, 10000000, 10000), I("munits", "יחידות", 12, 5, 200, 1, "יח׳"), I("mrent", "שכירות חודשית כוללת", 14400, 0, 300000, 100), I("mexp", "הוצאות תפעול (% מהשכירות)", 50, 30, 65, 1, "%"), I("mppu", "מחיר ליחידה בעסקאות דומות (0 = לא ידוע)", 0, 0, 500000, 1000)],
-  flip: [I("arv", "ARV — הנמוך מ-3 Comps", 200000, 30000, 2000000, 1000), I("frehab", "הערכת שיפוץ", 30000, 0, 500000, 500), I("cont", "בלת״ם על השיפוץ", 15, 10, 30, 1, "%"), I("fpct", "אחוז מה-ARV (65% בשוק זול)", 70, 60, 80, 1, "%"), I("ask", "מחיר מבוקש", 110000, 10000, 2000000, 1000)],
-  brrrr: [I("bprice", "מחיר רכישה", 120000, 20000, 1500000, 1000), I("brehab", "שיפוץ", 35000, 0, 500000, 500), I("bclose", "עלויות סגירה", 6000, 0, 60000, 250), I("barv", "ARV", 220000, 30000, 2000000, 1000), I("bltv", "LTV במימון מחדש", 75, 60, 80, 1, "%"), I("brent", "שכירות חודשית", 1800, 0, 15000, 25), I("bunits", "יחידות", 1, 1, 4, 1, "יח׳")],
-  whole: [I("warv", "ARV לפי ה-Wholesaler", 259900, 30000, 2000000, 1000), I("yarv", "ARV לפי ה-Comps שלך (הנמוך)", 230000, 30000, 2000000, 1000), I("wrehab", "השיפוץ לפי ההערכה שלך", 45000, 0, 500000, 500), I("wcont", "בלת״ם", 15, 10, 30, 1, "%"), I("wpct", "אחוז מה-ARV", 70, 60, 80, 1, "%"), I("wask", "מחיר מבוקש (כולל העמלה שלו)", 115000, 10000, 2000000, 1000)]
+/* [key, label, example placeholder, default when left empty (null = required), unit] */
+const NAP_F = {
+  rental: [["price", "מחיר רכישה", "150000", null, "$"], ["rent", "שכירות חודשית (כל היחידות)", "1650", null, "$"], ["rehab", "שיפוץ", "0", 0, "$"], ["units", "יחידות", "1", 1, "יח׳"]],
+  multi: [["mprice", "מחיר הבניין", "1200000", null, "$"], ["munits", "יחידות", "12", null, "יח׳"], ["mrent", "שכירות חודשית כוללת", "14400", null, "$"], ["mexp", "הוצאות תפעול (% מהשכירות)", "50", 50, "%"], ["mppu", "מחיר ליחידה בעסקאות דומות", "לא חובה", 0, "$"]],
+  flip: [["arv", "ARV — הנמוך מ-3 Comps", "200000", null, "$"], ["frehab", "הערכת שיפוץ", "30000", null, "$"], ["ask", "מחיר מבוקש", "110000", null, "$"], ["cont", "בלת״ם על השיפוץ", "15", 15, "%"], ["fpct", "אחוז מה-ARV (65% בשוק זול)", "70", 70, "%"]],
+  brrrr: [["bprice", "מחיר רכישה", "120000", null, "$"], ["brehab", "שיפוץ", "35000", null, "$"], ["barv", "ARV", "220000", null, "$"], ["brent", "שכירות חודשית", "1800", null, "$"], ["bclose", "עלויות סגירה", "6000", 0, "$"], ["bltv", "LTV במימון מחדש", "75", 75, "%"], ["bunits", "יחידות", "1", 1, "יח׳"]],
+  whole: [["yarv", "ARV לפי ה-Comps שלך (הנמוך)", "230000", null, "$"], ["wrehab", "השיפוץ לפי ההערכה שלך", "45000", null, "$"], ["wask", "מחיר מבוקש (כולל העמלה שלו)", "115000", null, "$"], ["warv", "ARV לפי ה-Wholesaler", "לא חובה", 0, "$"], ["wcont", "בלת״ם", "15", 15, "%"], ["wpct", "אחוז מה-ARV", "70", 70, "%"]]
 };
-const NAP_ALL = [...NAP_COMMON, ...Object.values(NAP_IN).flat()];
+const NAP_COMMON = [["rate", "ריבית DSCR", "7.5", 7.5, "%"], ["down", "מקדמה", "25", 25, "%"], ["target", "יעד תזרים לדירה לחודש", "100", 100, "$"]];
 /* monthly P&I as a share of the PRICE (25% down -> ~0.52% at 7.5%) and of the LOAN (~0.70% at 7.5%) */
 const napOfPrice = v => pmt(1, v.rate, 30) * (1 - v.down / 100) * 100;
 const napOfLoan = v => pmt(1, v.rate, 30) * 100;
 
+function napState() {
+  const v = S.calc.napkin || (S.calc.napkin = {});
+  if (!v.mode) v.mode = "rental";
+  if (!v.vals) v.vals = {};
+  if (!v.checked) v.checked = {};
+  return v;
+}
+/* effective numbers for the current mode, or the list of missing required fields */
+function napValues(v) {
+  const out = { mode: v.mode, noMgmt: v.noMgmt, taxOk: v.taxOk }, missing = [];
+  [...NAP_COMMON, ...NAP_F[v.mode]].forEach(([k, label, , def]) => {
+    const x = parseFloat(v.vals[k]);
+    if (isFinite(x)) out[k] = x; else if (def !== null) out[k] = def; else missing.push(label);
+  });
+  return { e: out, missing };
+}
 function napkin(v) {
   const steps = [], ok = (pass, t, val) => steps.push({ s: pass === null ? "i" : pass ? "y" : "n", t, val });
   let pass = false, cta = null;
   if (v.mode === "rental") {
-    const base = v.price + v.rehab, r1 = v.rent / base * 100, noi = v.rent * 0.5, mort = v.price * napOfPrice(v) / 100, cf = noi - mort, door = cf / v.units;
+    const u = Math.max(1, v.units), base = v.price + v.rehab, r1 = v.rent / base * 100, noi = v.rent * 0.5, mort = v.price * napOfPrice(v) / 100, door = (noi - mort) / u;
     ok(r1 >= 1, `חוק ה-1%: ${fmtD(v.rent)} ÷ ${fmtD(base)}`, pct(r1, 2));
     ok(null, "NOI ≈ 50% מהשכירות", fmtD(noi));
     ok(null, `משכנתא ≈ ${napOfPrice(v).toFixed(2)}% מהמחיר`, fmtD(mort));
     ok(door >= v.target, `תזרים לדירה (יעד ${fmtD(v.target)})`, fmtD(door));
     pass = r1 >= 1 && door >= v.target;
-    const need = (v.target * v.units + mort) / 0.5;
+    const need = (v.target * u + mort) / 0.5;
     steps.push({ s: "i", t: "שכירות שצריך כדי לעבור", val: `${fmtD(need)} (${pct(need / base * 100, 2)})` });
     cta = ["חיתום מלא בבדיקת עסקה", "deal"];
   } else if (v.mode === "multi") {
@@ -2186,16 +2203,15 @@ function napkin(v) {
     pass = v.ask <= mao;
     if (!pass && mao > 0) steps.push({ s: "i", t: "אפשר להציע את ה-MAO", val: fmtD(mao) });
   } else if (v.mode === "brrrr") {
-    const all = v.bprice + v.brehab + v.bclose, cap75 = v.barv * 0.75, loan = v.barv * v.bltv / 100, mort = loan * napOfLoan(v) / 100, noi = v.brent * 0.5, cf = noi - mort, door = cf / v.bunits;
+    const u = Math.max(1, v.bunits), all = v.bprice + v.brehab + v.bclose, cap75 = v.barv * 0.75, loan = v.barv * v.bltv / 100, mort = loan * napOfLoan(v) / 100, door = (v.brent * 0.5 - mort) / u;
     ok(all <= cap75, "הכל נכנס? מחיר + שיפוץ + סגירה ≤ 75% מה-ARV", `${fmtD(all)} / ${fmtD(cap75)}`);
     ok(null, `הלוואה חדשה (${v.bltv}% מה-ARV)`, fmtD(loan));
     ok(null, `משכנתא ≈ ${napOfLoan(v).toFixed(2)}% מההלוואה החדשה`, fmtD(mort));
     ok(door >= v.target, `תזרים אחרי מימון מחדש, לדירה (יעד ${fmtD(v.target)})`, fmtD(door));
     pass = all <= cap75 && door >= v.target;
-    steps.push({ s: "i", t: "שני המבחנים חייבים לעבור", val: "" });
   } else {
-    const gap = (v.warv / v.yarv - 1) * 100, reh = v.wrehab * (1 + v.wcont / 100), mao = v.yarv * v.wpct / 100 - reh;
-    ok(gap <= 5, "ה-ARV שלו מול ה-Comps שלך", gap > 0 ? `גבוה ב-${Math.round(gap)}%` : "תואם");
+    const reh = v.wrehab * (1 + v.wcont / 100), mao = v.yarv * v.wpct / 100 - reh;
+    if (v.warv > 0) { const gap = (v.warv / v.yarv - 1) * 100; ok(gap <= 5, "ה-ARV שלו מול ה-Comps שלך", gap > 0 ? `גבוה ב-${Math.round(gap)}%` : "תואם"); }
     ok(null, `MAO לפי המספרים שלך (שיפוץ + ${v.wcont}% בלת״ם)`, fmtD(mao));
     ok(v.wask <= mao, "המחיר שלו (העמלה כבר בפנים) ≤ MAO", fmtD(v.wask));
     pass = v.wask <= mao;
@@ -2205,56 +2221,78 @@ function napkin(v) {
   return { pass, steps, cta };
 }
 function napkinResult(v) {
-  const r = napkin(v);
+  if (!v.checked[v.mode]) return `<p class="small muted" style="text-align:center">מלא את השדות ולחץ ״בדוק״.</p>`;
+  const { e, missing } = napValues(v);
+  if (missing.length) return `<div class="warnline">חסר כדי לבדוק: ${missing.map(esc).join(", ")}</div>`;
+  const r = napkin(e);
   return `<div class="verdict ${r.pass ? "good" : "bad"}"><span class="small muted">מבחן המפית · ${esc(NAP_MODES.find(m => m[0] === v.mode)[1])}</span>
     <div class="vt">${r.pass ? "עובר לחיתום מלא ✓" : "נכשל — זורקים ✕"}</div>
     <div class="reasons">${r.steps.map(s => `<div><span class="mk ${s.s === "y" ? "ok" : s.s === "n" ? "no" : ""}" style="${s.s === "i" ? "background:var(--soft-2);color:var(--ink)" : ""}">${s.s === "y" ? "✓" : s.s === "n" ? "✕" : "="}</span><span style="flex:1">${esc(s.t)}</span><b class="num" style="white-space:nowrap">${esc(s.val)}</b></div>`).join("")}</div>
     ${!v.taxOk ? `<div class="warnline">לא בדקת את המס האמיתי ב-Auditor. מס רכוש באוהיו יכול להיות גבוה מההערכה.</div>` : ""}
     ${r.pass && r.cta ? `<button class="btn primary" id="napToDeal" style="justify-self:start">${r.cta[0]} ←</button>` : ""}
+    ${S.ui.napFor ? `<button class="btn" id="saveNap" style="justify-self:start">שמור תוצאה לנכס</button>` : ""}
   </div>`;
 }
-function napStick(v) { const r = napkin(v); return { cls: r.pass ? "good" : "bad", lab: "מבחן המפית", val: r.pass ? "עובר ✓" : "נכשל ✕", pill: "" }; }
+function napStick(v) {
+  if (!v.checked[v.mode]) return { cls: "", lab: "מבחן המפית", val: "—", pill: "" };
+  const { e, missing } = napValues(v); if (missing.length) return { cls: "mid", lab: "חסרים נתונים", val: "—", pill: "" };
+  const r = napkin(e); return { cls: r.pass ? "good" : "bad", lab: "מבחן המפית", val: r.pass ? "עובר ✓" : "נכשל ✕", pill: "" };
+}
+function napField([k, label, ex, def, unit], v) {
+  const val = v.vals[k] ?? "";
+  return `<label${k === "mppu" || k === "warv" ? ' class="full"' : ""}>${label}${def === null ? ' <span style="color:var(--red)">*</span>' : ""}
+    <span class="inp-num" style="width:100%;justify-content:space-between"><input type="number" step="any" inputmode="decimal" data-nk="${k}" value="${esc(val)}" placeholder="${esc(ex)}" style="width:100%"><span class="unit">${unit}</span></span></label>`;
+}
 function viewNapkin() {
-  const v = calcVals("napkin", NAP_ALL); if (!v.mode) v.mode = "rental";
-  const ap = S.ui.napFor ? getProp(S.ui.napFor) : null;
-  return `${ap ? `<section class="card stack" style="gap:8px;outline:2px solid var(--brand)"><span class="tiny muted">מבחן מפית לנכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><div class="row"><button class="btn sm primary" id="saveNap">שמור תוצאה לנכס</button><button class="btn sm soft" id="stopNap">ביטול</button></div></section>` : ""}
-  <section class="stack" style="gap:6px"><h1>מבחן המפית</h1><p class="muted">סינון של 2 דקות במספרים מעוגלים. הוא נועד לפסול עסקאות, לא לאשר אותן.</p></section>
+  const v = napState(), ap = S.ui.napFor ? getProp(S.ui.napFor) : null, { e } = napValues(v);
+  return `${ap ? `<section class="card stack" style="gap:6px;outline:2px solid var(--brand)"><span class="tiny muted">מבחן מפית לנכס מהטבלה</span><b style="font-family:var(--font-display)" dir="auto">${esc(ap.addr)}</b><button class="btn sm soft" id="stopNap" style="justify-self:start">ביטול</button></section>` : ""}
+  <section class="stack" style="gap:6px"><h1>מבחן המפית</h1><p class="muted">סינון של 2 דקות במספרים מעוגלים. נועד לפסול עסקאות, לא לאשר אותן.</p></section>
   <div class="chips" role="group" aria-label="אסטרטגיה">${NAP_MODES.map(([k, l]) => `<button data-nmode="${k}" aria-pressed="${v.mode === k}">${l}</button>`).join("")}</div>
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">פסילה מיידית, לפני כל מספר</b>
     <label class="task ${v.noMgmt ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napMgmt" ${v.noMgmt ? "checked" : ""}><span class="box" style="${v.noMgmt ? "background:var(--red);border-color:var(--red)" : ""}">${IC.check}</span><span class="t" style="text-decoration:none">חברת ניהול מקומית מסרבת לנהל באזור</span></label>
     <label class="task ${v.taxOk ? "done" : ""}" style="box-shadow:none"><input type="checkbox" id="napTax" ${v.taxOk ? "checked" : ""}><span class="box">${IC.check}</span><span class="t" style="text-decoration:none">בדקתי את המס האמיתי של הנכס ב-Auditor</span></label>
   </section>
-  ${v.mode === "whole" ? `<div class="warnline">לא מאמינים ל-ARV ולהערכת השיפוץ של ה-Wholesaler. בודקים Comps בעצמך. אחרי המבחן ממשיכים לפי האסטרטגיה: השכרה, פליפ או BRRRR.</div>` : ""}
+  ${v.mode === "whole" ? `<div class="warnline">לא מאמינים ל-ARV ולהערכת השיפוץ של ה-Wholesaler. בודקים Comps בעצמך, ואחרי המבחן ממשיכים לפי האסטרטגיה: השכרה, פליפ או BRRRR.</div>` : ""}
+  <section class="card form" id="napForm">${NAP_F[v.mode].map(f => napField(f, v)).join("")}
+    <span class="tiny muted full"><span style="color:var(--red)">*</span> חובה. שדה ריק בלי כוכבית מקבל את ערך ברירת המחדל שמופיע בו.</span></section>
+  <details class="adv"><summary>הנחות: ריבית ${e.rate}% · משכנתא ≈ ${napOfPrice(e).toFixed(2)}% מהמחיר</summary><div class="form" style="padding:0 14px 14px">${NAP_COMMON.map(f => napField(f, v)).join("")}<p class="tiny muted full">לא בטוח: המכפיל מבוסס על ריבית DSCR של 6.5%–7.5%. כשתקבל ריבית מהברוקר, עדכן אותה כאן והמכפיל יתעדכן לבד (6.5% ≈ 0.47%).</p></div></details>
+  <div class="row"><button class="btn primary" id="napCheck" style="flex:1">${v.checked[v.mode] ? "בדוק שוב" : "בדוק"}</button><button class="btn soft" id="napClear">נקה</button></div>
   <div class="stick" id="stick" hidden></div>
-  <div id="res">${napkinResult(v)}</div>
-  <section class="inps">${NAP_IN[v.mode].map(d => inp(d, v[d.k])).join("")}</section>
-  <details class="adv"><summary>הנחות: ריבית ${v.rate}% · מכפיל ${napOfPrice(v).toFixed(2)}% מהמחיר</summary><div class="inps">${NAP_COMMON.map(d => inp(d, v[d.k])).join("")}<p class="tiny muted" style="padding:0 6px">לא בטוח: המכפיל מבוסס על ריבית DSCR של 6.5%–7.5%. כשתקבל ריבית מהברוקר, עדכן אותה כאן והמכפיל יתעדכן לבד (6.5% ≈ 0.47%).</p></div></details>
-  <button class="btn sm soft" id="resetCalc" style="justify-self:start">החזר לערכי הדוגמה</button>`;
+  <div id="res">${napkinResult(v)}</div>`;
 }
 function napFromProp(id) {
   const p = getProp(id); if (!p) return;
-  const v = calcVals("napkin", NAP_ALL), price = +p.price || 0, rent = +p.rent || 0, units = Math.max(1, +p.units || 1);
-  if (+p.arv > 0 && !rent) { v.mode = p.source === "Wholesaler" ? "whole" : "flip"; if (v.mode === "whole") { v.warv = +p.arv; v.wask = price; } else { v.arv = +p.arv; v.ask = price; } }
-  else if (units >= 5) { v.mode = "multi"; v.mprice = price; v.munits = units; v.mrent = rent; }
-  else { v.mode = "rental"; v.price = price; v.rent = rent; v.units = units; v.rehab = 0; }
+  const v = napState(), price = +p.price || "", rent = +p.rent || "", units = Math.max(1, +p.units || 1);
+  if (+p.arv > 0 && !rent) {
+    v.mode = p.source === "Wholesaler" ? "whole" : "flip";
+    Object.assign(v.vals, v.mode === "whole" ? { warv: +p.arv, wask: price } : { arv: +p.arv, ask: price });
+  } else if (units >= 5) { v.mode = "multi"; Object.assign(v.vals, { mprice: price, munits: units, mrent: rent }); }
+  else { v.mode = "rental"; Object.assign(v.vals, { price, rent, units, rehab: "" }); }
+  v.checked[v.mode] = false;
   S.ui.napFor = id; save(); go("napkin");
 }
+function napRefresh() {
+  const v = napState(), open = $("#res details")?.open;
+  $("#res").innerHTML = napkinResult(v); renderStick(napStick(v)); wireNapResult();
+  const s = $(".adv > summary"); if (s) { const { e } = napValues(v); s.textContent = `הנחות: ריבית ${e.rate}% · משכנתא ≈ ${napOfPrice(e).toFixed(2)}% מהמחיר`; }
+}
 function wireNapkin() {
-  const v = S.calc.napkin;
-  wireInputs(v, () => { $("#res").innerHTML = napkinResult(v); renderStick(napStick(v)); wireNapCta(); save(); });
-  watchStick(() => napStick(v)); wireNapCta();
+  const v = napState();
+  watchStick(() => napStick(v)); wireNapResult();
+  $("#app").oninput = e => { const k = e.target.dataset.nk; if (!k) return; v.vals[k] = e.target.value; save(); if (v.checked[v.mode]) napRefresh(); };
   $$("[data-nmode]").forEach(b => b.onclick = () => { v.mode = b.dataset.nmode; save(); go("napkin", { keepScroll: true }); });
   $("#napMgmt").onchange = e => { v.noMgmt = e.target.checked; save(); go("napkin", { keepScroll: true }); };
   $("#napTax").onchange = e => { v.taxOk = e.target.checked; save(); go("napkin", { keepScroll: true }); };
-  $("#resetCalc").onclick = () => { const m = v.mode; delete S.calc.napkin; const nv = calcVals("napkin", NAP_ALL); nv.mode = m; save(); go("napkin"); toast("הוחזרו ערכי הדוגמה"); };
-  if ($("#saveNap")) {
-    $("#saveNap").onclick = async () => { const p = getProp(S.ui.napFor); if (!p) return; const r = napkin(v); S.ui.napFor = null; await saveProp({ ...p, nap: { pass: r.pass, mode: v.mode, at: todayISO() }, status: !r.pass && p.status === 0 ? 5 : p.status }); toast(r.pass ? "עבר — נשמר לנכס" : "נכשל — סומן ״נפסל״"); go("deals:pipeline"); };
-    $("#stopNap").onclick = () => { S.ui.napFor = null; save(); go("napkin"); };
-  }
+  $("#napCheck").onclick = () => { v.checked[v.mode] = true; save(); napRefresh(); $("#napCheck").textContent = "בדוק שוב"; $("#res").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" }); };
+  $("#napClear").onclick = () => { NAP_F[v.mode].forEach(([k]) => delete v.vals[k]); v.checked[v.mode] = false; save(); go("napkin", { keepScroll: true }); };
+  if ($("#stopNap")) $("#stopNap").onclick = () => { S.ui.napFor = null; save(); go("napkin"); };
 }
-function wireNapCta() {
-  const b = $("#napToDeal"); if (!b) return;
-  b.onclick = () => { const v = S.calc.napkin, d = Object.assign(dealDefaults(), S.calc.deal || {}); d.price = v.price; d.units = v.units; d.rent = Math.round(v.rent / v.units); d.rate = v.rate; d.down = v.down; d.repairs = v.rehab; S.calc.deal = d; S.ui.analyzing = S.ui.napFor || null; save(); go("c-deal"); };
+function wireNapResult() {
+  const v = napState();
+  const toDeal = $("#napToDeal");
+  if (toDeal) toDeal.onclick = () => { const { e } = napValues(v), d = Object.assign(dealDefaults(), S.calc.deal || {}); d.price = e.price; d.units = e.units; d.rent = Math.round(e.rent / Math.max(1, e.units)); d.rate = e.rate; d.down = e.down; d.repairs = e.rehab; S.calc.deal = d; S.ui.analyzing = S.ui.napFor || null; save(); go("c-deal"); };
+  const sv = $("#saveNap");
+  if (sv) sv.onclick = async () => { const p = getProp(S.ui.napFor); if (!p) return; const r = napkin(napValues(v).e); S.ui.napFor = null; await saveProp({ ...p, nap: { pass: r.pass, mode: v.mode, at: todayISO() }, status: !r.pass && p.status === 0 ? 5 : p.status }); toast(r.pass ? "עבר — נשמר לנכס" : "נכשל — סומן ״נפסל״"); go("deals:pipeline"); };
 }
 /* ===================== BOOT ===================== */
 const h0 = (location.hash || "").slice(1);
