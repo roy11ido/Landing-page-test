@@ -1180,11 +1180,11 @@ const COUNTY_OFFICES = [
   ["Sheriff Sales", "מכירות פומביות של נכסים מעוקלים", "sheriff sale real estate"],
   ["Code Enforcement", "נכסים מוזנחים ועבירות בנייה", "code enforcement violations"]
 ];
-/* "\" before a DuckDuckGo query jumps straight to the top result (the office's own site); a plain results link stays as backup */
-function countyLinks(where) {
-  return COUNTY_OFFICES.map(([n, d, q]) => `<div class="li" style="flex-wrap:wrap">
-    <a href="https://duckduckgo.com/?q=${encodeURIComponent("\\" + where + " " + q + " official site")}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;gap:14px;align-items:center;flex:1;min-width:0"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">פתח אתר ↗</span></a>
-    <a class="tiny" href="https://duckduckgo.com/?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="color:var(--muted);flex-basis:100%">לא הגעת לאתר הנכון? כל התוצאות</a></div>`).join("");
+/* official county site opens directly when known; each office opens a normal search page in the browser */
+function countyLinks(where, l) {
+  const site = l ? countySite(l) : null;
+  const card = (n, d, u, cta) => `<a class="li" href="${u}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">${cta}</span></a>`;
+  return (site ? card("אתר המחוז הרשמי", site.replace(/^https?:\/\//, "").replace(/\/$/, ""), site, "פתח ↗") : "") + COUNTY_OFFICES.map(([n, d, q]) => card(n, d, bing(where + " " + q), "חפש ↗")).join("");
 }
 async function runCountyFinder() {
   const q = $("#cfIn").value.trim(), out = $("#cfOut");
@@ -1199,17 +1199,18 @@ async function runCountyFinder() {
     where = loc.st ? `${nm} County ${ST_NAMES[loc.st]}` : `${nm} County`;
     label = loc.st ? `${nm} County, ${ST_NAMES[loc.st]}` : `${nm} County`;
   }
-  out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). הכפתור פותח את האתר הרשמי ישירות. אם הגעת לאתר לא נכון, לחץ ״כל התוצאות״.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where)}</div>`;
+  out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). כל משרד פותח דף חיפוש בדפדפן.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where, null)}</div>`;
 }
 
 function cfLinks(l) {
   const where = `${l.county.replace(/ County$/i, "")} County ${stateName(l.st)}`;
-  return `<p class="small"><b>${esc(l.county)}, ${esc(stateName(l.st))}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). אם הגעת לאתר לא נכון, לחץ ״כל התוצאות״.</p><div class="list">${countyLinks(where)}</div>`;
+  return `<p class="small"><b>${esc(l.county)}, ${esc(stateName(l.st))}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). ${countySite(l) ? "אתר המחוז נפתח ישירות. כל משרד פותח דף חיפוש בדפדפן, שבו האתר הרשמי מופיע בדרך כלל ראשון." : "כל משרד פותח דף חיפוש בדפדפן, שבו האתר הרשמי מופיע בדרך כלל ראשון."}</p><div class="list">${countyLinks(where, l)}</div>`;
 }
 
 /* ===================== LOCATION PICKER — any US city, county or ZIP (data/places.json) ===================== */
 const PL = { data: undefined, rows: null, zip: null };
 async function placesData() {
+  loadCountySites();
   if (PL.data !== undefined) return PL.data;
   try {
     const r = await fetch("data/places.json"); if (!r.ok) throw 0;
@@ -1251,15 +1252,25 @@ function locLabel(l) {
   return `${l.zip ? l.zip + " · " : ""}${l.city}, ${l.st}`;
 }
 const stateName = st => ST_NAMES[st] || st;
-const ducky = q => `https://duckduckgo.com/?q=${encodeURIComponent("\\" + q)}`;
+/* official county websites (data/county_sites.json, from Wikidata); offices without a known URL go to a normal search page */
+const CS = { data: undefined };
+async function loadCountySites() {
+  if (CS.data !== undefined) return CS.data;
+  try { const r = await fetch("data/county_sites.json"); CS.data = r.ok ? await r.json() : null; } catch (e) { CS.data = null; }
+  return CS.data;
+}
+const countySite = l => (CS.data && l && CS.data[`${l.county}|${l.st}`]) || null;
+const bing = q => `https://www.bing.com/search?q=${encodeURIComponent(q)}`;
+const taxUrl = l => bing(`${l.county} ${stateName(l.st)} assessor auditor property tax parcel search`);
 /* links that depend on where the property is */
 function locLinks(l) {
   if (!l) return "";
   const cty = `${l.county} ${stateName(l.st)}`, place = l.kind === "county" ? cty : `${l.city} ${l.st}`;
   const links = [
-    ["מס נכס אמיתי", `אתר ה-Assessor / Auditor של ${l.county}`, ducky(`${cty} property tax assessor auditor parcel search official site`)],
+    ...(countySite(l) ? [["אתר המחוז הרשמי", countySite(l).replace(/^https?:\/\//, "").replace(/\/$/, ""), countySite(l)]] : []),
+    ["מס נכס אמיתי", `חיפוש אתר ה-Assessor / Auditor של ${l.county}`, taxUrl(l)],
     ["סיכון הצפה", "FEMA לפי כתובת", "https://msc.fema.gov/portal/search"],
-    ["Comps — נמכרו לאחרונה", `Redfin · ${place}`, ducky(`redfin ${place} recently sold homes`)],
+    ["Comps — נמכרו לאחרונה", `Redfin · ${place}`, bing(`redfin ${place} recently sold homes`)],
     ["שכירות באזור", "Rentometer", "https://www.rentometer.com"]
   ];
   return `<div class="lp-links">${links.map(([t, d, u]) => `<a class="lp-link" href="${u}" target="_blank" rel="noopener noreferrer"><span><b>${t}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">↗</span></a>`).join("")}<button type="button" class="lp-link" data-go="sites" data-cfloc="${esc(JSON.stringify(l))}" style="border:0"><span><b>כל משרדי המחוז</b><span class="tiny muted">${esc(l.county)} — ירושות, עיקולים, חובות מס</span></span><span class="pill dark">←</span></button></div>`;
@@ -2358,7 +2369,7 @@ function napkinResult(v) {
   return `<div class="verdict ${r.pass ? "good" : "bad"}"><span class="small muted">מבחן המפית · ${esc(NAP_MODES.find(m => m[0] === v.mode)[1])}</span>
     <div class="vt">${r.pass ? "עובר לחיתום מלא ✓" : "נכשל — זורקים ✕"}</div>
     <div class="reasons">${r.steps.map(s => `<div><span class="mk ${s.s === "y" ? "ok" : s.s === "n" ? "no" : ""}" style="${s.s === "i" ? "background:var(--soft-2);color:var(--ink)" : ""}">${s.s === "y" ? "✓" : s.s === "n" ? "✕" : "="}</span><span style="flex:1">${esc(s.t)}</span><b class="num" style="white-space:nowrap">${esc(s.val)}</b></div>`).join("")}</div>
-    ${!v.taxOk ? `<div class="warnline">לא בדקת את המס האמיתי של ${v.loc ? esc(v.loc.county) : "המחוז"}. מס נכס משתנה מאוד בין מחוזות ויכול להפוך עסקה.${v.loc ? ` <a href="${ducky(`${v.loc.county} ${stateName(v.loc.st)} property tax assessor auditor parcel search official site`)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand-strong);font-weight:700">בדוק עכשיו ↗</a>` : ""}</div>` : ""}
+    ${!v.taxOk ? `<div class="warnline">לא בדקת את המס האמיתי של ${v.loc ? esc(v.loc.county) : "המחוז"}. מס נכס משתנה מאוד בין מחוזות ויכול להפוך עסקה.${v.loc ? ` <a href="${taxUrl(v.loc)}" target="_blank" rel="noopener noreferrer" style="color:var(--brand-strong);font-weight:700">בדוק עכשיו ↗</a>` : ""}</div>` : ""}
     ${r.pass && r.cta ? `<button class="btn primary" id="napToDeal" style="justify-self:start">${r.cta[0]} ←</button>` : ""}
     ${S.ui.napFor ? `<button class="btn" id="saveNap" style="justify-self:start">שמור תוצאה לנכס</button>` : ""}
   </div>`;
@@ -2449,6 +2460,7 @@ function wireSettings() {
   $("#startDate").onchange = e => { if (e.target.value) { S.start = e.target.value; save(); toast("נשמר"); } };
 }
 /* ===================== BOOT ===================== */
+loadCountySites();
 const h0 = (location.hash || "").slice(1);
 go(validRoute(h0) ? h0 : (S.ui.route || "home"));
 initStore();
