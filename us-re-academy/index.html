@@ -1055,8 +1055,8 @@ function viewSites() {
   const tab = S.ui.sitesTab || "research";
   const head = `<section class="stack" style="gap:6px"><h1>כלים ואתרים</h1><p class="muted">כל אתר שצריך למחקר נכס ושוק, ואיך מוציאים ממנו את המידע. שמות הכפתורים באתרים עשויים להשתנות.</p></section>
   <div class="seg" role="group" aria-label="סוג כלים"><button data-stab="research" aria-pressed="${tab === "research"}">מחקר נכס ושוק</button><button data-stab="motivated" aria-pressed="${tab === "motivated"}">מוכרים עם מוטיבציה</button></div>
-  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">מיקוד או ״מחוז, מדינה״ (למשל Maricopa, AZ). מקבלים חיפוש מוכן לאתר הרשמי של כל משרד. אתרי אוהיו למטה הם דוגמה.</span>
-    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="cfIn" placeholder="43205 / Maricopa, AZ" style="direction:ltr" autocomplete="off"><button class="btn primary" id="cfGo" style="flex:none">חפש</button></div><div id="cfOut" class="stack" style="gap:8px"></div></section>`;
+  <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">המשרדים של כל מחוז בארה״ב</b><span class="small muted">כתוב מיקוד, מחוז או עיר עם מדינה, בכל צורה (למשל 44320, Summit Ohio, Akron ohio). מקבלים חיפוש מוכן לאתר הרשמי של כל משרד. אתרי אוהיו למטה הם דוגמה.</span>
+    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="cfIn" placeholder="44320 / Summit Ohio" style="direction:ltr" autocomplete="off"><button class="btn primary" id="cfGo" style="flex:none">חפש</button></div><div id="cfOut" class="stack" style="gap:8px"></div></section>`;
   if (tab === "research") return head + SITE_GROUPS.map(g => `<section class="stack" style="gap:10px"><h2>${g.title}</h2>${g.items.map(siteCard).join("")}</section>`).join("");
   return head + `
   <section class="card stack" style="gap:8px"><b style="font-family:var(--font-display)">למה זה שווה</b><span class="small">מוכר שחייב למכור (ירושה, עיקול, חוב מס, פשיטת רגל, נכס מוזנח) מוכן לעיתים למחיר מתחת לשוק בתמורה למהירות ולוודאות. המידע ציבורי ונמצא באתרי בתי המשפט והמחוזות.</span></section>
@@ -1106,11 +1106,25 @@ async function zipData(zip) {
   const d = await mktState(st); if (!d || !d.z[zip]) return { miss: true };
   return decodeZip(zip, d.z[zip], d, st);
 }
-/* "Columbus, OH" -> ZIPs of that place, largest population first */
+/* free text -> {name, st}: "Akron ohio", "akron, OH", "Maricopa County Arizona", "new york ny" */
+const ST_BY_NAME = Object.fromEntries(Object.entries(ST_NAMES).map(([k, v]) => [v.toLowerCase(), k]));
+const ST_NAMES_LONGEST = Object.keys(ST_BY_NAME).sort((a, b) => b.length - a.length);
+function parseLoc(q) {
+  let s = String(q || "").replace(/[.]/g, " ").replace(/\s+/g, " ").trim(), st = null;
+  const low = s.toLowerCase();
+  for (const n of ST_NAMES_LONGEST) {
+    if (low === n) return { name: "", st: ST_BY_NAME[n] };
+    if (low.endsWith(" " + n) || low.endsWith("," + n)) { st = ST_BY_NAME[n]; s = s.slice(0, s.length - n.length); break; }
+  }
+  if (!st) { const m = s.match(/^(.*?)[\s,]+([A-Za-z]{2})$/); if (m && ST_NAMES[m[2].toUpperCase()]) { st = m[2].toUpperCase(); s = m[1]; } }
+  s = s.replace(/[\s,]+$/, "").replace(/\s+county$/i, "").trim();
+  return { name: s, st };
+}
+/* city + state in any form -> ZIPs of that place, largest population first; null when no state was given */
 async function placeZips(q) {
-  const m = String(q).match(/^\s*(.+?)\s*,\s*([A-Za-z]{2})\s*$/); if (!m) return null;
-  const st = m[2].toUpperCase(), d = await mktState(st); if (!d) return [];
-  const list = d.p[m[1].toLowerCase()] || [];
+  const loc = parseLoc(q); if (!loc.st || !loc.name) return null;
+  const st = loc.st, d = await mktState(st); if (!d) return [];
+  const list = d.p[loc.name.toLowerCase()] || [];
   return list.map(z => decodeZip(z, d.z[z], d, st)).sort((a, b) => (b.pop || 0) - (a.pop || 0));
 }
 /* auto 1–5 scores for the metrics Census covers; index = MARKET_METRICS row */
@@ -1142,7 +1156,7 @@ function zipLabel(z) { return `${z.zip}${z.place ? " · " + z.place : ""}, ${z.s
 
 /* county office finder: works for any US county via a prepared search */
 const COUNTY_OFFICES = [
-  ["Auditor / Assessor", "שווי, מס, בעלים והיסטוריית מכירות", "auditor OR assessor property search"],
+  ["Auditor / Assessor", "שווי, מס, בעלים והיסטוריית מכירות", "auditor assessor property search"],
   ["Recorder / Register of Deeds", "משכנתאות, שעבודים ושטרי מכר", "recorder of deeds search"],
   ["Treasurer — Delinquent Tax", "רשימת חובות מס נכס", "treasurer delinquent property tax list"],
   ["Probate Court", "תיקי ירושה ומנהלי עיזבון", "probate court case search"],
@@ -1150,23 +1164,23 @@ const COUNTY_OFFICES = [
   ["Sheriff Sales", "מכירות פומביות של נכסים מעוקלים", "sheriff sale real estate"],
   ["Code Enforcement", "נכסים מוזנחים ועבירות בנייה", "code enforcement violations"]
 ];
-function countyLinks(county, st) {
-  const where = `${county.replace(/ County$/i, "")} County ${ST_NAMES[st] || st}`;
-  return COUNTY_OFFICES.map(([n, d, q]) => `<a class="li" href="https://www.google.com/search?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">חפש ↗</span></a>`).join("");
+function countyLinks(where) {
+  return COUNTY_OFFICES.map(([n, d, q]) => `<a class="li" href="https://duckduckgo.com/?q=${encodeURIComponent(where + " " + q)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit"><span class="body"><b class="en" style="text-align:start">${esc(n)}</b><span class="tiny muted">${esc(d)}</span></span><span class="pill dark">חפש ↗</span></a>`).join("");
 }
 async function runCountyFinder() {
   const q = $("#cfIn").value.trim(), out = $("#cfOut");
-  let county = "", st = "";
+  if (!q) return;
+  let where = "", label = "";
   if (/^\d{5}$/.test(q)) {
     const z = await zipData(q);
-    if (z && !z.miss) { county = z.county; st = z.st; }
-    else { out.innerHTML = `<p class="small muted">${z === null ? "נתוני המיקודים עוד לא נטענו. כתוב מחוז ומדינה, למשל: Maricopa, AZ" : "לא מצאתי את המיקוד. כתוב מחוז ומדינה, למשל: Maricopa, AZ"}</p>`; return; }
+    if (z && !z.miss) { const c = z.county.replace(/ County$/i, ""); where = `${c} County ${ST_NAMES[z.st] || z.st}`; label = `${c} County, ${ST_NAMES[z.st] || z.st}`; }
+    else { where = `${q} county`; label = `המחוז של מיקוד ${q}`; }
   } else {
-    const m = q.match(/^\s*(.+?)\s*,\s*([A-Za-z]{2})\s*$/);
-    if (!m) { out.innerHTML = `<p class="small" style="color:var(--red)">כתוב מיקוד (5 ספרות) או מחוז ומדינה, למשל: Maricopa, AZ</p>`; return; }
-    county = m[1]; st = m[2].toUpperCase();
+    const loc = parseLoc(q), nm = loc.name || q;
+    where = loc.st ? `${nm} County ${ST_NAMES[loc.st]}` : `${nm} County`;
+    label = loc.st ? `${nm} County, ${ST_NAMES[loc.st]}` : `${nm} County`;
   }
-  out.innerHTML = `<p class="small"><b>${esc(county.replace(/ County$/i, ""))} County, ${esc(st)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). החיפוש מוצא את האתר הרשמי.</p><div class="list">${countyLinks(county, st)}</div>`;
+  out.innerHTML = `<p class="small"><b>${esc(label)}</b> — שמות המשרדים משתנים בין מדינות (Auditor / Assessor / Appraiser). החיפוש נפתח בדפדפן ומוצא את האתר הרשמי.</p>${/^\d{5}$/.test(q) || parseLoc(q).st ? "" : `<p class="tiny muted">טיפ: הוסף מדינה לתוצאה מדויקת יותר, למשל Summit Ohio.</p>`}<div class="list">${countyLinks(where)}</div>`;
 }
 
 /* ===================== CALCULATORS ===================== */
@@ -1902,8 +1916,8 @@ function renderMarket() {
     <div class="vt" style="font-size:1.6rem">${allSame ? "טען מיקוד כדי להתחיל" : winners.length === 1 ? `${esc(v.names[winners[0]])} · ${best}` : winners.map(i => esc(v.names[i])).join(" / ")}</div></div>
   <section class="calc-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[0, 1, 2].map(i => `<button class="ctile" data-loc="${i}" aria-pressed="${i === c}" style="justify-items:center;text-align:center;${i === c ? "outline:3px solid var(--brand);background:var(--brand-soft)" : ""}">${ring(totals[i], 60, 7, winners.includes(i) && !allSame ? "var(--green)" : "var(--soft-2)", "var(--soft-2)", `<b class="num">${totals[i]}</b>`)}<b style="overflow-wrap:anywhere">${esc(v.names[i].split(" · ")[0])}</b>${v.names[i].includes(" · ") ? `<span class="tiny" style="overflow-wrap:anywhere">${esc(v.names[i].split(" · ").slice(1).join(" · "))}</span>` : ""}${i === c ? `<span style="color:var(--brand-strong);font-weight:700">מדרג עכשיו</span>` : `<span>הקש לדירוג</span>`}</button>`).join("")}</section>
   <section class="card stack" style="gap:8px">
-    <label class="small muted" for="geoIn">מיקוד או עיר (למשל 43205 או Columbus, OH)</label>
-    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="geoIn" value="${esc(g ? g.q : "")}" placeholder="43205 / Columbus, OH" style="direction:ltr" autocomplete="off"><button class="btn primary" id="geoGo" style="flex:none">טען נתונים</button></div>
+    <label class="small muted" for="geoIn">מיקוד או עיר ומדינה (למשל 43205 או Akron Ohio)</label>
+    <div class="row" style="flex-wrap:nowrap"><input class="field-in" id="geoIn" value="${esc(g ? g.q : "")}" placeholder="43205 / Akron Ohio" style="direction:ltr" autocomplete="off"><button class="btn primary" id="geoGo" style="flex:none">טען נתונים</button></div>
     <div id="geoOut" class="stack" style="gap:8px"></div>
     ${z ? `<div class="row" style="justify-content:space-between"><span class="pill good">מולא אוטומטית · Census ${esc(z.year)}</span><button class="btn sm ${inBuy ? "soft" : ""}" data-buy="${esc(z.zip)}">${inBuy ? "ב-Buy Box ✓" : "+ הוסף ל-Buy Box"}</button></div>
       <span class="tiny muted">${esc(z.county)}${z.place ? " · " + esc(z.place) : ""} · בנייה חציונית ${z.built || "—"} · אבטלה במחוז ${fmtP(z.countyUnemp)}</span>` : ""}
@@ -1934,8 +1948,8 @@ async function loadGeo() {
   }
   if (!(await mktIndex())) { out.innerHTML = none; return; }
   const list = await placeZips(q);
-  if (list === null) { out.innerHTML = `<span class="small" style="color:var(--red)">כתוב מיקוד (5 ספרות) או עיר ומדינה, למשל: Columbus, OH</span>`; return; }
-  if (!list.length) { out.innerHTML = `<span class="small" style="color:var(--red)">לא מצאתי את העיר. בדוק איות וקיצור מדינה (OH, TX, FL…).</span>`; return; }
+  if (list === null) { out.innerHTML = `<span class="small" style="color:var(--red)">הוסף את שם המדינה אחרי העיר, למשל: Akron Ohio</span>`; return; }
+  if (!list.length) { out.innerHTML = `<span class="small" style="color:var(--red)">לא מצאתי את העיר הזו במדינה שכתבת. בדוק את האיות.</span>`; return; }
   geoPick = list;
   out.innerHTML = `<span class="small">בחר מיקוד ב-${esc(q)} (הגדולים קודם):</span><div class="chips" style="flex-wrap:wrap">${list.slice(0, 30).map((z, i) => `<button data-pick="${i}"><span class="num">${z.zip}</span><span class="tiny muted"> · ${z.pop ? Math.round(z.pop / 1000) + "K" : "—"}</span></button>`).join("")}</div>`;
 }
@@ -1949,8 +1963,8 @@ function viewBackup() {
 }
 function confirmBtn(host, label, fn) {
   const h = $("#" + host); if (!h) return;
-  const idle = () => { h.innerHTML = `<button class="btn sm danger">${label}</button>`; h.firstChild.onclick = ask; };
-  const ask = () => { h.innerHTML = `<span class="row"><button class="btn sm danger fill">כן, מחק</button><button class="btn sm soft">ביטול</button></span>`; const b = h.querySelectorAll("button"); b[0].onclick = fn; b[1].onclick = idle; };
+  const idle = () => { h.innerHTML = `<button type="button" class="btn sm danger">${label}</button>`; h.firstChild.onclick = ask; };
+  const ask = () => { h.innerHTML = `<span class="row"><button type="button" class="btn sm danger fill">כן, מחק</button><button type="button" class="btn sm soft">ביטול</button></span>`; const b = h.querySelectorAll("button"); b[0].onclick = fn; b[1].onclick = idle; };
   idle();
 }
 
